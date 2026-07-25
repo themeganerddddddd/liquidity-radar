@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ownershipDocument>
+  <documentType>4</documentType>
+  <issuer><issuerCik>0001900012</issuerCik><issuerName>Cedarline Software</issuerName></issuer>
+  <reportingOwner><reportingOwnerId><rptOwnerCik>0001900088</rptOwnerCik><rptOwnerName>NAVARRO THEO</rptOwnerName></reportingOwnerId></reportingOwner>
+  <nonDerivativeTable>
+    <nonDerivativeTransaction>
+      <securityTitle><value>Common Stock</value></securityTitle><transactionDate><value>2026-07-19</value></transactionDate>
+      <transactionCoding><transactionCode>S</transactionCode></transactionCoding>
+      <transactionAmounts><transactionShares><value>50000</value></transactionShares><transactionPricePerShare><value>31.25</value></transactionPricePerShare><transactionAcquiredDisposedCode><value>D</value></transactionAcquiredDisposedCode></transactionAmounts>
+      <ownershipNature><directOrIndirectOwnership><value>D</value></directOrIndirectOwnership></ownershipNature>
+    </nonDerivativeTransaction>
+    <nonDerivativeTransaction>
+      <securityTitle><value>Common Stock</value></securityTitle><transactionDate><value>2026-07-19</value></transactionDate>
+      <transactionCoding><transactionCode>S</transactionCode></transactionCoding>
+      <transactionAmounts><transactionShares><value>25000</value></transactionShares><transactionPricePerShare><value>31.50</value></transactionPricePerShare><transactionAcquiredDisposedCode><value>D</value></transactionAcquiredDisposedCode></transactionAmounts>
+      <ownershipNature><directOrIndirectOwnership><value>I</value></directOrIndirectOwnership></ownershipNature>
+    </nonDerivativeTransaction>
+  </nonDerivativeTable>
+</ownershipDocument>
+

@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Boston–Cambridge", "level": "metro" }, "geometry": { "type": "Point", "coordinates": [-71.06, 42.36] } },
+    { "type": "Feature", "properties": { "name": "Austin–Round Rock", "level": "metro" }, "geometry": { "type": "Point", "coordinates": [-97.74, 30.27] } },
+    { "type": "Feature", "properties": { "name": "Raleigh–Durham", "level": "metro" }, "geometry": { "type": "Point", "coordinates": [-78.64, 35.78] } }
+  ]
+}
+

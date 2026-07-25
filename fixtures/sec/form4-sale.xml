@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ownershipDocument>
+  <documentType>4</documentType>
+  <issuer><issuerCik>0001900011</issuerCik><issuerName>Northstar BioSystems</issuerName></issuer>
+  <reportingOwner>
+    <reportingOwnerId><rptOwnerCik>0001900099</rptOwnerCik><rptOwnerName>VOSS AMARA</rptOwnerName></reportingOwnerId>
+    <reportingOwnerRelationship><isDirector>1</isDirector><isOfficer>1</isOfficer></reportingOwnerRelationship>
+  </reportingOwner>
+  <nonDerivativeTable>
+    <nonDerivativeTransaction>
+      <securityTitle><value>Common Stock</value></securityTitle>
+      <transactionDate><value>2026-07-18</value></transactionDate>
+      <transactionCoding><transactionCode>S</transactionCode></transactionCoding>
+      <transactionAmounts>
+        <transactionShares><value>120000</value></transactionShares>
+        <transactionPricePerShare><value>42.50</value></transactionPricePerShare>
+        <transactionAcquiredDisposedCode><value>D</value></transactionAcquiredDisposedCode>
+      </transactionAmounts>
+      <ownershipNature><directOrIndirectOwnership><value>D</value></directOrIndirectOwnership></ownershipNature>
+    </nonDerivativeTransaction>
+  </nonDerivativeTable>
+</ownershipDocument>
+

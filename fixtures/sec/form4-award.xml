@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ownershipDocument>
+  <documentType>4</documentType>
+  <issuer><issuerCik>0001900013</issuerCik><issuerName>Atlas Gridworks</issuerName></issuer>
+  <reportingOwner><reportingOwnerId><rptOwnerCik>0001900077</rptOwnerCik><rptOwnerName>CHEN MINA</rptOwnerName></reportingOwnerId></reportingOwner>
+  <nonDerivativeTable>
+    <nonDerivativeTransaction>
+      <securityTitle><value>Restricted Stock Award</value></securityTitle><transactionDate><value>2026-07-20</value></transactionDate>
+      <transactionCoding><transactionCode>A</transactionCode></transactionCoding>
+      <transactionAmounts><transactionShares><value>18000</value></transactionShares><transactionPricePerShare><value>0</value></transactionPricePerShare><transactionAcquiredDisposedCode><value>A</value></transactionAcquiredDisposedCode></transactionAmounts>
+      <ownershipNature><directOrIndirectOwnership><value>D</value></directOrIndirectOwnership></ownershipNature>
+    </nonDerivativeTransaction>
+  </nonDerivativeTable>
+</ownershipDocument>
+
