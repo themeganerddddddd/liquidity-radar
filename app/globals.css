@@ -8322,7 +8322,7 @@ td small {
   border-radius: 8px;
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(240px, 1fr) 175px 145px 145px auto;
+  grid-template-columns: minmax(200px, 1fr) 140px 155px 130px 140px;
   margin-bottom: 10px;
   padding: 12px;
 }
@@ -8362,9 +8362,11 @@ td small {
   align-items: baseline;
   display: flex;
   gap: 6px;
+  grid-column: 1 / -1;
+  grid-row: 2;
   justify-content: flex-end;
-  min-height: 37px;
-  padding: 8px 3px;
+  min-height: 0;
+  padding: 0 3px;
   white-space: nowrap;
 }
 
@@ -8394,10 +8396,10 @@ td small {
   border-top: 1px solid #e6ece8;
   color: inherit;
   display: grid;
-  gap: 15px;
+  gap: 12px;
   grid-template-columns:
-    minmax(230px, 1.1fr) minmax(210px, 1fr) minmax(105px, 0.55fr)
-    minmax(110px, 0.6fr) 90px;
+    minmax(180px, 1fr) minmax(145px, 0.8fr) minmax(120px, 0.65fr)
+    minmax(105px, 0.55fr) minmax(115px, 0.6fr) 90px;
   min-height: 64px;
   padding: 8px 16px;
   text-align: left;
@@ -9028,7 +9030,7 @@ a.real-holdings-row:hover {
 
 @media (max-width: 1180px) {
   .real-people-controls {
-    grid-template-columns: minmax(250px, 1fr) 175px 145px 145px;
+    grid-template-columns: minmax(250px, 1fr) 155px 175px;
   }
 
   .real-people-result-count {
@@ -9043,7 +9045,7 @@ a.real-holdings-row:hover {
   }
 
   .real-people-row {
-    min-width: 920px;
+    min-width: 1100px;
   }
 }
 
@@ -9075,6 +9077,7 @@ a.real-holdings-row:hover {
 
   .real-people-result-count {
     grid-column: auto;
+    grid-row: auto;
   }
 
   .real-person-profile-hero {
@@ -9432,7 +9435,7 @@ a.real-holdings-row:hover {
 }
 
 .real-people-result-count {
-  min-height: 44px;
+  min-height: 24px;
 }
 
 .real-people-result-count strong {
@@ -9546,11 +9549,75 @@ a.real-holdings-row:hover {
   line-height: 1.55;
 }
 
+.real-exit-controls {
+  align-items: end;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(280px, 1fr) 210px 190px;
+  margin-bottom: 14px;
+  padding: 15px;
+}
+
+.real-exit-controls label {
+  display: grid;
+  gap: 6px;
+}
+
+.real-exit-controls label > span {
+  color: var(--quiet);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.real-exit-controls input,
+.real-exit-controls select {
+  background: #fff;
+  border: 1px solid #c8d4cf;
+  border-radius: 7px;
+  font-size: 12px;
+  height: 44px;
+  outline: 0;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.real-exit-controls input:focus,
+.real-exit-controls select:focus {
+  border-color: #6da99b;
+  box-shadow: 0 0 0 3px rgba(31, 128, 112, 0.09);
+}
+
+.real-exit-controls > div {
+  align-items: baseline;
+  display: flex;
+  gap: 7px;
+  min-height: 44px;
+  padding: 8px 2px;
+}
+
+.real-exit-controls > div strong {
+  color: #15766a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.real-exit-controls > div span {
+  color: var(--quiet);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
 .real-exit-layout {
   align-items: start;
   display: grid;
   gap: 14px;
-  grid-template-columns: minmax(0, 1fr) 310px;
+  grid-template-columns: 1fr;
 }
 
 .real-exit-layout .real-directory-card {
@@ -9559,20 +9626,48 @@ a.real-holdings-row:hover {
 
 .real-exit-row {
   grid-template-columns:
-    82px minmax(115px, 0.9fr) minmax(140px, 1.1fr)
-    minmax(155px, 1.2fr);
-  min-width: 555px;
+    95px minmax(210px, 1.25fr) minmax(150px, 0.8fr)
+    minmax(180px, 0.9fr) minmax(190px, 1fr);
+  min-width: 900px;
 }
 
-.real-exit-row > span:last-child {
+.real-exit-record {
+  align-items: start;
+  min-height: 125px;
+  padding-bottom: 16px;
+  padding-top: 16px;
+}
+
+.real-exit-record > span {
   display: grid;
   gap: 4px;
+  min-width: 0;
 }
 
-.real-exit-row > span:last-child small {
+.real-exit-record strong {
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.real-exit-record small {
+  color: var(--quiet);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.real-exit-record a {
   color: #17766b;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
+  text-decoration: none;
+}
+
+.real-exit-business p {
+  color: #60716c;
+  font-size: 9px;
+  line-height: 1.5;
+  margin: 2px 0 0;
 }
 
 .real-owner-transition {
@@ -9581,6 +9676,7 @@ a.real-holdings-row:hover {
   color: #fff;
   display: grid;
   gap: 13px;
+  grid-template-columns: minmax(0, 1fr) 220px;
   padding: 22px;
 }
 
@@ -9616,6 +9712,18 @@ a.real-holdings-row:hover {
   gap: 12px;
   grid-template-columns: auto minmax(0, 1fr);
   padding: 16px 0;
+}
+
+.real-owner-transition > div,
+.real-owner-transition > a:last-child {
+  grid-column: 2;
+}
+
+.real-owner-transition > .eyebrow,
+.real-owner-transition > h2,
+.real-owner-transition > p,
+.real-owner-transition > a:not(:last-child) {
+  grid-column: 1;
 }
 
 .real-owner-transition > div strong {
@@ -9704,6 +9812,16 @@ a.real-holdings-row:hover {
 }
 
 @media (max-width: 1080px) {
+  .real-exit-controls {
+    grid-template-columns: minmax(260px, 1fr) 210px;
+  }
+
+  .real-exit-controls > div {
+    grid-column: 1 / -1;
+    min-height: 0;
+    padding: 0 2px;
+  }
+
   .real-exit-layout {
     grid-template-columns: 1fr;
   }
@@ -9752,6 +9870,14 @@ a.real-holdings-row:hover {
 
   .real-signal-disclosure {
     grid-template-columns: 1fr;
+  }
+
+  .real-exit-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .real-exit-controls > div {
+    grid-column: auto;
   }
 
   .real-owner-transition {

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { strToU8, zipSync } from "fflate";
-import { parseFtcExitSignals } from "../../lib/exit-signals";
+import {
+  getExitBusinessProfiles,
+  parseFtcExitSignals,
+} from "../../lib/exit-signals";
 import { parseSecInsiderArchive } from "../../lib/sec-insider-data";
 
 describe("expanded public signals", () => {
@@ -68,5 +71,21 @@ describe("expanded public signals", () => {
         status: "cleared_to_close",
       }),
     ]);
+  });
+
+  it("adds only verified acquired-business geography and profile sources", () => {
+    const [profile] = getExitBusinessProfiles(["Kiavi, Inc."]);
+
+    expect(profile).toMatchObject({
+      name: "Kiavi, Inc.",
+      industry: "Real-estate finance technology",
+      headquarters: {
+        city: "Pittsburgh",
+        state: "PA",
+        country: "United States",
+      },
+      sourceUrl: "https://www.kiavi.com/contact",
+    });
+    expect(getExitBusinessProfiles(["Unverified Example LLC"])).toEqual([]);
   });
 });

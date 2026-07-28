@@ -89,9 +89,24 @@ export type PublicExitSignal = {
   acquiringParty: string;
   acquiredParty: string;
   acquiredEntities: string[];
+  businessProfiles?: PublicBusinessProfile[];
   sourceUrl: string;
   status: "cleared_to_close";
   note: string;
+};
+
+export type PublicBusinessProfile = {
+  name: string;
+  industry: string;
+  description: string;
+  headquarters: {
+    city: string;
+    state: string;
+    country: string;
+    display: string;
+  };
+  sourceUrl: string;
+  locationBasis: "company_headquarters" | "public_business_address";
 };
 
 export type AdviserFirm = {

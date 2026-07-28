@@ -273,11 +273,7 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
         estimatedPortfolioValue,
         confidence,
         relationship: latestEvidence?.relationship || "SEC reporting party",
-        location: latestLocation
-          ? [latestLocation.city, latestLocation.state, latestLocation.country]
-              .filter(Boolean)
-              .join(", ")
-          : "Location not established",
+        location: reportedLocation(latestLocation),
         lastLiquidityDate:
           latestEvidence?.transactionDate || ordered[0]?.filedAt || "",
         lastFiledAt: ordered[0]?.filedAt || latestEvidence?.filingDate || "",
@@ -323,6 +319,42 @@ function moneyRange(range: LiquidityRange) {
   return `${compactCurrency(range.low)}–${compactCurrency(range.high)}`;
 }
 
+const edgarCountryNames: Record<string, string> = {
+  F4: "China",
+  K3: "Hong Kong",
+  X0: "United Kingdom",
+  Z4: "Canada",
+};
+
+function readableLocationPart(value: string) {
+  if (!value || value !== value.toLocaleUpperCase()) return value;
+  return value
+    .toLocaleLowerCase()
+    .replace(/(^|[\s-])\p{L}/gu, (letter) => letter.toLocaleUpperCase());
+}
+
+function reportedLocation(location?: {
+  city: string;
+  state: string;
+  country: string;
+}) {
+  if (!location) return "Location not established";
+  const city = readableLocationPart(location.city);
+  const description =
+    edgarCountryNames[location.country] ??
+    readableLocationPart(location.country);
+  if (description) return [city, description].filter(Boolean).join(", ");
+  const state = edgarCountryNames[location.state] ?? location.state;
+  return [city, state].filter(Boolean).join(", ") || "Location not established";
+}
+
+function locationRegion(value: string) {
+  if (value === "Location not established") return value;
+  const parts = value.split(",").map((part) => part.trim());
+  const state = parts.find((part) => /^[A-Z]{2}$/.test(part));
+  return state ?? parts.at(-1) ?? value;
+}
+
 export function RealPeopleDirectory({
   people,
   query,
@@ -336,8 +368,20 @@ export function RealPeopleDirectory({
 }) {
   const [evidence, setEvidence] = useState("All liquidity evidence");
   const [kind, setKind] = useState("People only");
+  const [location, setLocation] = useState("All locations");
   const [sort, setSort] = useState("Estimated liquidity");
   const [visibleCount, setVisibleCount] = useState(50);
+  const locationOptions = useMemo(
+    () =>
+      [
+        ...new Set(
+          people
+            .map((person) => locationRegion(person.location))
+            .filter((value) => value !== "Location not established"),
+        ),
+      ].sort(),
+    [people],
+  );
 
   const filtered = useMemo(
     () =>
@@ -345,6 +389,7 @@ export function RealPeopleDirectory({
         .filter((person) =>
           [
             person.name,
+            person.location,
             ...person.issuers,
             ...person.forms,
             ...person.filings.map((filing) => filing.reportingParty),
@@ -361,6 +406,11 @@ export function RealPeopleDirectory({
             : kind === "People only"
               ? person.kind === "Person"
               : person.kind === "Entity",
+        )
+        .filter((person) =>
+          location === "All locations"
+            ? true
+            : locationRegion(person.location) === location,
         )
         .filter((person) => {
           if (evidence === "Completed sales")
@@ -385,7 +435,7 @@ export function RealPeopleDirectory({
             );
           return nameSort(left.name).localeCompare(nameSort(right.name));
         }),
-    [evidence, kind, people, query, sort],
+    [evidence, kind, location, people, query, sort],
   );
   const visible = filtered.slice(0, visibleCount);
 
@@ -393,7 +443,7 @@ export function RealPeopleDirectory({
     <>
       <section className="real-people-controls" aria-label="People filters">
         <label className="real-people-search">
-          <span>Search names, firms, and linked issuers</span>
+          <span>Search names, firms, issuers, and locations</span>
           <input
             type="search"
             value={query}
@@ -401,9 +451,26 @@ export function RealPeopleDirectory({
               setVisibleCount(50);
               onQuery(event.target.value);
             }}
-            placeholder="Search a person, reporting party, or company…"
+            placeholder="Search a person, company, city, state, or country…"
             aria-label="Search people and reporting parties"
           />
+        </label>
+        <label>
+          <span>Reported state / country</span>
+          <select
+            value={location}
+            onChange={(event) => {
+              setVisibleCount(50);
+              setLocation(event.target.value);
+            }}
+            aria-label="Filter by reported state or country"
+          >
+            <option>All locations</option>
+            {locationOptions.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+            <option>Location not established</option>
+          </select>
         </label>
         <label>
           <span>Liquidity evidence</span>
@@ -465,6 +532,7 @@ export function RealPeopleDirectory({
         <div className="real-people-row heading">
           <span>Reporting party</span>
           <span>Linked issuer</span>
+          <span>Reported location</span>
           <span>Completed gross proceeds</span>
           <span>Estimated remaining liquidity</span>
           <span>Latest evidence</span>
@@ -491,6 +559,10 @@ export function RealPeopleDirectory({
                   ? `+${person.issuers.length - 1} additional issuer`
                   : "Observed filing relationship"}
               </small>
+            </span>
+            <span>
+              <strong>{person.location}</strong>
+              <small>SEC-reported; may be a business or care-of address</small>
             </span>
             <span>
               <strong>
@@ -603,8 +675,8 @@ export function RealPersonProfile({
               <b>{person.confidence}% confidence</b>
             </div>
             <p>
-              {person.relationship} at {person.issuers.join(", ")} ·{" "}
-              {person.location}. Latest liquidity evidence{" "}
+              {person.relationship} at {person.issuers.join(", ")} · Reported
+              location: {person.location}. Latest liquidity evidence{" "}
               {displayDate(person.lastLiquidityDate)}.
             </p>
           </div>
@@ -867,7 +939,7 @@ export function RealPersonProfile({
                 <dd>{person.issuers.join(", ")}</dd>
               </div>
               <div>
-                <dt>Public location</dt>
+                <dt>SEC-reported location</dt>
                 <dd>{person.location}</dd>
               </div>
               <div>
@@ -910,6 +982,9 @@ export function RealPersonProfile({
               <li>Private spending and investments are not fully observable</li>
               <li>Tax basis and actual tax treatment are not known</li>
               <li>Holdings outside SEC ownership reports are excluded</li>
+              <li>
+                Location may be a business or care-of address, not a residence
+              </li>
               <li>The estimate is not an actual bank-account balance</li>
             </ul>
           </article>

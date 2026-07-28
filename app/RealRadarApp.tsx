@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type { PublicDataSnapshot } from "../lib/public-data";
+import { getExitBusinessProfiles } from "../lib/exit-signals";
 import {
   buildRealPeople,
   RealPeopleDirectory,
@@ -637,17 +638,54 @@ function ExitSignalsView({
   data: PublicDataSnapshot;
   query: string;
 }) {
-  const records = (data.exitSignals?.records ?? []).filter((record) =>
-    [
+  const [dealQuery, setDealQuery] = useState("");
+  const [location, setLocation] = useState("All locations");
+  const allRecords = (data.exitSignals?.records ?? []).map((record) => ({
+    ...record,
+    businessProfiles: record.businessProfiles?.length
+      ? record.businessProfiles
+      : getExitBusinessProfiles([
+          ...record.acquiredEntities,
+          record.acquiredParty,
+        ]),
+  }));
+  const locationOptions = [
+    ...new Set(
+      allRecords.flatMap((record) =>
+        record.businessProfiles.map((profile) => profile.headquarters.display),
+      ),
+    ),
+  ].sort();
+  const combinedQuery = `${query} ${dealQuery}`.trim().toLocaleLowerCase();
+  const records = allRecords.filter((record) => {
+    const searchText = [
       record.acquiringParty,
       record.acquiredParty,
       ...record.acquiredEntities,
+      ...record.businessProfiles.flatMap((profile) => [
+        profile.name,
+        profile.industry,
+        profile.description,
+        profile.headquarters.display,
+        profile.headquarters.country,
+      ]),
       record.id,
     ]
       .join(" ")
-      .toLowerCase()
-      .includes(query.toLowerCase()),
-  );
+      .toLocaleLowerCase();
+    const matchesLocation =
+      location === "All locations"
+        ? true
+        : location === "Location not established"
+          ? record.businessProfiles.length === 0
+          : record.businessProfiles.some(
+              (profile) => profile.headquarters.display === location,
+            );
+    return searchText.includes(combinedQuery) && matchesLocation;
+  });
+  const locatedCount = allRecords.filter(
+    (record) => record.businessProfiles.length,
+  ).length;
 
   return (
     <>
@@ -655,7 +693,8 @@ function ExitSignalsView({
         view="exits"
         action={
           <span className="real-count-pill">
-            {records.length.toLocaleString()} current deal signals
+            {records.length.toLocaleString()} of{" "}
+            {allRecords.length.toLocaleString()} deal signals
           </span>
         }
       />
@@ -667,35 +706,108 @@ function ExitSignalsView({
           disclose consideration, or establish personal proceeds.
         </p>
       </div>
+      <section className="real-exit-controls" aria-label="Deal-watch filters">
+        <label>
+          <span>Search deal watch</span>
+          <input
+            type="search"
+            value={dealQuery}
+            onChange={(event) => setDealQuery(event.target.value)}
+            placeholder="Search businesses, sellers, buyers, industries or places…"
+            aria-label="Search acquired businesses and deal parties"
+          />
+        </label>
+        <label>
+          <span>Business location</span>
+          <select
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+            aria-label="Filter acquired businesses by location"
+          >
+            <option>All locations</option>
+            {locationOptions.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+            <option>Location not established</option>
+          </select>
+        </label>
+        <div>
+          <strong>{locatedCount}</strong>
+          <span>signals with sourced business locations</span>
+        </div>
+      </section>
       <section className="real-exit-layout">
         <div className="real-directory-card">
           <div className="real-directory-head real-exit-row">
             <span>Date</span>
-            <span>Acquired party</span>
             <span>Acquired business</span>
-            <span>Acquiring party</span>
+            <span>Headquarters</span>
+            <span>Seller / acquired party</span>
+            <span>Buyer and evidence</span>
           </div>
-          {records.map((record) => (
-            <a
-              className="real-directory-row real-exit-row"
-              href={record.sourceUrl}
-              key={record.id}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span>{displayDate(record.date)}</span>
-              <strong>{record.acquiredParty}</strong>
-              <span>
-                {record.acquiredEntities.join(", ") || "Entity not listed"}
-              </span>
-              <span>
-                {record.acquiringParty}
-                <small>FTC {record.id} ↗</small>
-              </span>
-            </a>
-          ))}
+          {records.map((record) => {
+            const profile = record.businessProfiles[0];
+            return (
+              <article
+                className="real-directory-row real-exit-row real-exit-record"
+                key={record.id}
+              >
+                <span>
+                  <strong>{displayDate(record.date)}</strong>
+                  <small>HSR waiting period ended early</small>
+                </span>
+                <span className="real-exit-business">
+                  <strong>
+                    {record.acquiredEntities.join(", ") || record.acquiredParty}
+                  </strong>
+                  <small>
+                    {profile?.industry ?? "Industry not yet established"}
+                  </small>
+                  {profile && <p>{profile.description}</p>}
+                </span>
+                <span>
+                  <strong>
+                    {profile?.headquarters.display ??
+                      "Location not established"}
+                  </strong>
+                  <small>
+                    {profile
+                      ? profile.locationBasis === "company_headquarters"
+                        ? "Company headquarters"
+                        : "Public business address"
+                      : "No verified first-party location yet"}
+                  </small>
+                  {profile && (
+                    <a
+                      href={profile.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Company source ↗
+                    </a>
+                  )}
+                </span>
+                <span>
+                  <strong>{record.acquiredParty}</strong>
+                  <small>
+                    Party named in FTC notice; not necessarily an individual
+                    owner
+                  </small>
+                </span>
+                <span>
+                  <strong>{record.acquiringParty}</strong>
+                  <a href={record.sourceUrl} target="_blank" rel="noreferrer">
+                    FTC notice {record.id} ↗
+                  </a>
+                </span>
+              </article>
+            );
+          })}
           {!records.length && (
-            <p className="real-empty">No exit-watch records match “{query}”.</p>
+            <p className="real-empty">
+              No exit-watch records match the current search and location
+              filters.
+            </p>
           )}
         </div>
         <aside className="real-owner-transition">
@@ -705,6 +817,11 @@ function ExitSignalsView({
             Census owner-age tables can prioritize industries and regions for
             succession research. They do not identify an individual owner or
             prove that a business is for sale.
+          </p>
+          <p>
+            The next high-value feed is completed acquisition or disposition
+            evidence from SEC Form 8-K Item 2.01, followed by disclosed
+            consideration and owner attribution.
           </p>
           <a
             href="https://www.census.gov/data/tables/2024/econ/abs/2024-abs-characteristics-of-owners.html"
