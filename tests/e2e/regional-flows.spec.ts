@@ -9,6 +9,7 @@ test("state map uses official state geometry and selectable metrics", async ({
   page,
 }) => {
   await signInWithDummy(page);
+  await page.getByRole("button", { name: "State map" }).click();
   const map = page.getByRole("group", {
     name: "United States map by Business applications",
   });
@@ -29,6 +30,7 @@ test("state map uses official state geometry and selectable metrics", async ({
 
 test("state search filters the official ranking", async ({ page }) => {
   await signInWithDummy(page);
+  await page.getByRole("button", { name: "State map" }).click();
   await page.getByLabel("Find a state").fill("Maryland");
   await expect(
     page.getByText("1 result · Business applications"),
