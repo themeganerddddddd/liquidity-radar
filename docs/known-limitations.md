@@ -11,7 +11,8 @@
   describe non-cash or non-sale changes.
 - Adviser regulatory assets are firm-reported institutional measures, not
   personal or household wealth.
-- Customer authentication is not enabled in the public test release. Do not
-  submit private or confidential information.
+- Test registration is device-local. Accounts use salted browser-side hashes,
+  have no email verification or password recovery, and do not work across
+  devices. Do not reuse a real password or submit private information.
 - Persistent accounts, roles, scheduled ingestion, monitoring, and retry
   handling require the planned production database and identity integration.

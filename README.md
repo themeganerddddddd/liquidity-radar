@@ -24,6 +24,19 @@ npm run dev:vercel
 
 Open `http://localhost:3000`.
 
+The public test build is sign-in gated with a browser-local account system.
+Shared dummy credentials are:
+
+```text
+Email: demo@liquidityradar.test
+Password: RadarDemo!2026
+```
+
+Testers can also register an account. Registered accounts, salted password
+hashes, and sessions remain in that browser's local storage; they are not sent
+to the application server and do not work across devices. This is deliberately
+not production authentication.
+
 ## Validation
 
 ```bash
@@ -61,6 +74,7 @@ Connect the GitHub repository to a Vercel project and configure:
 SEC_USER_AGENT=Liquidity Radar monitored-contact@example.com
 ```
 
-No customer authentication is enabled in the public test release. Production
-accounts, sessions, roles, and scheduled persistence should be added through a
-managed identity provider and database before accepting user information.
+The public test release includes only browser-local dummy authentication.
+Production accounts, server-verified sessions, roles, email verification,
+recovery, and scheduled persistence must be added through a managed identity
+provider and database before accepting real user information.

@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+async function signInWithDummy(page: import("@playwright/test").Page) {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Sign in to test dashboard" }).click();
+}
+
 test("state map uses official state geometry and selectable metrics", async ({
   page,
 }) => {
-  await page.goto("/");
+  await signInWithDummy(page);
   const map = page.getByRole("group", {
     name: "United States map by Business applications",
   });
@@ -23,7 +28,7 @@ test("state map uses official state geometry and selectable metrics", async ({
 });
 
 test("state search filters the official ranking", async ({ page }) => {
-  await page.goto("/");
+  await signInWithDummy(page);
   await page.getByLabel("Find a state").fill("Maryland");
   await expect(
     page.getByText("1 result · Business applications"),

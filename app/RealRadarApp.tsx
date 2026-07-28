@@ -1,9 +1,16 @@
 "use client";
 
+import { useState, useSyncExternalStore } from "react";
 import snapshotJson from "../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../lib/public-data";
 import { PublicSignalsPanel } from "./PublicSignalsPanel";
 import { PublicStateMap } from "./PublicStateMap";
+import {
+  clearTestSession,
+  readTestSession,
+  TestAuth,
+  type TestSession,
+} from "./TestAuth";
 
 const snapshot = snapshotJson as PublicDataSnapshot;
 
@@ -16,7 +23,41 @@ function compactCurrency(value: number) {
   }).format(value);
 }
 
+function subscribeToHydration() {
+  return () => {};
+}
+
 export function RealRadarApp() {
+  const [session, setSession] = useState<TestSession | "signed-out" | null>(
+    null,
+  );
+  const ready = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
+  const effectiveSession =
+    session === "signed-out"
+      ? null
+      : (session ?? (ready ? readTestSession() : null));
+
+  if (!ready) {
+    return (
+      <main className="test-auth-loading" aria-label="Loading test access">
+        <span className="radar-mark" aria-hidden="true">
+          <i />
+        </span>
+        <p>Loading Liquidity Radar…</p>
+      </main>
+    );
+  }
+
+  if (!effectiveSession) {
+    return (
+      <TestAuth onAuthenticated={(nextSession) => setSession(nextSession)} />
+    );
+  }
+
   return (
     <main className="real-shell">
       <header className="real-nav">
@@ -34,10 +75,28 @@ export function RealRadarApp() {
           <a href="#official-records">Official records</a>
           <a href="#methodology">Methodology</a>
         </nav>
-        <span className="real-only-pill">
-          <i />
-          Real records only
-        </span>
+        <div className="real-nav-actions">
+          <span className="real-only-pill">
+            <i />
+            Real records only
+          </span>
+          <div className="real-account-summary">
+            <span>{effectiveSession.name.slice(0, 1).toUpperCase()}</span>
+            <div>
+              <strong>{effectiveSession.name}</strong>
+              <small>{effectiveSession.role}</small>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                clearTestSession();
+                setSession("signed-out");
+              }}
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
       </header>
 
       <section className="real-hero" id="top">
