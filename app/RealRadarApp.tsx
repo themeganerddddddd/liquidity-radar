@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import type { PublicDataSnapshot } from "../lib/public-data";
+import type {
+  PublicDataSnapshot,
+  PublicLiquidityChunk,
+} from "../lib/public-data";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
 import {
   buildRealPeople,
@@ -928,6 +931,51 @@ export function RealRadarApp() {
       .then((response) => {
         if (!response.ok) throw new Error("Public-data refresh failed.");
         return response.json() as Promise<PublicDataSnapshot>;
+      })
+      .then(async (snapshot) => {
+        const chunkUrls = snapshot.liquidity.chunkUrls ?? [];
+        if (!chunkUrls.length) return snapshot;
+        try {
+          const chunks = await Promise.all(
+            chunkUrls.map(async (url) => {
+              const response = await fetch(url, {
+                signal: controller.signal,
+              });
+              if (!response.ok) throw new Error("Liquidity-data chunk failed.");
+              return response.json() as Promise<PublicLiquidityChunk>;
+            }),
+          );
+          const events = new Map(
+            [
+              ...snapshot.liquidity.events,
+              ...chunks.flatMap((chunk) => chunk.events),
+            ].map((event) => [event.id, event]),
+          );
+          const holdings = new Map(
+            [
+              ...snapshot.liquidity.holdings,
+              ...chunks.flatMap((chunk) => chunk.holdings),
+            ].map((holding) => [holding.id, holding]),
+          );
+          return {
+            ...snapshot,
+            liquidity: {
+              ...snapshot.liquidity,
+              events: [...events.values()].sort(
+                (left, right) =>
+                  right.transactionDate.localeCompare(left.transactionDate) ||
+                  right.filingDate.localeCompare(left.filingDate),
+              ),
+              holdings: [...holdings.values()].sort((left, right) =>
+                right.asOfDate.localeCompare(left.asOfDate),
+              ),
+            },
+          };
+        } catch {
+          if (controller.signal.aborted)
+            throw new Error("Public-data request aborted.");
+          return snapshot;
+        }
       })
       .then(setData)
       .catch(() => {

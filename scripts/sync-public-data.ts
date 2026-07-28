@@ -1,4 +1,3 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parse } from "csv-parse/sync";
 import { strFromU8, unzipSync } from "fflate";
@@ -16,6 +15,10 @@ import {
 } from "../lib/public-data";
 import { parseFtcExitSignals } from "../lib/exit-signals";
 import { parseSecInsiderArchive } from "../lib/sec-insider-data";
+import {
+  readChunkedPublicSnapshot,
+  writeChunkedPublicSnapshot,
+} from "./public-snapshot-files";
 
 const configuredSecUserAgent = process.env.SEC_USER_AGENT;
 
@@ -358,12 +361,9 @@ async function regionalEconomySnapshot() {
 
 async function existingSnapshot() {
   try {
-    return JSON.parse(
-      await readFile(
-        path.join(process.cwd(), "public", "data", "public-signals.json"),
-        "utf8",
-      ),
-    ) as PublicDataSnapshot;
+    return await readChunkedPublicSnapshot(
+      path.join(process.cwd(), "public", "data", "public-signals.json"),
+    );
   } catch {
     return null;
   }
@@ -545,8 +545,7 @@ const output = path.join(
   "data",
   "public-signals.json",
 );
-await mkdir(path.dirname(output), { recursive: true });
-await writeFile(output, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
+await writeChunkedPublicSnapshot(snapshot, output);
 
 console.log(
   JSON.stringify({

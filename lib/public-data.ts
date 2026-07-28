@@ -75,12 +75,18 @@ export type PublicLiquidityEvidence = {
   updatedAt: string;
   events: PublicLiquidityEvent[];
   holdings: PublicHoldingPosition[];
+  chunkUrls?: string[];
   coverage?: {
     startDate: string;
     endDate: string;
     reportingPartyCount: number;
     filingCount: number;
   };
+};
+
+export type PublicLiquidityChunk = {
+  events: PublicLiquidityEvent[];
+  holdings: PublicHoldingPosition[];
 };
 
 export type PublicExitSignal = {

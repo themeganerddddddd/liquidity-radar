@@ -1,6 +1,8 @@
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import publicSignalsJson from "../../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../../lib/public-data";
+import { readChunkedPublicSnapshot } from "../../scripts/public-snapshot-files";
 
 const publicSignals = publicSignalsJson as PublicDataSnapshot;
 
@@ -42,5 +44,17 @@ describe("official public-record contracts", () => {
     expect(JSON.stringify(publicSignals).toLowerCase()).not.toContain(
       "demo account",
     );
+  });
+
+  it("reconstructs the complete chunked liquidity history", async () => {
+    const hydrated = await readChunkedPublicSnapshot(
+      path.join(process.cwd(), "public", "data", "public-signals.json"),
+    );
+
+    expect(publicSignals.liquidity.chunkUrls?.length).toBe(12);
+    expect(hydrated.liquidity.events.length).toBeGreaterThan(40_000);
+    expect(
+      new Set(hydrated.liquidity.events.map((event) => event.id)).size,
+    ).toBe(hydrated.liquidity.events.length);
   });
 });

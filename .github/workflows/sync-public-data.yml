@@ -41,7 +41,7 @@ jobs:
         id: snapshot
         shell: bash
         run: |
-          if git diff --quiet -- public/data/public-signals.json; then
+          if git diff --quiet -- public/data; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -51,6 +51,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/public-signals.json
+          git add public/data
           git commit -m "Refresh official public-data snapshot"
           git push origin main

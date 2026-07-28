@@ -87,6 +87,11 @@ test("real SEC names are searchable and open evidence-linked profiles", async ({
   await page
     .getByLabel("Search people and reporting parties")
     .fill(person.name);
+  if (person.kind === "Entity") {
+    await page
+      .getByLabel("Filter by reporting party type")
+      .selectOption("All reporting parties");
+  }
   await expect(
     page.getByRole("button", {
       name: `Open profile for ${person.name}`,
