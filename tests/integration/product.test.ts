@@ -4,6 +4,7 @@ import publicSignalsJson from "../../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../../lib/public-data";
 import { readChunkedPublicSnapshot } from "../../scripts/public-snapshot-files";
 import { auditPublicValuations } from "../../lib/valuation-safety";
+import { buildRealPeople } from "../../app/RealPeople";
 
 const publicSignals = publicSignalsJson as PublicDataSnapshot;
 
@@ -104,5 +105,19 @@ describe("official public-record contracts", () => {
       priceBasis: "derived_from_reported_aggregate",
     });
     expect(scorpioHolding?.estimatedValue).toBeCloseTo(5_140_593.372, 3);
+  });
+
+  it("associates current Form 144 profiles with proposed sale values", async () => {
+    const hydrated = await readChunkedPublicSnapshot(
+      path.join(process.cwd(), "public", "data", "public-signals.json"),
+    );
+    const form144Profiles = buildRealPeople(hydrated).filter((person) =>
+      person.forms.includes("Form 144"),
+    );
+
+    expect(form144Profiles.length).toBeGreaterThan(30);
+    expect(
+      form144Profiles.every((person) => person.proposedSaleValue > 0),
+    ).toBe(true);
   });
 });

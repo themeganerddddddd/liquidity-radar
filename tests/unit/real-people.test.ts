@@ -4,6 +4,7 @@ import {
   buildRealPeople,
   compareDirectoryPeople,
   estimateLiquidity,
+  headlineSaleValue,
 } from "../../app/RealPeople";
 import type {
   PublicDataSnapshot,
@@ -152,10 +153,8 @@ describe("real people profiles", () => {
     );
   });
 
-  it("ranks completed gross proceeds in both directions", () => {
+  it("ranks completed proceeds or proposed sale value in both directions", () => {
     const people = buildRealPeople(snapshotJson as PublicDataSnapshot);
-    const gross = (person: (typeof people)[number]) =>
-      person.grossCompletedSales + person.grossCompletedExitCash;
     const descending = [...people].sort((left, right) =>
       compareDirectoryPeople(left, right, "gross", "desc"),
     );
@@ -163,9 +162,11 @@ describe("real people profiles", () => {
       compareDirectoryPeople(left, right, "gross", "asc"),
     );
 
-    expect(gross(descending[0])).toBeGreaterThanOrEqual(
-      gross(descending.at(-1)!),
+    expect(headlineSaleValue(descending[0])).toBeGreaterThanOrEqual(
+      headlineSaleValue(descending.at(-1)!),
     );
-    expect(gross(ascending[0])).toBeLessThanOrEqual(gross(ascending.at(-1)!));
+    expect(headlineSaleValue(ascending[0])).toBeLessThanOrEqual(
+      headlineSaleValue(ascending.at(-1)!),
+    );
   });
 });
