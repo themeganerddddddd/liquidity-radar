@@ -61,10 +61,13 @@ The public `/api/public-data` route refreshes current SEC filing metadata at
 request time when `SEC_USER_AGENT` is configured and falls back to the verified
 snapshot when the live feed is unavailable.
 
-The larger Form ADV, IRS, Census, and BEA files are snapshot-backed in the test
-release. Persistent scheduled updates require the planned production database
-integration; a serverless function cannot permanently rewrite a bundled JSON
-file.
+The `Daily public-data sync` GitHub workflow refreshes the checked-in snapshot
+each day, validates it, and pushes a new commit when official records change.
+That commit triggers the connected Vercel deployment. Add a repository secret
+named `SEC_USER_AGENT` containing a descriptive product name and monitored
+contact email before enabling the schedule. Form ADV, IRS, Census, and BEA
+remain snapshot-backed contextual sources; person-level liquidity calculations
+use transaction evidence from SEC Forms 4 and 144.
 
 ## Vercel
 
