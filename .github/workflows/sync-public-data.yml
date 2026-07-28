@@ -35,6 +35,8 @@ jobs:
           fi
       - name: Refresh official public records
         run: npm run data:sync-public
+      - name: Audit normalized transaction and holding values
+        run: npm run data:audit-valuations
       - name: Validate the refreshed application
         run: npm run validate
       - name: Detect snapshot changes

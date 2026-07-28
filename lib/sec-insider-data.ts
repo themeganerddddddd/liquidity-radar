@@ -6,6 +6,7 @@ import type {
   PublicLiquidityEvidence,
 } from "./public-data";
 import { mergePublicLiquidityEvidence } from "./public-data";
+import { normalizeReportedTransactionValue } from "./valuation-safety";
 
 type Row = Record<string, string>;
 
@@ -63,8 +64,8 @@ function numeric(value: string | undefined) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function archiveFilingUrl(reportingPartyCik: string, accession: string) {
-  const cik = reportingPartyCik.replace(/^0+/, "") || "0";
+function archiveFilingUrl(issuerCik: string, accession: string) {
+  const cik = issuerCik.replace(/^0+/, "") || "0";
   const compactAccession = accession.replace(/-/g, "");
   return `https://www.sec.gov/Archives/edgar/data/${cik}/${compactAccession}/${accession}-index.htm`;
 }
@@ -107,21 +108,32 @@ export function parseSecInsiderArchive(
     const submission = submissionByAccession.get(transaction.ACCESSION_NUMBER);
     if (!submission) continue;
     const shares = numeric(transaction.TRANS_SHARES);
-    const pricePerShare = numeric(transaction.TRANS_PRICEPERSHARE);
-    if (shares <= 0 || pricePerShare <= 0) continue;
-    const grossAmount = shares * pricePerShare;
+    const reportedPrice = numeric(transaction.TRANS_PRICEPERSHARE);
+    if (shares <= 0 || reportedPrice <= 0) continue;
+    const normalizedValue = normalizeReportedTransactionValue({
+      accession: transaction.ACCESSION_NUMBER,
+      issuerCik: submission.ISSUERCIK,
+      shares,
+      reportedPrice,
+    });
+    const pricePerShare = normalizedValue.pricePerShare;
+    const grossAmount = normalizedValue.grossAmount;
     const transactionDate =
       secDate(transaction.TRANS_DATE) || secDate(submission.PERIOD_OF_REPORT);
     const filingDate = secDate(submission.FILING_DATE);
     const filingOwners = ownersByAccession.get(transaction.ACCESSION_NUMBER);
     if (!filingOwners?.length) continue;
+    const attributionBasis =
+      filingOwners.length > 1
+        ? "joint_filing_unallocated"
+        : "single_reporting_owner";
 
     for (const owner of filingOwners) {
       const reportingParty = owner.RPTOWNERNAME?.trim();
       if (!reportingParty) continue;
       const reportingPartyCik = owner.RPTOWNERCIK ?? "";
       const sourceUrl = archiveFilingUrl(
-        reportingPartyCik,
+        submission.ISSUERCIK,
         transaction.ACCESSION_NUMBER,
       );
       const eventId = [
@@ -148,6 +160,8 @@ export function parseSecInsiderArchive(
         shares,
         pricePerShare,
         grossAmount,
+        priceBasis: normalizedValue.priceBasis,
+        attributionBasis,
         amountClassification: "calculated",
         transactionCode: "S",
         directOrIndirect:
@@ -163,7 +177,12 @@ export function parseSecInsiderArchive(
           country: owner.RPTOWNER_STATE_DESC ?? "",
         },
         sourceUrl,
-        note: "Completed open-market or private sale reported in the SEC quarterly insider-transactions data set.",
+        note: [
+          "Completed open-market or private sale reported in the SEC quarterly insider-transactions data set.",
+          normalizedValue.correctionNote,
+        ]
+          .filter(Boolean)
+          .join(" "),
       });
 
       const sharesOwnedAfter = numeric(transaction.SHRS_OWND_FOLWNG_TRANS);
@@ -182,6 +201,8 @@ export function parseSecInsiderArchive(
           asOfDate: transactionDate,
           referencePrice: pricePerShare,
           estimatedValue: sharesOwnedAfter * pricePerShare,
+          priceBasis: normalizedValue.priceBasis,
+          attributionBasis,
           valueClassification: "calculated",
           sourceUrl,
           accession: transaction.ACCESSION_NUMBER,

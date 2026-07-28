@@ -40,6 +40,7 @@ export type RealPersonRecord = {
   }>;
   holdings: PublicHoldingPosition[];
   grossCompletedSales: number;
+  unallocatedJointSaleValue: number;
   grossCompletedExitCash: number;
   grossPurchases: number;
   proposedSaleValue: number;
@@ -72,10 +73,14 @@ export function estimateLiquidity(
   asOfDate: string,
 ) {
   const sales = events.filter(
-    (event) => event.eventType === "completed_public_share_sale",
+    (event) =>
+      event.eventType === "completed_public_share_sale" &&
+      event.attributionBasis !== "joint_filing_unallocated",
   );
   const purchases = events.filter(
-    (event) => event.eventType === "completed_public_share_purchase",
+    (event) =>
+      event.eventType === "completed_public_share_purchase" &&
+      event.attributionBasis !== "joint_filing_unallocated",
   );
   const grossCompletedSales = sales.reduce(
     (sum, event) => sum + event.grossAmount,
@@ -284,6 +289,13 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
         right.updatedAt.localeCompare(left.updatedAt),
       );
       const estimate = estimateLiquidity(liquidityEvents, data.generatedAt);
+      const unallocatedJointSaleValue = liquidityEvents
+        .filter(
+          (event) =>
+            event.eventType === "completed_public_share_sale" &&
+            event.attributionBasis === "joint_filing_unallocated",
+        )
+        .reduce((sum, event) => sum + event.grossAmount, 0);
       const exitEstimate = estimateAttributedExitLiquidity(
         exitAttributions,
         data.generatedAt,
@@ -351,11 +363,17 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
         high: combinedNetProceeds.high - combinedRemainingLiquidity.high,
       };
       const estimatedPortfolioValue = holdings.reduce(
-        (sum, holding) => sum + (holding.estimatedValue ?? 0),
+        (sum, holding) =>
+          sum +
+          (holding.attributionBasis === "joint_filing_unallocated"
+            ? 0
+            : (holding.estimatedValue ?? 0)),
         0,
       );
       const completedSaleCount = liquidityEvents.filter(
-        (event) => event.eventType === "completed_public_share_sale",
+        (event) =>
+          event.eventType === "completed_public_share_sale" &&
+          event.attributionBasis !== "joint_filing_unallocated",
       ).length;
       const confidence =
         completedSaleCount > 0
@@ -378,6 +396,7 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
         exitAttributions,
         holdings,
         grossCompletedSales: estimate.grossCompletedSales,
+        unallocatedJointSaleValue,
         grossCompletedExitCash: exitEstimate.gross,
         grossPurchases: estimate.grossPurchases,
         proposedSaleValue,
@@ -917,7 +936,9 @@ export function RealPeopleDirectory({
                   ? `${compactCurrency(person.grossCompletedExitCash)} from attributed completed exit`
                   : person.proposedSaleValue > 0
                     ? `${compactCurrency(person.proposedSaleValue)} proposed`
-                    : `${person.liquidityEvents.length} qualifying events`}
+                    : person.unallocatedJointSaleValue > 0
+                      ? `${compactCurrency(person.unallocatedJointSaleValue)} joint-filing amount; not personally allocated`
+                      : `${person.liquidityEvents.length} qualifying events`}
               </small>
             </span>
             <span>
@@ -959,10 +980,10 @@ export function RealPeopleDirectory({
       )}
 
       <p className="real-workspace-footnote">
-        Completed gross proceeds are calculated from reported shares sold and
-        transaction prices. Remaining liquidity is an estimated range after
-        configurable tax, fee, known-purchase, and unobserved-deployment
-        assumptions; it is not a bank balance.
+        Completed gross proceeds are calculated from normalized reported shares
+        and transaction prices. Amounts repeated across joint filers are not
+        allocated to an individual profile or included in personal liquidity
+        estimates. Remaining liquidity is not a bank balance.
       </p>
     </>
   );
@@ -1062,7 +1083,8 @@ export function RealPersonProfile({
             filing or explicit seller disclosure supports attribution. Estimated
             net and remaining liquidity apply visible tax, fee,
             completed-purchase, and time-based unobserved-deployment
-            assumptions. Actual cash on hand can differ materially.
+            assumptions. Joint-filing amounts without an allocation are
+            excluded. Actual cash on hand can differ materially.
           </p>
         </div>
 
@@ -1073,7 +1095,9 @@ export function RealPersonProfile({
             <small>
               {
                 person.liquidityEvents.filter(
-                  (event) => event.eventType === "completed_public_share_sale",
+                  (event) =>
+                    event.eventType === "completed_public_share_sale" &&
+                    event.attributionBasis !== "joint_filing_unallocated",
                 ).length
               }{" "}
               securities sale events · {person.exitAttributions.length}{" "}
@@ -1162,16 +1186,22 @@ export function RealPersonProfile({
                     <span>
                       <strong>
                         {event.status === "completed" &&
-                        event.eventType === "completed_public_share_sale"
+                        event.eventType === "completed_public_share_sale" &&
+                        event.attributionBasis !== "joint_filing_unallocated"
                           ? moneyRange(eventRange(event))
-                          : event.status === "proposed"
-                            ? "Not counted until completed"
-                            : `−${compactCurrency(event.grossAmount)}`}
+                          : event.attributionBasis ===
+                              "joint_filing_unallocated"
+                            ? "Not allocated to this reporter"
+                            : event.status === "proposed"
+                              ? "Not counted until completed"
+                              : `−${compactCurrency(event.grossAmount)}`}
                       </strong>
                       <small>
-                        {event.status === "completed"
-                          ? event.amountClassification
-                          : "proposed only"}
+                        {event.attributionBasis === "joint_filing_unallocated"
+                          ? "joint filing-level amount"
+                          : event.status === "completed"
+                            ? event.amountClassification
+                            : "proposed only"}
                       </small>
                     </span>
                     <b>{event.form} · SEC ↗</b>
@@ -1248,8 +1278,8 @@ export function RealPersonProfile({
                 <div className="real-holdings-row heading">
                   <span>Issuer / security</span>
                   <span>Shares reported</span>
-                  <span>Reference price</span>
-                  <span>Estimated value</span>
+                  <span>Transaction-implied price</span>
+                  <span>Position estimate</span>
                 </div>
                 {person.holdings.map((holding) => (
                   <a
@@ -1275,6 +1305,19 @@ export function RealPersonProfile({
                       {holding.referencePrice === null
                         ? "Not reported"
                         : compactCurrency(holding.referencePrice)}
+                      {holding.priceBasis ===
+                        "derived_from_reported_aggregate" && (
+                        <small>Derived from reported aggregate</small>
+                      )}
+                      {holding.priceBasis === "normalized_filing_decimal" && (
+                        <small>Normalized from filing</small>
+                      )}
+                      {holding.attributionBasis ===
+                        "joint_filing_unallocated" && (
+                        <small>
+                          Joint filing; not allocated to this reporter
+                        </small>
+                      )}
                     </span>
                     <b>
                       {holding.estimatedValue === null
@@ -1291,9 +1334,9 @@ export function RealPersonProfile({
               </p>
             )}
             <p className="real-profile-panel-note">
-              Portfolio coverage is limited to securities disclosed in indexed
-              SEC ownership forms. Values use a filing transaction price only
-              when one is reported; this is not a complete personal portfolio.
+              Position estimates are post-transaction shares multiplied by a
+              normalized price from the same filing. They are not current market
+              quotes, bank balances, or complete personal portfolios.
             </p>
           </article>
 
