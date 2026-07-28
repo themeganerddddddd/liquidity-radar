@@ -1250,7 +1250,10 @@ export function RealRadarApp() {
   useEffect(() => {
     if (!ready || !signedIn) return;
     const controller = new AbortController();
-    void fetch("/data/public-signals.json", { signal: controller.signal })
+    void fetch("/data/public-signals.json", {
+      signal: controller.signal,
+      cache: "no-store",
+    })
       .then((response) => {
         if (!response.ok) throw new Error("Public-data refresh failed.");
         return response.json() as Promise<PublicDataSnapshot>;
@@ -1263,6 +1266,7 @@ export function RealRadarApp() {
             chunkUrls.map(async (url) => {
               const response = await fetch(url, {
                 signal: controller.signal,
+                cache: "no-store",
               });
               if (!response.ok) throw new Error("Liquidity-data chunk failed.");
               return response.json() as Promise<PublicLiquidityChunk>;

@@ -82,7 +82,10 @@ export async function readChunkedPublicSnapshot(input: string) {
   if (!snapshot.liquidity.chunkUrls?.length) return snapshot;
   const chunks = await Promise.all(
     snapshot.liquidity.chunkUrls.map(async (url) => {
-      const file = path.join(path.dirname(input), path.basename(url));
+      const file = path.join(
+        path.dirname(input),
+        path.basename(url.split("?")[0]),
+      );
       return JSON.parse(await readFile(file, "utf8")) as PublicLiquidityChunk;
     }),
   );
@@ -118,8 +121,12 @@ export async function writeChunkedPublicSnapshot(
     chunks[index % chunkCount].holdings.push(holding);
   });
 
+  const chunkVersion = encodeURIComponent(
+    snapshot.generatedAt || snapshot.liquidity.updatedAt,
+  );
   const chunkUrls = chunks.map(
-    (_, index) => `/data/liquidity-${String(index + 1).padStart(2, "0")}.json`,
+    (_, index) =>
+      `/data/liquidity-${String(index + 1).padStart(2, "0")}.json?v=${chunkVersion}`,
   );
   const bootstrapSnapshot: PublicDataSnapshot = {
     ...snapshot,
@@ -138,7 +145,10 @@ export async function writeChunkedPublicSnapshot(
       contents: `${JSON.stringify(bootstrapSnapshot, null, 2)}\n`,
     },
     ...chunks.map((chunk, index) => ({
-      target: path.join(path.dirname(output), path.basename(chunkUrls[index])),
+      target: path.join(
+        path.dirname(output),
+        path.basename(chunkUrls[index].split("?")[0]),
+      ),
       contents: `${JSON.stringify(chunk, null, 2)}\n`,
     })),
   ];
