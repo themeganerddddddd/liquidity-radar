@@ -25,6 +25,8 @@ test("state map opens a region, relevant person, and region-relative affinity", 
   ).toBeVisible();
   await expect(page.locator(".state-shape")).toHaveCount(51);
   await expect(page.locator(".state-shape.selected")).toHaveCount(1);
+  await expect(page.getByText("Official public context")).toBeVisible();
+  await expect(page.getByText("Business applications")).toBeVisible();
   await expect(
     page.getByText(/official 2025 U\.S\. Census state boundaries/),
   ).toBeVisible();

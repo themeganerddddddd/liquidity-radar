@@ -16,9 +16,8 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-The map uses an OpenStreetMap raster fallback and requires no token. Set
-`PUBLIC_MAP_STYLE_URL` or `NEXT_PUBLIC_MAP_STYLE_URL` to use a compatible
-external MapLibre style.
+The map renders official U.S. Census state boundaries as a fixed, accessible
+SVG and requires no map token.
 
 Demonstration accounts use the local-only password `RadarDemo!2026`:
 
@@ -30,9 +29,19 @@ The local API key is `lr_demo_local_2026`.
 
 ## Product surfaces
 
-The demonstration includes marketing and access, dashboard, MapLibre capital map, multi-field event search, region-connected people and organization search, region-relative affinity, person evidence ledger, regional trends and capital matches, rankings, opportunity matching, saved searches, alerts, reports, CSV/PDF export, `/api/v1`, analyst review, source management, identity resolution, jobs, privacy requests, workspace entitlements, methodology, health, and readiness.
+The demonstration includes marketing and access, an official public-data layer,
+a fixed state capital map, multi-field event search, region-connected people
+and organization search, region-relative affinity, person evidence ledger,
+regional trends and capital matches, rankings, opportunity matching, saved
+searches, alerts, reports, CSV/PDF export, `/api/v1`, analyst review, source
+management, identity resolution, jobs, privacy requests, workspace
+entitlements, methodology, health, and readiness.
 
-All named people, organizations, events, and values are fictional.
+Named people, modeled liquidity events, and person-level values in the
+demonstration workspace are fictional. The public-data layer contains current
+government records from SEC EDGAR, SEC Form ADV, IRS Form 990-PF, Census
+Business Formation Statistics, and BEA Regional Accounts. Those records are
+visually separated and linked to their publishers.
 
 ## Data and persistence
 
@@ -59,6 +68,7 @@ npm run db:generate
 npm run db:migrate
 npm run db:seed
 npm run db:reset
+npm run data:sync-public
 npm run ingest:sec
 npm run ingest:feeds
 npm run estimates:recalculate

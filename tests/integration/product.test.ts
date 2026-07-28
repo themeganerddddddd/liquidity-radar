@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { events, people, regions } from "../../app/data";
+import publicSignalsJson from "../../public/data/public-signals.json";
+import type { PublicDataSnapshot } from "../../lib/public-data";
 import { DEMO_API_KEY, authorizeApi, publicPerson } from "../../lib/api";
 
 describe("publication and workspace isolation contracts", () => {
@@ -31,6 +33,16 @@ describe("publication and workspace isolation contracts", () => {
 });
 
 describe("regional and event aggregate contracts", () => {
+  it("ships validated official public-source coverage alongside demo records", () => {
+    const publicSignals = publicSignalsJson as PublicDataSnapshot;
+    expect(publicSignals.advisers.firmCount).toBeGreaterThan(10_000);
+    expect(publicSignals.foundations.filingCount).toBeGreaterThan(10_000);
+    expect(publicSignals.businessFormation.states).toHaveLength(51);
+    expect(publicSignals.regionalEconomy.states).toHaveLength(51);
+    expect(publicSignals.sec.filings.length).toBeGreaterThanOrEqual(10);
+    expect(publicSignals.sources).toHaveLength(5);
+  });
+
   it("covers every state and the District of Columbia with expanded demo data", () => {
     expect(new Set(regions.map((region) => region.code)).size).toBe(51);
     expect(regions.length).toBeGreaterThanOrEqual(52);

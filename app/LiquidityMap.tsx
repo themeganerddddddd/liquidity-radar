@@ -11,9 +11,13 @@ import {
 import { events, people, regions, type Region } from "./data";
 import { money } from "../lib/format";
 import type { MapUrlState } from "../lib/regional";
+import type { PublicDataSnapshot } from "../lib/public-data";
+import publicSignalsJson from "../public/data/public-signals.json";
 
 export type MapMetric = MapUrlState["metric"];
 export type MapPeriod = MapUrlState["period"];
+
+const publicSignals = publicSignalsJson as PublicDataSnapshot;
 
 type StateSummary = {
   code: string;
@@ -122,6 +126,15 @@ function displayValue(value: number, metric: MapMetric) {
   return metric === "momentum" ? `+${value}%` : money(value);
 }
 
+function compactCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
 function stateColor(value: number, maximum: number) {
   const ratio = maximum ? Math.sqrt(Math.max(value, 0) / maximum) : 0;
   if (ratio > 0.86) return "#075e61";
@@ -199,6 +212,15 @@ export function LiquidityMap({
   const focusedState =
     stateSummaries.find((summary) => summary.code === validFocusedCode) ??
     stateSummaries[0];
+  const focusedFormation = publicSignals.businessFormation.states.find(
+    (state) => state.code === focusedState?.code,
+  );
+  const focusedEconomy = publicSignals.regionalEconomy.states.find(
+    (state) => state.code === focusedState?.code,
+  );
+  const focusedAdvisers = publicSignals.advisers.states.find(
+    (state) => state.code === focusedState?.code,
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -482,6 +504,54 @@ export function LiquidityMap({
                     <dd>{focusedState.highConfidencePeople}</dd>
                   </div>
                 </dl>
+                <div className="state-public-context">
+                  <div>
+                    <p className="eyebrow">Official public context</p>
+                    <span>
+                      Census {publicSignals.businessFormation.period} · BEA{" "}
+                      {publicSignals.regionalEconomy.period.replace(":", " ")}
+                    </span>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>Business applications</dt>
+                      <dd>
+                        {focusedFormation?.applications.toLocaleString() ?? "—"}
+                      </dd>
+                      <small>
+                        {focusedFormation
+                          ? `${focusedFormation.monthlyChange >= 0 ? "+" : ""}${focusedFormation.monthlyChange}% MoM`
+                          : "Not available"}
+                      </small>
+                    </div>
+                    <div>
+                      <dt>Projected formations</dt>
+                      <dd>
+                        {focusedFormation?.projectedFormations.toLocaleString() ??
+                          "—"}
+                      </dd>
+                      <small>within four quarters</small>
+                    </div>
+                    <div>
+                      <dt>Real GDP growth</dt>
+                      <dd>
+                        {focusedEconomy
+                          ? `${focusedEconomy.quarterlyGrowth >= 0 ? "+" : ""}${focusedEconomy.quarterlyGrowth}%`
+                          : "—"}
+                      </dd>
+                      <small>quarter over quarter</small>
+                    </div>
+                    <div>
+                      <dt>Registered advisers</dt>
+                      <dd>{focusedAdvisers?.firms.toLocaleString() ?? "—"}</dd>
+                      <small>
+                        {focusedAdvisers
+                          ? `${compactCurrency(focusedAdvisers.regulatoryAssets)} reported assets`
+                          : "Not available"}
+                      </small>
+                    </div>
+                  </dl>
+                </div>
                 <div className="state-region-list">
                   {focusedState.regions.map((region) => (
                     <article key={region.slug}>
@@ -523,8 +593,9 @@ export function LiquidityMap({
           ))}
         </div>
         <p className="map-source-note">
-          State geometry: U.S. Census Bureau 2025 Cartographic Boundary Files.
-          Regional values remain fictional demonstration data.
+          State geometry and business-formation context: U.S. Census Bureau.
+          Real GDP: U.S. BEA. Adviser context: SEC Form ADV. Capital-flow map
+          shading and person-level values remain fictional demonstration data.
         </p>
       </div>
       <div

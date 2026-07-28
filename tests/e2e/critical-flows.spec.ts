@@ -18,6 +18,15 @@ test("customer can sign in, search, inspect evidence, save, alert, match, and ex
 }) => {
   await login(page);
   await expect(page.getByText("Good afternoon, Maya.")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Live signals, clearly separated" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("EDGAR current filings", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Form ADV adviser roster", { exact: true }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "People" }).click();
   await page
     .getByPlaceholder("Search by person, company, metro…")

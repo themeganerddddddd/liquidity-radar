@@ -29,6 +29,11 @@ import {
   serializeMapState,
 } from "../lib/regional";
 import { getRegion } from "../lib/data-query";
+import type { PublicDataSnapshot } from "../lib/public-data";
+import publicSignalsJson from "../public/data/public-signals.json";
+import { PublicSignalsPanel } from "./PublicSignalsPanel";
+
+const publicSignals = publicSignalsJson as PublicDataSnapshot;
 
 type View =
   | "dashboard"
@@ -380,6 +385,14 @@ function Login({ onLogin }: { onLogin: (role: UserRole) => void }) {
     () => true,
     () => false,
   );
+  const topApplicationStates = publicSignals.businessFormation.states.slice(
+    0,
+    12,
+  );
+  const maximumApplications = Math.max(
+    ...topApplicationStates.map((state) => state.applications),
+    1,
+  );
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -426,38 +439,57 @@ function Login({ onLogin }: { onLogin: (role: UserRole) => void }) {
           </p>
           <div className="hero-proof">
             <div>
-              <strong>$24.8B</strong>
-              <span>estimated created liquidity</span>
+              <strong>
+                {publicSignals.advisers.firmCount.toLocaleString()}
+              </strong>
+              <span>SEC-registered advisers</span>
             </div>
             <div>
-              <strong>82%</strong>
-              <span>median evidence confidence</span>
+              <strong>
+                {publicSignals.foundations.filingCount.toLocaleString()}
+              </strong>
+              <span>2026 private-foundation filings</span>
             </div>
             <div>
-              <strong>{people.length}</strong>
-              <span>fictional capital-controller profiles</span>
+              <strong>
+                {publicSignals.businessFormation.national.applications.toLocaleString()}
+              </strong>
+              <span>latest monthly business applications</span>
             </div>
           </div>
           <div
             className="signal-window"
-            aria-label="Sample capital intelligence"
+            aria-label="Official monthly state business applications"
           >
             <div className="signal-top">
-              <span>Capital creation · 90 days</span>
-              <span className="live-dot">Evidence current</span>
+              <span>
+                State business applications ·{" "}
+                {publicSignals.businessFormation.period}
+              </span>
+              <span className="live-dot">U.S. Census Bureau</span>
             </div>
             <div className="hero-bars">
-              {[28, 34, 30, 46, 42, 61, 52, 68, 64, 82, 76, 92].map(
-                (height, index) => (
-                  <i key={index} style={{ height: `${height}%` }} />
-                ),
-              )}
+              {topApplicationStates.map((state) => (
+                <i
+                  key={state.code}
+                  title={`${state.name}: ${state.applications.toLocaleString()} applications`}
+                  style={{
+                    height: `${Math.max(
+                      12,
+                      Math.round(
+                        (state.applications / maximumApplications) * 100,
+                      ),
+                    )}%`,
+                  }}
+                />
+              ))}
             </div>
             <div className="signal-bottom">
-              <span>Apr</span>
-              <span>May</span>
-              <span>Jun</span>
-              <span>Jul</span>
+              {[0, 3, 7, 11].map((index) => (
+                <span key={topApplicationStates[index].code}>
+                  {topApplicationStates[index].code}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -465,7 +497,10 @@ function Login({ onLogin }: { onLogin: (role: UserRole) => void }) {
           <div>
             <p className="eyebrow">Demonstration workspace</p>
             <h2>Enter Liquidity Radar</h2>
-            <p>Explore seeded, fictional data across every product workflow.</p>
+            <p>
+              Explore real public-source context alongside clearly labeled,
+              fictional model records.
+            </p>
           </div>
           <label>
             <span>Email</span>
@@ -551,16 +586,17 @@ function Login({ onLogin }: { onLogin: (role: UserRole) => void }) {
         </article>
         <article>
           <span className="feature-index">03</span>
-          <h3>Human-reviewed evidence</h3>
+          <h3>Official-source context</h3>
           <p>
-            Private transactions, low-confidence claims, and fuzzy identity
-            matches remain gated for review.
+            SEC, IRS, Census, and BEA records remain linked to their publisher
+            and separated from modeled person-level intelligence.
           </p>
         </article>
       </section>
       <footer className="marketing-footer" id="terms">
         <span>
-          © 2026 Liquidity Radar · Demonstration data is entirely fictional.
+          © 2026 Liquidity Radar · Public records are sourced; modeled profiles
+          are fictional.
         </span>
         <span>Privacy · Corrections · Data sources · Restricted uses</span>
       </footer>
@@ -750,6 +786,25 @@ function Dashboard({
   const chartBars = [
     28, 31, 26, 39, 34, 48, 53, 46, 65, 58, 72, 68, 86, 76, 91,
   ];
+  const publishedPeople = people.filter(
+    (person) => person.status !== "Pending review",
+  );
+  const confidenceBuckets = {
+    veryHigh: publishedPeople.filter((person) => person.confidence >= 90)
+      .length,
+    high: publishedPeople.filter(
+      (person) => person.confidence >= 80 && person.confidence < 90,
+    ).length,
+    moderate: publishedPeople.filter(
+      (person) => person.confidence >= 65 && person.confidence < 80,
+    ).length,
+    below: people.length - publishedPeople.length,
+  };
+  const highConfidenceShare = Math.round(
+    ((confidenceBuckets.veryHigh + confidenceBuckets.high) /
+      publishedPeople.length) *
+      100,
+  );
   return (
     <>
       <PageIntro
@@ -772,12 +827,14 @@ function Dashboard({
           </>
         }
       />
+      <PublicSignalsPanel />
       <div className="notice-bar">
-        <span>Coverage note</span>
+        <span>Modeled workspace</span>
         <p>
-          Demonstration values combine fictional SEC-style events and
-          analyst-reviewed private transactions. Known deployment coverage is
-          incomplete by design.
+          Public-source context above is real and linked to its publisher.
+          Person-level profiles, liquidity ranges, and transaction values below
+          remain fictional demonstration records until a filing is matched,
+          reviewed, and published.
         </p>
         <button onClick={() => onNavigate("methodology")}>
           Read methodology →
@@ -885,10 +942,10 @@ function Dashboard({
           </div>
           <div
             className="donut"
-            aria-label="82 percent of published estimates have high or very high confidence"
+            aria-label={`${highConfidenceShare} percent of published estimates have high or very high confidence`}
           >
             <div>
-              <strong>82%</strong>
+              <strong>{highConfidenceShare}%</strong>
               <span>
                 High or
                 <br />
@@ -900,22 +957,22 @@ function Dashboard({
             <div>
               <i className="very-high" />
               <span>Very high · 90–100</span>
-              <b>74</b>
+              <b>{confidenceBuckets.veryHigh}</b>
             </div>
             <div>
               <i className="high" />
               <span>High · 80–89</span>
-              <b>110</b>
+              <b>{confidenceBuckets.high}</b>
             </div>
             <div>
               <i className="moderate" />
               <span>Moderate · 65–79</span>
-              <b>89</b>
+              <b>{confidenceBuckets.moderate}</b>
             </div>
             <div>
               <i className="low" />
               <span>Below publication threshold</span>
-              <b>54</b>
+              <b>{confidenceBuckets.below}</b>
             </div>
           </div>
           <button

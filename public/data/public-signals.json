@@ -1,0 +1,1503 @@
+{
+  "generatedAt": "2026-07-28T03:02:19.235Z",
+  "sources": [
+    {
+      "id": "sec",
+      "name": "EDGAR current filings",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "freshness": "Near real time",
+      "recordCount": 30,
+      "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "methodology": "Latest Form 4, Form 144, 8-K, Schedule 13D, and Schedule 13G filing metadata. Filing does not itself prove a completed liquidity event."
+    },
+    {
+      "id": "adv",
+      "name": "Form ADV adviser roster",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "freshness": "July 2026",
+      "recordCount": 14453,
+      "sourceUrl": "https://www.sec.gov/data-research/sec-markets-data/information-about-registered-investment-advisers-exempt-reporting-advisers",
+      "methodology": "Approved SEC-registered advisers with public office and reported regulatory-asset fields."
+    },
+    {
+      "id": "irs",
+      "name": "Form 990-PF filings",
+      "publisher": "Internal Revenue Service",
+      "freshness": "2026 e-file index",
+      "recordCount": 68094,
+      "sourceUrl": "https://www.irs.gov/charities-non-profits/form-990-series-downloads",
+      "methodology": "Electronically filed private-foundation returns indexed by the IRS. Values are filing metadata, not modeled wealth."
+    },
+    {
+      "id": "census",
+      "name": "Business Formation Statistics",
+      "publisher": "U.S. Census Bureau",
+      "freshness": "2026-06",
+      "recordCount": 51,
+      "sourceUrl": "https://www.census.gov/econ/bfs/current/index.html",
+      "methodology": "Seasonally adjusted monthly business applications and projected employer formations for every state and D.C."
+    },
+    {
+      "id": "bea",
+      "name": "Regional real GDP",
+      "publisher": "U.S. Bureau of Economic Analysis",
+      "freshness": "2026:Q1",
+      "recordCount": 51,
+      "sourceUrl": "https://www.bea.gov/itable/regional-gdp-and-personal-income",
+      "methodology": "Quarterly state real GDP in millions of chained 2017 dollars, with quarter-over-quarter change calculated by Liquidity Radar."
+    }
+  ],
+  "sec": {
+    "mode": "snapshot",
+    "updatedAt": "2026-07-28T03:02:19.235Z",
+    "filings": [
+      {
+        "accession": "0001193125-26-318582",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:58:55-04:00",
+        "issuer": "ACTELIS NETWORKS INC",
+        "reportingParty": "White Lion Capital LLC",
+        "url": "https://www.sec.gov/Archives/edgar/data/1952614/000119312526318582/0001193125-26-318582-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034910",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:52:31-04:00",
+        "issuer": "Sharplink, Inc.",
+        "reportingParty": "MCKENZIE OBIE",
+        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034910/0001493152-26-034910-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034909",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:52:19-04:00",
+        "issuer": "Sharplink, Inc.",
+        "reportingParty": "Chalom Joseph",
+        "url": "https://www.sec.gov/Archives/edgar/data/2079719/000149315226034909/0001493152-26-034909-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034908",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:51:20-04:00",
+        "issuer": "Sharplink, Inc.",
+        "reportingParty": "Bernhard Leslie",
+        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034908/0001493152-26-034908-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034905",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:50:32-04:00",
+        "issuer": "Sharplink, Inc.",
+        "reportingParty": "Camarda Michael D",
+        "url": "https://www.sec.gov/Archives/edgar/data/2133186/000149315226034905/0001493152-26-034905-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034902",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:49:52-04:00",
+        "issuer": "Sharplink, Inc.",
+        "reportingParty": "GUTKOWSKI ROBERT M",
+        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034902/0001493152-26-034902-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034901",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:49:15-04:00",
+        "issuer": "Sharplink, Inc.",
+        "reportingParty": "DeLucia Robert Michael",
+        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034901/0001493152-26-034901-index.htm"
+      },
+      {
+        "accession": "0000930413-26-002192",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:42:29-04:00",
+        "issuer": "5C Lending Partners Corp.",
+        "reportingParty": "LAWRY SETH W",
+        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002192/0000930413-26-002192-index.htm"
+      },
+      {
+        "accession": "0001781292-26-000007",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:42:12-04:00",
+        "issuer": "Scribe Therapeutics, Inc.",
+        "reportingParty": "Lucas Svetlana",
+        "url": "https://www.sec.gov/Archives/edgar/data/1853921/000178129226000007/0001781292-26-000007-index.htm"
+      },
+      {
+        "accession": "0000930413-26-002191",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:41:31-04:00",
+        "issuer": "5C Lending Partners Corp.",
+        "reportingParty": "Fair James Thomas",
+        "url": "https://www.sec.gov/Archives/edgar/data/2032514/000093041326002191/0000930413-26-002191-index.htm"
+      },
+      {
+        "accession": "0000930413-26-002190",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:40:32-04:00",
+        "issuer": "5C Lending Partners Corp.",
+        "reportingParty": "Finnerty Sheila A",
+        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002190/0000930413-26-002190-index.htm"
+      },
+      {
+        "accession": "0000930413-26-002189",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:39:39-04:00",
+        "issuer": "5C Lending Partners Corp.",
+        "reportingParty": "Roos Jason T",
+        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002189/0000930413-26-002189-index.htm"
+      },
+      {
+        "accession": "0000930413-26-002188",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:38:32-04:00",
+        "issuer": "5C Lending Partners Corp.",
+        "reportingParty": "Koester Michael E",
+        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002188/0000930413-26-002188-index.htm"
+      },
+      {
+        "accession": "0001628280-26-049906",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:38:12-04:00",
+        "issuer": "Accelerant Holdings",
+        "reportingParty": "Sternberg Matthew David",
+        "url": "https://www.sec.gov/Archives/edgar/data/2008628/000162828026049906/0001628280-26-049906-index.htm"
+      },
+      {
+        "accession": "0000930413-26-002187",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:37:15-04:00",
+        "issuer": "5C Lending Partners Corp.",
+        "reportingParty": "Connolly Thomas",
+        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002187/0000930413-26-002187-index.htm"
+      },
+      {
+        "accession": "0001106578-26-000107",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:36:09-04:00",
+        "issuer": "UNITED THERAPEUTICS Corp",
+        "reportingParty": "ROTHBLATT MARTINE A",
+        "url": "https://www.sec.gov/Archives/edgar/data/1106578/000110657826000107/0001106578-26-000107-index.htm"
+      },
+      {
+        "accession": "0001193125-26-318556",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:30:04-04:00",
+        "issuer": "Loop Industries, Inc.",
+        "reportingParty": "GEYGAN JEFFREY RICHART",
+        "url": "https://www.sec.gov/Archives/edgar/data/1733547/000119312526318556/0001193125-26-318556-index.htm"
+      },
+      {
+        "accession": "0002127814-26-000004",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:26:14-04:00",
+        "issuer": "Scribe Therapeutics, Inc.",
+        "reportingParty": "Oakes Benjamin L.",
+        "url": "https://www.sec.gov/Archives/edgar/data/2127814/000212781426000004/0002127814-26-000004-index.htm"
+      },
+      {
+        "accession": "0001282930-26-000004",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:25:02-04:00",
+        "issuer": "Scribe Therapeutics, Inc.",
+        "reportingParty": "GORDON CARL L",
+        "url": "https://www.sec.gov/Archives/edgar/data/1853921/000128293026000004/0001282930-26-000004-index.htm"
+      },
+      {
+        "accession": "0002130384-26-000004",
+        "form": "Form 4",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T21:23:16-04:00",
+        "issuer": "Scribe Therapeutics, Inc.",
+        "reportingParty": "Watson James Dean",
+        "url": "https://www.sec.gov/Archives/edgar/data/2130384/000213038426000004/0002130384-26-000004-index.htm"
+      },
+      {
+        "accession": "0001724756-26-000009",
+        "form": "Form 144",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T20:12:16-04:00",
+        "issuer": "AMERIPRISE FINANCIAL INC (0000820027) (Subject)",
+        "reportingParty": "Williams William Jerryl",
+        "url": "https://www.sec.gov/Archives/edgar/data/1724756/000172475626000009/0001724756-26-000009-index.htm"
+      },
+      {
+        "accession": "0001968582-26-000739",
+        "form": "Form 144",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T18:04:53-04:00",
+        "issuer": "American Airlines Group Inc. (0000006201) (Subject)",
+        "reportingParty": "Johnson Stephen L",
+        "url": "https://www.sec.gov/Archives/edgar/data/1458560/000196858226000739/0001968582-26-000739-index.htm"
+      },
+      {
+        "accession": "0001042873-26-000005",
+        "form": "Form 144",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:50:54-04:00",
+        "issuer": "BANCFIRST CORP /OK/ (0000760498) (Subject)",
+        "reportingParty": "RAINBOLT DAVID E",
+        "url": "https://www.sec.gov/Archives/edgar/data/1042873/000104287326000005/0001042873-26-000005-index.htm"
+      },
+      {
+        "accession": "0001185185-26-003142",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:30:53-04:00",
+        "issuer": "K/A - RTB Digital, Inc. (0001419275) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1419275/000118518526003142/0001185185-26-003142-index.htm"
+      },
+      {
+        "accession": "0001628280-26-049857",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:29:58-04:00",
+        "issuer": "K - Huron Consulting Group Inc. (0001289848) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1289848/000162828026049857/0001628280-26-049857-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034862",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:28:24-04:00",
+        "issuer": "K - Ocean Power Technologies, Inc. (0001378140) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1378140/000149315226034862/0001493152-26-034862-index.htm"
+      },
+      {
+        "accession": "0001895262-26-000138",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:28:17-04:00",
+        "issuer": "K - Noble Corp plc (0001895262) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1895262/000189526226000138/0001895262-26-000138-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034858",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:28:06-04:00",
+        "issuer": "K - NextBoat Inc. (0002067767) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/2067767/000149315226034858/0001493152-26-034858-index.htm"
+      },
+      {
+        "accession": "0001140361-26-029776",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:27:25-04:00",
+        "issuer": "K/A - BED BATH & BEYOND, INC. (0001130713) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1130713/000114036126029776/0001140361-26-029776-index.htm"
+      },
+      {
+        "accession": "0001140361-26-029775",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-27",
+        "updatedAt": "2026-07-27T17:27:11-04:00",
+        "issuer": "K - Vulcan Materials CO (0001396009) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1396009/000114036126029775/0001140361-26-029775-index.htm"
+      }
+    ]
+  },
+  "advisers": {
+    "period": "July 2026",
+    "firmCount": 14453,
+    "totalRegulatoryAssets": 160862192174208,
+    "latestFilingDate": "2026-06-30",
+    "topFirms": [
+      {
+        "crd": "105958",
+        "secNumber": "801-11953",
+        "name": "VANGUARD GROUP INC",
+        "legalName": "THE VANGUARD GROUP, INC.",
+        "city": "MALVERN",
+        "state": "PA",
+        "regulatoryAssets": 11092665107962,
+        "filingDate": "2026-05-18",
+        "website": "HTTPS://X.COM/VANGUARD_INSTL"
+      },
+      {
+        "crd": "338002",
+        "secNumber": "801-134586",
+        "name": "VANGUARD CAPITAL MANAGEMENT, LLC",
+        "legalName": "VANGUARD CAPITAL MANAGEMENT, LLC",
+        "city": "MALVERN",
+        "state": "PA",
+        "regulatoryAssets": 8436181597982,
+        "filingDate": "2026-05-18",
+        "website": ""
+      },
+      {
+        "crd": "108281",
+        "secNumber": "801-7884",
+        "name": "FIDELITY MANAGEMENT & RESEARCH COMPANY LLC",
+        "legalName": "FIDELITY MANAGEMENT & RESEARCH COMPANY LLC",
+        "city": "BOSTON",
+        "state": "MA",
+        "regulatoryAssets": 5685041930529,
+        "filingDate": "2026-03-30",
+        "website": "https://www.linkedin.com/showcase/fidelity-for-institutional-investors"
+      },
+      {
+        "crd": "105247",
+        "secNumber": "801-22609",
+        "name": "BLACKROCK FUND ADVISORS",
+        "legalName": "BLACKROCK FUND ADVISORS",
+        "city": "SAN FRANCISCO",
+        "state": "CA",
+        "regulatoryAssets": 4282224366957,
+        "filingDate": "2026-05-15",
+        "website": "https://www.youtube.com/channel/UCrIXkHfv2tMzebAI1TcdDhg"
+      },
+      {
+        "crd": "110885",
+        "secNumber": "801-8055",
+        "name": "CAPITAL RESEARCH AND MANAGEMENT COMPANY",
+        "legalName": "CAPITAL RESEARCH AND MANAGEMENT COMPANY",
+        "city": "LOS ANGELES",
+        "state": "CA",
+        "regulatoryAssets": 3753542800892,
+        "filingDate": "2026-05-29",
+        "website": "https://retirementsolutions.financialtrans.com/tf/myPLAN/MpnWelcome?cz=3000518"
+      },
+      {
+        "crd": "104559",
+        "secNumber": "801-48187",
+        "name": "PACIFIC INVESTMENT MANAGEMENT COMPANY LLC",
+        "legalName": "PACIFIC INVESTMENT MANAGEMENT COMPANY LLC",
+        "city": "NEWPORT BEACH",
+        "state": "CA",
+        "regulatoryAssets": 3666935101247,
+        "filingDate": "2026-05-18",
+        "website": "HTTPS://x.com/pimco"
+      },
+      {
+        "crd": "107038",
+        "secNumber": "801-21011",
+        "name": "J.P. MORGAN INVESTMENT MANAGEMENT INC.",
+        "legalName": "J.P. MORGAN INVESTMENT MANAGEMENT INC.",
+        "city": "NEW YORK",
+        "state": "NY",
+        "regulatoryAssets": 3519414511755,
+        "filingDate": "2026-06-30",
+        "website": "https://www.youtube.com/@jpmorganassetmanagement"
+      },
+      {
+        "crd": "338003",
+        "secNumber": "801-134587",
+        "name": "VANGUARD PORTFOLIO MANAGEMENT, LLC",
+        "legalName": "VANGUARD PORTFOLIO MANAGEMENT, LLC",
+        "city": "MALVERN",
+        "state": "PA",
+        "regulatoryAssets": 2656483509980,
+        "filingDate": "2026-05-18",
+        "website": ""
+      },
+      {
+        "crd": "107738",
+        "secNumber": "801-37591",
+        "name": "GOLDMAN SACHS ASSET MANAGEMENT, L.P.",
+        "legalName": "GOLDMAN SACHS ASSET MANAGEMENT, L.P.",
+        "city": "NEW YORK",
+        "state": "NY",
+        "regulatoryAssets": 2648902942827,
+        "filingDate": "2026-05-26",
+        "website": "https://www.petershillpartners.com"
+      },
+      {
+        "crd": "105496",
+        "secNumber": "801-856",
+        "name": "T. ROWE PRICE ASSOCIATES, INC.",
+        "legalName": "T. ROWE PRICE ASSOCIATES, INC.",
+        "city": "BALTIMORE",
+        "state": "MD",
+        "regulatoryAssets": 2196452587469,
+        "filingDate": "2026-03-31",
+        "website": "HTTP://WWW.TROWEPRICE.COM"
+      },
+      {
+        "crd": "149777",
+        "secNumber": "801-70103",
+        "name": "MORGAN STANLEY",
+        "legalName": "MORGAN STANLEY SMITH BARNEY LLC",
+        "city": "PURCHASE",
+        "state": "NY",
+        "regulatoryAssets": 1961887313229,
+        "filingDate": "2026-06-30",
+        "website": "HTTP://WWW.MORGANSTANLEY.COM"
+      },
+      {
+        "crd": "7691",
+        "secNumber": "801-14235",
+        "name": "MERRILL LYNCH, PIERCE, FENNER & SMITH INCORPORATED",
+        "legalName": "MERRILL LYNCH, PIERCE, FENNER & SMITH INCORPORATED",
+        "city": "NEW YORK",
+        "state": "NY",
+        "regulatoryAssets": 1781568171479,
+        "filingDate": "2026-06-29",
+        "website": "HTTP://WWW.MERRILLEDGE.COM/GUIDED-INVESTING"
+      }
+    ],
+    "states": [
+      {
+        "code": "NY",
+        "firms": 2523,
+        "regulatoryAssets": 38072227854689
+      },
+      {
+        "code": "PA",
+        "firms": 550,
+        "regulatoryAssets": 27176056283386
+      },
+      {
+        "code": "CA",
+        "firms": 1828,
+        "regulatoryAssets": 23056358028655
+      },
+      {
+        "code": "MA",
+        "firms": 617,
+        "regulatoryAssets": 19262461318918
+      },
+      {
+        "code": "IL",
+        "firms": 669,
+        "regulatoryAssets": 7937833602011
+      },
+      {
+        "code": "NJ",
+        "firms": 378,
+        "regulatoryAssets": 6074276901346
+      },
+      {
+        "code": "TX",
+        "firms": 1052,
+        "regulatoryAssets": 4548191206040
+      },
+      {
+        "code": "FL",
+        "firms": 1028,
+        "regulatoryAssets": 4077695007915
+      },
+      {
+        "code": "MO",
+        "firms": 190,
+        "regulatoryAssets": 3566379779539
+      },
+      {
+        "code": "CT",
+        "firms": 494,
+        "regulatoryAssets": 3421966560228
+      },
+      {
+        "code": "MD",
+        "firms": 224,
+        "regulatoryAssets": 3097677353460
+      },
+      {
+        "code": "NC",
+        "firms": 283,
+        "regulatoryAssets": 3032460422699
+      },
+      {
+        "code": "MN",
+        "firms": 272,
+        "regulatoryAssets": 2426549539058
+      },
+      {
+        "code": "GA",
+        "firms": 323,
+        "regulatoryAssets": 1501361489512
+      },
+      {
+        "code": "CO",
+        "firms": 346,
+        "regulatoryAssets": 1310604727349
+      },
+      {
+        "code": "WI",
+        "firms": 194,
+        "regulatoryAssets": 1257967555047
+      },
+      {
+        "code": "WA",
+        "firms": 270,
+        "regulatoryAssets": 1230761051238
+      },
+      {
+        "code": "OH",
+        "firms": 387,
+        "regulatoryAssets": 1091778126622
+      },
+      {
+        "code": "TN",
+        "firms": 218,
+        "regulatoryAssets": 1035379189050
+      },
+      {
+        "code": "IA",
+        "firms": 89,
+        "regulatoryAssets": 988268908223
+      },
+      {
+        "code": "SC",
+        "firms": 113,
+        "regulatoryAssets": 956009964687
+      },
+      {
+        "code": "KS",
+        "firms": 132,
+        "regulatoryAssets": 822254882681
+      },
+      {
+        "code": "VA",
+        "firms": 298,
+        "regulatoryAssets": 579966470569
+      },
+      {
+        "code": "MI",
+        "firms": 296,
+        "regulatoryAssets": 562831282241
+      },
+      {
+        "code": "DC",
+        "firms": 59,
+        "regulatoryAssets": 548950205156
+      },
+      {
+        "code": "AZ",
+        "firms": 193,
+        "regulatoryAssets": 506996106343
+      },
+      {
+        "code": "RI",
+        "firms": 49,
+        "regulatoryAssets": 425823084708
+      },
+      {
+        "code": "DE",
+        "firms": 38,
+        "regulatoryAssets": 324425535796
+      },
+      {
+        "code": "NE",
+        "firms": 70,
+        "regulatoryAssets": 249838851876
+      },
+      {
+        "code": "IN",
+        "firms": 145,
+        "regulatoryAssets": 225452599910
+      },
+      {
+        "code": "UT",
+        "firms": 144,
+        "regulatoryAssets": 224898064755
+      },
+      {
+        "code": "OR",
+        "firms": 155,
+        "regulatoryAssets": 219162140787
+      },
+      {
+        "code": "AL",
+        "firms": 89,
+        "regulatoryAssets": 175338876517
+      },
+      {
+        "code": "LA",
+        "firms": 79,
+        "regulatoryAssets": 98098075557
+      },
+      {
+        "code": "OK",
+        "firms": 83,
+        "regulatoryAssets": 97179208160
+      },
+      {
+        "code": "NV",
+        "firms": 73,
+        "regulatoryAssets": 85074348225
+      },
+      {
+        "code": "KY",
+        "firms": 85,
+        "regulatoryAssets": 80817900951
+      },
+      {
+        "code": "VT",
+        "firms": 31,
+        "regulatoryAssets": 76613979751
+      },
+      {
+        "code": "NM",
+        "firms": 26,
+        "regulatoryAssets": 65933954812
+      },
+      {
+        "code": "MT",
+        "firms": 22,
+        "regulatoryAssets": 63033082371
+      },
+      {
+        "code": "AR",
+        "firms": 59,
+        "regulatoryAssets": 61344767734
+      },
+      {
+        "code": "NH",
+        "firms": 76,
+        "regulatoryAssets": 60619552344
+      },
+      {
+        "code": "ID",
+        "firms": 51,
+        "regulatoryAssets": 48011981376
+      },
+      {
+        "code": "WY",
+        "firms": 23,
+        "regulatoryAssets": 43440239063
+      },
+      {
+        "code": "ME",
+        "firms": 33,
+        "regulatoryAssets": 32733916256
+      },
+      {
+        "code": "MS",
+        "firms": 34,
+        "regulatoryAssets": 24718849827
+      },
+      {
+        "code": "HI",
+        "firms": 19,
+        "regulatoryAssets": 9033357969
+      },
+      {
+        "code": "WV",
+        "firms": 12,
+        "regulatoryAssets": 8807344929
+      },
+      {
+        "code": "AK",
+        "firms": 9,
+        "regulatoryAssets": 8768157826
+      },
+      {
+        "code": "SD",
+        "firms": 13,
+        "regulatoryAssets": 6217020387
+      },
+      {
+        "code": "ND",
+        "firms": 9,
+        "regulatoryAssets": 3543465659
+      }
+    ]
+  },
+  "foundations": {
+    "year": 2026,
+    "filingCount": 68094,
+    "recentFilings": [
+      {
+        "name": "LINYANG FOUNDATION",
+        "ein": "824276593",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101309"
+      },
+      {
+        "name": "GOOD DEEDS FOUNDATION INC",
+        "ein": "824317185",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101304"
+      },
+      {
+        "name": "Moreton Family Foundation",
+        "ein": "876133476",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101204"
+      },
+      {
+        "name": "The Goldman Pryor Foundation",
+        "ein": "394217201",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101109"
+      },
+      {
+        "name": "AMERICAN PHILHELLENES SOCIETY 1810-1840",
+        "ein": "371571424",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101104"
+      },
+      {
+        "name": "SKINNER WINCHELL FOUNDATION",
+        "ein": "261464595",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101064"
+      },
+      {
+        "name": "LINDA P & EDWARD P WILLIAMS FAMILY FOUNDATION",
+        "ein": "066447022",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101059"
+      },
+      {
+        "name": "PLOWBOY CREW MINISTRY",
+        "ein": "871485149",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101054"
+      },
+      {
+        "name": "THE WARD FOUNDATION",
+        "ein": "586440277",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101009"
+      },
+      {
+        "name": "HAYTI DE DEMAIN 2050 INC",
+        "ein": "932404126",
+        "taxPeriod": "202512",
+        "objectId": "202641769349101004"
+      },
+      {
+        "name": "WENAAS FAMILY FOUNDATION",
+        "ein": "263796373",
+        "taxPeriod": "202512",
+        "objectId": "202641769349100964"
+      },
+      {
+        "name": "SPARED FOUNDATION INC",
+        "ein": "454322694",
+        "taxPeriod": "202511",
+        "objectId": "202641769349100959"
+      },
+      {
+        "name": "LOTUS LAND FOUNDATION",
+        "ein": "821410415",
+        "taxPeriod": "202603",
+        "objectId": "202641769349100954"
+      },
+      {
+        "name": "MacMahon Family Charitable Foundation",
+        "ein": "056141146",
+        "taxPeriod": "202512",
+        "objectId": "202641769349100904"
+      },
+      {
+        "name": "Herbert and Lillian Heilpern Family Foundation",
+        "ein": "473087378",
+        "taxPeriod": "202512",
+        "objectId": "202641769349100859"
+      },
+      {
+        "name": "Julie A Gessner Foundation",
+        "ein": "376697753",
+        "taxPeriod": "202512",
+        "objectId": "202641769349100854"
+      }
+    ]
+  },
+  "businessFormation": {
+    "period": "2026-06",
+    "national": {
+      "applications": 531423,
+      "projectedFormations": 29741,
+      "monthlyChange": 1.1
+    },
+    "states": [
+      {
+        "code": "FL",
+        "name": "Florida",
+        "applications": 61256,
+        "projectedFormations": 2802,
+        "monthlyChange": -5.2
+      },
+      {
+        "code": "CA",
+        "name": "California",
+        "applications": 52379,
+        "projectedFormations": 4048,
+        "monthlyChange": 0.7
+      },
+      {
+        "code": "TX",
+        "name": "Texas",
+        "applications": 48096,
+        "projectedFormations": 3035,
+        "monthlyChange": -1
+      },
+      {
+        "code": "NY",
+        "name": "New York",
+        "applications": 27440,
+        "projectedFormations": 1789,
+        "monthlyChange": -1.1
+      },
+      {
+        "code": "GA",
+        "name": "Georgia",
+        "applications": 25347,
+        "projectedFormations": 1008,
+        "monthlyChange": 6
+      },
+      {
+        "code": "OH",
+        "name": "Ohio",
+        "applications": 17120,
+        "projectedFormations": 777,
+        "monthlyChange": 10.9
+      },
+      {
+        "code": "NC",
+        "name": "North Carolina",
+        "applications": 17115,
+        "projectedFormations": 979,
+        "monthlyChange": 1.4
+      },
+      {
+        "code": "IL",
+        "name": "Illinois",
+        "applications": 16459,
+        "projectedFormations": 882,
+        "monthlyChange": 3.7
+      },
+      {
+        "code": "CO",
+        "name": "Colorado",
+        "applications": 15687,
+        "projectedFormations": 777,
+        "monthlyChange": 4.8
+      },
+      {
+        "code": "NJ",
+        "name": "New Jersey",
+        "applications": 15256,
+        "projectedFormations": 803,
+        "monthlyChange": -1.6
+      },
+      {
+        "code": "AZ",
+        "name": "Arizona",
+        "applications": 14450,
+        "projectedFormations": 720,
+        "monthlyChange": 2.8
+      },
+      {
+        "code": "PA",
+        "name": "Pennsylvania",
+        "applications": 14098,
+        "projectedFormations": 755,
+        "monthlyChange": 0.8
+      },
+      {
+        "code": "MI",
+        "name": "Michigan",
+        "applications": 13695,
+        "projectedFormations": 572,
+        "monthlyChange": 1.4
+      },
+      {
+        "code": "VA",
+        "name": "Virginia",
+        "applications": 12700,
+        "projectedFormations": 708,
+        "monthlyChange": -1.8
+      },
+      {
+        "code": "WA",
+        "name": "Washington",
+        "applications": 10182,
+        "projectedFormations": 829,
+        "monthlyChange": 3
+      },
+      {
+        "code": "TN",
+        "name": "Tennessee",
+        "applications": 9375,
+        "projectedFormations": 599,
+        "monthlyChange": 2.4
+      },
+      {
+        "code": "MD",
+        "name": "Maryland",
+        "applications": 9266,
+        "projectedFormations": 350,
+        "monthlyChange": -5.2
+      },
+      {
+        "code": "MO",
+        "name": "Missouri",
+        "applications": 9036,
+        "projectedFormations": 593,
+        "monthlyChange": 2
+      },
+      {
+        "code": "SC",
+        "name": "South Carolina",
+        "applications": 8829,
+        "projectedFormations": 424,
+        "monthlyChange": 0.8
+      },
+      {
+        "code": "IN",
+        "name": "Indiana",
+        "applications": 8386,
+        "projectedFormations": 486,
+        "monthlyChange": 1.6
+      },
+      {
+        "code": "WY",
+        "name": "Wyoming",
+        "applications": 7569,
+        "projectedFormations": 226,
+        "monthlyChange": 1.4
+      },
+      {
+        "code": "MA",
+        "name": "Massachusetts",
+        "applications": 7564,
+        "projectedFormations": 601,
+        "monthlyChange": 2.6
+      },
+      {
+        "code": "KY",
+        "name": "Kentucky",
+        "applications": 7408,
+        "projectedFormations": 335,
+        "monthlyChange": 6.8
+      },
+      {
+        "code": "UT",
+        "name": "Utah",
+        "applications": 7387,
+        "projectedFormations": 427,
+        "monthlyChange": 3.6
+      },
+      {
+        "code": "LA",
+        "name": "Louisiana",
+        "applications": 7043,
+        "projectedFormations": 267,
+        "monthlyChange": 10
+      },
+      {
+        "code": "AL",
+        "name": "Alabama",
+        "applications": 6648,
+        "projectedFormations": 327,
+        "monthlyChange": 9.1
+      },
+      {
+        "code": "MN",
+        "name": "Minnesota",
+        "applications": 6536,
+        "projectedFormations": 368,
+        "monthlyChange": -0.6
+      },
+      {
+        "code": "WI",
+        "name": "Wisconsin",
+        "applications": 6053,
+        "projectedFormations": 343,
+        "monthlyChange": -2.8
+      },
+      {
+        "code": "MS",
+        "name": "Mississippi",
+        "applications": 5850,
+        "projectedFormations": 170,
+        "monthlyChange": 9.5
+      },
+      {
+        "code": "OR",
+        "name": "Oregon",
+        "applications": 5759,
+        "projectedFormations": 436,
+        "monthlyChange": 14
+      },
+      {
+        "code": "NV",
+        "name": "Nevada",
+        "applications": 5736,
+        "projectedFormations": 301,
+        "monthlyChange": -4.9
+      },
+      {
+        "code": "OK",
+        "name": "Oklahoma",
+        "applications": 5222,
+        "projectedFormations": 293,
+        "monthlyChange": -1.6
+      },
+      {
+        "code": "DE",
+        "name": "Delaware",
+        "applications": 5090,
+        "projectedFormations": 217,
+        "monthlyChange": 1.5
+      },
+      {
+        "code": "CT",
+        "name": "Connecticut",
+        "applications": 5001,
+        "projectedFormations": 290,
+        "monthlyChange": 5.9
+      },
+      {
+        "code": "KS",
+        "name": "Kansas",
+        "applications": 3903,
+        "projectedFormations": 196,
+        "monthlyChange": 13.6
+      },
+      {
+        "code": "AR",
+        "name": "Arkansas",
+        "applications": 3849,
+        "projectedFormations": 191,
+        "monthlyChange": -0.1
+      },
+      {
+        "code": "NM",
+        "name": "New Mexico",
+        "applications": 3749,
+        "projectedFormations": 170,
+        "monthlyChange": 5.6
+      },
+      {
+        "code": "IA",
+        "name": "Iowa",
+        "applications": 3331,
+        "projectedFormations": 213,
+        "monthlyChange": -0.8
+      },
+      {
+        "code": "ID",
+        "name": "Idaho",
+        "applications": 3253,
+        "projectedFormations": 249,
+        "monthlyChange": 1.2
+      },
+      {
+        "code": "MT",
+        "name": "Montana",
+        "applications": 2973,
+        "projectedFormations": 163,
+        "monthlyChange": 6
+      },
+      {
+        "code": "NE",
+        "name": "Nebraska",
+        "applications": 2044,
+        "projectedFormations": 138,
+        "monthlyChange": 3.4
+      },
+      {
+        "code": "NH",
+        "name": "New Hampshire",
+        "applications": 1997,
+        "projectedFormations": 159,
+        "monthlyChange": 15.5
+      },
+      {
+        "code": "WV",
+        "name": "West Virginia",
+        "applications": 1686,
+        "projectedFormations": 97,
+        "monthlyChange": 0.7
+      },
+      {
+        "code": "HI",
+        "name": "Hawaii",
+        "applications": 1608,
+        "projectedFormations": 57,
+        "monthlyChange": 9.4
+      },
+      {
+        "code": "DC",
+        "name": "District of Columbia",
+        "applications": 1418,
+        "projectedFormations": 52,
+        "monthlyChange": 3.6
+      },
+      {
+        "code": "AK",
+        "name": "Alaska",
+        "applications": 1402,
+        "projectedFormations": 84,
+        "monthlyChange": -2.9
+      },
+      {
+        "code": "ME",
+        "name": "Maine",
+        "applications": 1316,
+        "projectedFormations": 131,
+        "monthlyChange": 1.8
+      },
+      {
+        "code": "SD",
+        "name": "South Dakota",
+        "applications": 1124,
+        "projectedFormations": 86,
+        "monthlyChange": -1.8
+      },
+      {
+        "code": "RI",
+        "name": "Rhode Island",
+        "applications": 1117,
+        "projectedFormations": 80,
+        "monthlyChange": -6.1
+      },
+      {
+        "code": "ND",
+        "name": "North Dakota",
+        "applications": 846,
+        "projectedFormations": 76,
+        "monthlyChange": 0.8
+      },
+      {
+        "code": "VT",
+        "name": "Vermont",
+        "applications": 769,
+        "projectedFormations": 62,
+        "monthlyChange": 4.1
+      }
+    ]
+  },
+  "regionalEconomy": {
+    "period": "2026:Q1",
+    "states": [
+      {
+        "code": "CA",
+        "name": "California",
+        "realGdpMillions": 3452807.5,
+        "quarterlyGrowth": 0.9
+      },
+      {
+        "code": "TX",
+        "name": "Texas",
+        "realGdpMillions": 2309086.3,
+        "quarterlyGrowth": 0.2
+      },
+      {
+        "code": "NY",
+        "name": "New York",
+        "realGdpMillions": 1916464.9,
+        "quarterlyGrowth": 0.2
+      },
+      {
+        "code": "FL",
+        "name": "Florida",
+        "realGdpMillions": 1411368.4,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "IL",
+        "name": "Illinois",
+        "realGdpMillions": 924143.5,
+        "quarterlyGrowth": 0.1
+      },
+      {
+        "code": "PA",
+        "name": "Pennsylvania",
+        "realGdpMillions": 830939.6,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "OH",
+        "name": "Ohio",
+        "realGdpMillions": 744406,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "WA",
+        "name": "Washington",
+        "realGdpMillions": 729535.7,
+        "quarterlyGrowth": 1.1
+      },
+      {
+        "code": "GA",
+        "name": "Georgia",
+        "realGdpMillions": 720633,
+        "quarterlyGrowth": 0.6
+      },
+      {
+        "code": "NC",
+        "name": "North Carolina",
+        "realGdpMillions": 695438.5,
+        "quarterlyGrowth": 0.8
+      },
+      {
+        "code": "NJ",
+        "name": "New Jersey",
+        "realGdpMillions": 694785.2,
+        "quarterlyGrowth": 0.2
+      },
+      {
+        "code": "MA",
+        "name": "Massachusetts",
+        "realGdpMillions": 653909.8,
+        "quarterlyGrowth": 0.6
+      },
+      {
+        "code": "VA",
+        "name": "Virginia",
+        "realGdpMillions": 626535.1,
+        "quarterlyGrowth": 0.1
+      },
+      {
+        "code": "MI",
+        "name": "Michigan",
+        "realGdpMillions": 575812.1,
+        "quarterlyGrowth": 0.1
+      },
+      {
+        "code": "CO",
+        "name": "Colorado",
+        "realGdpMillions": 464485.2,
+        "quarterlyGrowth": 0.3
+      },
+      {
+        "code": "AZ",
+        "name": "Arizona",
+        "realGdpMillions": 462243.4,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "TN",
+        "name": "Tennessee",
+        "realGdpMillions": 454678.4,
+        "quarterlyGrowth": 0.3
+      },
+      {
+        "code": "MD",
+        "name": "Maryland",
+        "realGdpMillions": 437403.7,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "IN",
+        "name": "Indiana",
+        "realGdpMillions": 428215.8,
+        "quarterlyGrowth": 0.6
+      },
+      {
+        "code": "MN",
+        "name": "Minnesota",
+        "realGdpMillions": 409971.5,
+        "quarterlyGrowth": 0.1
+      },
+      {
+        "code": "WI",
+        "name": "Wisconsin",
+        "realGdpMillions": 363124.8,
+        "quarterlyGrowth": 0.2
+      },
+      {
+        "code": "MO",
+        "name": "Missouri",
+        "realGdpMillions": 361717.5,
+        "quarterlyGrowth": 0.2
+      },
+      {
+        "code": "CT",
+        "name": "Connecticut",
+        "realGdpMillions": 297487.1,
+        "quarterlyGrowth": 0.5
+      },
+      {
+        "code": "SC",
+        "name": "South Carolina",
+        "realGdpMillions": 291209.3,
+        "quarterlyGrowth": 0.8
+      },
+      {
+        "code": "OR",
+        "name": "Oregon",
+        "realGdpMillions": 269058.6,
+        "quarterlyGrowth": 0.3
+      },
+      {
+        "code": "AL",
+        "name": "Alabama",
+        "realGdpMillions": 263952.7,
+        "quarterlyGrowth": 0.6
+      },
+      {
+        "code": "LA",
+        "name": "Louisiana",
+        "realGdpMillions": 263713.6,
+        "quarterlyGrowth": 0.7
+      },
+      {
+        "code": "UT",
+        "name": "Utah",
+        "realGdpMillions": 244506.1,
+        "quarterlyGrowth": 0.7
+      },
+      {
+        "code": "KY",
+        "name": "Kentucky",
+        "realGdpMillions": 235965.9,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "OK",
+        "name": "Oklahoma",
+        "realGdpMillions": 216196.5,
+        "quarterlyGrowth": 0.3
+      },
+      {
+        "code": "NV",
+        "name": "Nevada",
+        "realGdpMillions": 214036.6,
+        "quarterlyGrowth": 0.7
+      },
+      {
+        "code": "IA",
+        "name": "Iowa",
+        "realGdpMillions": 211248.2,
+        "quarterlyGrowth": 0
+      },
+      {
+        "code": "KS",
+        "name": "Kansas",
+        "realGdpMillions": 188116.7,
+        "quarterlyGrowth": 0.2
+      },
+      {
+        "code": "AR",
+        "name": "Arkansas",
+        "realGdpMillions": 152521.6,
+        "quarterlyGrowth": 0.5
+      },
+      {
+        "code": "NE",
+        "name": "Nebraska",
+        "realGdpMillions": 151540.9,
+        "quarterlyGrowth": -0.2
+      },
+      {
+        "code": "DC",
+        "name": "District of Columbia",
+        "realGdpMillions": 144376.3,
+        "quarterlyGrowth": 0.6
+      },
+      {
+        "code": "MS",
+        "name": "Mississippi",
+        "realGdpMillions": 126403.5,
+        "quarterlyGrowth": 0.6
+      },
+      {
+        "code": "NM",
+        "name": "New Mexico",
+        "realGdpMillions": 122529.3,
+        "quarterlyGrowth": 0.8
+      },
+      {
+        "code": "ID",
+        "name": "Idaho",
+        "realGdpMillions": 102534,
+        "quarterlyGrowth": 0.1
+      },
+      {
+        "code": "NH",
+        "name": "New Hampshire",
+        "realGdpMillions": 98359.4,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "HI",
+        "name": "Hawaii",
+        "realGdpMillions": 95000.3,
+        "quarterlyGrowth": 0.6
+      },
+      {
+        "code": "DE",
+        "name": "Delaware",
+        "realGdpMillions": 87847.6,
+        "quarterlyGrowth": 0
+      },
+      {
+        "code": "WV",
+        "name": "West Virginia",
+        "realGdpMillions": 84016.4,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "ME",
+        "name": "Maine",
+        "realGdpMillions": 78936.3,
+        "quarterlyGrowth": 0.3
+      },
+      {
+        "code": "RI",
+        "name": "Rhode Island",
+        "realGdpMillions": 64738,
+        "quarterlyGrowth": 0.4
+      },
+      {
+        "code": "ND",
+        "name": "North Dakota",
+        "realGdpMillions": 64324.7,
+        "quarterlyGrowth": 0
+      },
+      {
+        "code": "MT",
+        "name": "Montana",
+        "realGdpMillions": 62772.1,
+        "quarterlyGrowth": 0.3
+      },
+      {
+        "code": "SD",
+        "name": "South Dakota",
+        "realGdpMillions": 59229.9,
+        "quarterlyGrowth": -0.4
+      },
+      {
+        "code": "AK",
+        "name": "Alaska",
+        "realGdpMillions": 58216.4,
+        "quarterlyGrowth": 0.7
+      },
+      {
+        "code": "WY",
+        "name": "Wyoming",
+        "realGdpMillions": 40367.9,
+        "quarterlyGrowth": 0.3
+      },
+      {
+        "code": "VT",
+        "name": "Vermont",
+        "realGdpMillions": 37205.4,
+        "quarterlyGrowth": 0.1
+      }
+    ]
+  }
+}
