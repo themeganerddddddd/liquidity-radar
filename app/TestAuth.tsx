@@ -254,30 +254,30 @@ export function TestAuth({
           </span>
           <span>
             <strong>Liquidity Radar</strong>
-            <small>Official public-record explorer</small>
+            <small>Capital intelligence from public records</small>
           </span>
         </Link>
         <div>
-          <p className="eyebrow teal">Protected test workspace</p>
-          <h1>Explore real public records with a test account.</h1>
+          <p className="eyebrow teal">Evidence-backed capital intelligence</p>
+          <h1>Find the people and firms with capital to invest.</h1>
           <p>
-            The data is attributable to SEC, IRS, Census, and BEA sources. The
-            account system on this test link is browser-local and does not send
-            credentials to a server.
+            Use official filings and economic data to surface credible capital
+            relationships, identify who may be ready to deploy funds, and trace
+            every signal back to its source.
           </p>
         </div>
         <ul>
           <li>
             <i />
-            Real government records only
+            Discover credible capital signals
           </li>
           <li>
             <i />
-            No personal liquidity estimates
+            Explore people, firms, and regions
           </li>
           <li>
             <i />
-            No server-side credential collection
+            Verify every insight at the source
           </li>
         </ul>
       </section>
