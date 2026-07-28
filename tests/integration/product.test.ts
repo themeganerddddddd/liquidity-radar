@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import publicSignalsJson from "../../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../../lib/public-data";
 import { readChunkedPublicSnapshot } from "../../scripts/public-snapshot-files";
+import { auditPublicValuations } from "../../lib/valuation-safety";
 
 const publicSignals = publicSignalsJson as PublicDataSnapshot;
 
@@ -75,5 +76,33 @@ describe("official public-record contracts", () => {
     expect(
       new Set(hydrated.liquidity.events.map((event) => event.id)).size,
     ).toBe(hydrated.liquidity.events.length);
+  });
+
+  it("ships audited filing values without known price-versus-total errors", async () => {
+    const hydrated = await readChunkedPublicSnapshot(
+      path.join(process.cwd(), "public", "data", "public-signals.json"),
+    );
+    const audit = auditPublicValuations(hydrated);
+    const scorpio = hydrated.liquidity.events.find(
+      (event) => event.accession === "0001969452-26-000010",
+    );
+    const scorpioHolding = hydrated.liquidity.holdings.find(
+      (holding) => holding.accession === "0001969452-26-000010",
+    );
+
+    expect(audit.errors).toEqual([]);
+    expect(audit.totals.jointEvents).toBeGreaterThan(10_000);
+    expect(scorpio).toMatchObject({
+      shares: 15_000,
+      pricePerShare: 82.029,
+      grossAmount: 1_230_435,
+      priceBasis: "derived_from_reported_aggregate",
+    });
+    expect(scorpioHolding).toMatchObject({
+      shares: 62_668,
+      referencePrice: 82.029,
+      priceBasis: "derived_from_reported_aggregate",
+    });
+    expect(scorpioHolding?.estimatedValue).toBeCloseTo(5_140_593.372, 3);
   });
 });

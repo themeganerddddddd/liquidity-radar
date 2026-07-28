@@ -104,7 +104,16 @@ describe("real people profiles", () => {
       grossAmount: 5_000_000,
       transactionCode: "144",
     };
-    const estimate = estimateLiquidity([base, proposed], "2026-01-01");
+    const unallocatedJointSale: PublicLiquidityEvent = {
+      ...base,
+      id: "joint-sale",
+      grossAmount: 10_000_000,
+      attributionBasis: "joint_filing_unallocated",
+    };
+    const estimate = estimateLiquidity(
+      [base, proposed, unallocatedJointSale],
+      "2026-01-01",
+    );
 
     expect(estimate.grossCompletedSales).toBe(1_000_000);
     expect(estimate.estimatedNetProceeds).toEqual({

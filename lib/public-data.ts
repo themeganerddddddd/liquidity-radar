@@ -1,3 +1,5 @@
+import { normalizeReportedTransactionValue } from "./valuation-safety";
+
 export type PublicSourceStatus = {
   id:
     | "sec"
@@ -47,6 +49,11 @@ export type PublicLiquidityEvent = {
   shares: number;
   pricePerShare: number;
   grossAmount: number;
+  priceBasis?:
+    | "reported_per_share"
+    | "derived_from_reported_aggregate"
+    | "normalized_filing_decimal";
+  attributionBasis?: "single_reporting_owner" | "joint_filing_unallocated";
   amountClassification: "observed" | "calculated";
   transactionCode: string;
   directOrIndirect: string;
@@ -74,6 +81,11 @@ export type PublicHoldingPosition = {
   asOfDate: string;
   referencePrice: number | null;
   estimatedValue: number | null;
+  priceBasis?:
+    | "reported_per_share"
+    | "derived_from_reported_aggregate"
+    | "normalized_filing_decimal";
+  attributionBasis?: "single_reporting_owner" | "joint_filing_unallocated";
   valueClassification: "calculated" | "not_valued";
   sourceUrl: string;
   accession: string;
@@ -477,7 +489,12 @@ export function parseForm4Liquidity(
   xml: string,
   filing: SecFiling,
 ): PublicLiquidityEvidence {
-  const ownerXml = tagBlocks(xml, "reportingOwner")[0] ?? "";
+  const reportingOwners = tagBlocks(xml, "reportingOwner");
+  const ownerXml = reportingOwners[0] ?? "";
+  const attributionBasis =
+    reportingOwners.length > 1
+      ? "joint_filing_unallocated"
+      : "single_reporting_owner";
   const reportingParty =
     tagValue(ownerXml, "rptOwnerName") || filing.reportingParty;
   const reportingPartyCik = tagValue(ownerXml, "rptOwnerCik");
@@ -507,9 +524,16 @@ export function parseForm4Liquidity(
       "transactionAcquiredDisposedCode",
     );
     const shares = numericValue(tagValue(transaction, "transactionShares"));
-    const pricePerShare = numericValue(
+    const reportedPrice = numericValue(
       tagValue(transaction, "transactionPricePerShare"),
     );
+    const normalizedValue = normalizeReportedTransactionValue({
+      accession: filing.accession,
+      issuerCik,
+      shares,
+      reportedPrice,
+    });
+    const pricePerShare = normalizedValue.pricePerShare;
     const sharesOwnedAfter = numericValue(
       tagValue(transaction, "sharesOwnedFollowingTransaction"),
     );
@@ -548,7 +572,9 @@ export function parseForm4Liquidity(
         securityTitle,
         shares,
         pricePerShare,
-        grossAmount: shares * pricePerShare,
+        grossAmount: normalizedValue.grossAmount,
+        priceBasis: normalizedValue.priceBasis,
+        attributionBasis,
         amountClassification: "calculated",
         transactionCode,
         directOrIndirect,
@@ -556,10 +582,14 @@ export function parseForm4Liquidity(
         broker: "",
         location,
         sourceUrl: filing.url,
-        note:
+        note: [
           eventType === "completed_public_share_sale"
             ? `Completed sale reported on Form 4${underPlan ? " with the filing marked as a Rule 10b5-1 transaction" : ""}.`
             : "Completed open-market purchase reported on Form 4.",
+          normalizedValue.correctionNote,
+        ]
+          .filter(Boolean)
+          .join(" "),
       });
     }
 
@@ -579,6 +609,9 @@ export function parseForm4Liquidity(
         referencePrice,
         estimatedValue:
           referencePrice === null ? null : sharesOwnedAfter * referencePrice,
+        priceBasis:
+          referencePrice === null ? undefined : normalizedValue.priceBasis,
+        attributionBasis,
         valueClassification:
           referencePrice === null ? "not_valued" : "calculated",
         sourceUrl: filing.url,

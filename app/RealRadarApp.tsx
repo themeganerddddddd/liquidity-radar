@@ -7,6 +7,7 @@ import type {
 } from "../lib/public-data";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
 import { normalizePublicLocation } from "../lib/public-locations";
+import { uniqueCompletedSaleGross } from "../lib/valuation-safety";
 import {
   buildRealPeople,
   RealPeopleDirectory,
@@ -403,11 +404,19 @@ function Dashboard({
       person.kind === "Person" &&
       person.grossCompletedSales + person.grossCompletedExitCash > 0,
   );
-  const completedGross = liquidPeople.reduce(
-    (sum, person) =>
-      sum + person.grossCompletedSales + person.grossCompletedExitCash,
+  const attributedExitCash = (data.completedExits?.records ?? []).reduce(
+    (sum, exit) =>
+      sum +
+      exit.ownerAttributions.reduce(
+        (ownerSum, owner) =>
+          ownerSum +
+          (owner.kind === "person" ? (owner.attributedCash ?? 0) : 0),
+        0,
+      ),
     0,
   );
+  const completedGross =
+    uniqueCompletedSaleGross(data.liquidity.events) + attributedExitCash;
   const remainingMedian = liquidPeople.reduce(
     (sum, person) => sum + person.estimatedRemainingLiquidity.median,
     0,
@@ -467,7 +476,7 @@ function Dashboard({
         <article>
           <span>Completed gross proceeds</span>
           <strong>{compactCurrency(completedGross)}</strong>
-          <small>Shares sold × reported transaction price</small>
+          <small>Unique normalized sales + attributed personal exits</small>
           <b>SEC</b>
         </article>
         <article>
