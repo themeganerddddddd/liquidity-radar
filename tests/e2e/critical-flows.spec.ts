@@ -31,7 +31,7 @@ test("the restored workspace shell loads its official dashboard", async ({
     page.getByRole("navigation", { name: "Product navigation" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Recently indexed people" }),
+    page.getByRole("heading", { name: "People with recent capital events" }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "State activity pulse" }),
@@ -51,38 +51,46 @@ test("the restored workspace shell loads its official dashboard", async ({
 test("real SEC names are searchable and open evidence-linked profiles", async ({
   page,
 }) => {
-  const filing = snapshotJson.sec.filings.find(
-    (record) => record.reportingParty,
+  const liquidityEvent = snapshotJson.liquidity.events.find(
+    (event) => event.eventType === "completed_public_share_sale",
   );
-  if (!filing) throw new Error("The official snapshot has no reporting party.");
+  if (!liquidityEvent)
+    throw new Error("The official snapshot has no completed sale.");
 
   await signInWithDummy(page);
   await page
     .getByLabel("Search people and public records")
-    .fill(filing.reportingParty);
+    .fill(liquidityEvent.reportingParty);
   await page.getByRole("option").first().click();
 
   await expect(
-    page.getByRole("heading", { name: filing.reportingParty }),
+    page.getByRole("heading", { name: liquidityEvent.reportingParty }),
   ).toBeVisible();
-  await expect(page.getByText("Evidence boundary")).toBeVisible();
+  await expect(page.getByText("Estimate, not bank balance")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Open latest SEC record ↗" }),
-  ).toHaveAttribute("href", filing.url);
+    page.getByRole("heading", {
+      name: "When liquidity was received or proposed",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Open latest supporting record ↗" }),
+  ).toHaveAttribute("href", liquidityEvent.sourceUrl);
 
   await page
     .locator(".side-nav")
     .getByRole("button", { name: "People" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "People and reporting parties" }),
+    page.getByRole("heading", {
+      name: "People with attributable capital events",
+    }),
   ).toBeVisible();
   await page
     .getByLabel("Search people and reporting parties")
-    .fill(filing.reportingParty);
+    .fill(liquidityEvent.reportingParty);
   await expect(
     page.getByRole("button", {
-      name: `Open profile for ${filing.reportingParty}`,
+      name: `Open profile for ${liquidityEvent.reportingParty}`,
     }),
   ).toBeVisible();
 });

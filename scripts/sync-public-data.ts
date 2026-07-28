@@ -4,6 +4,7 @@ import { parse } from "csv-parse/sync";
 import { strFromU8, unzipSync } from "fflate";
 import {
   fetchCurrentSecFilings,
+  fetchSecLiquidityEvidence,
   type AdviserFirm,
   type FoundationFiling,
   type PublicDataSnapshot,
@@ -352,8 +353,11 @@ const [secFilings, advisers, foundations, businessFormation, regionalEconomy] =
     regionalEconomySnapshot(),
   ]);
 
+const liquidity = await fetchSecLiquidityEvidence(secFilings, SEC_USER_AGENT);
+
 if (
   secFilings.length < 10 ||
+  liquidity.events.length < 5 ||
   advisers.firmCount < 10_000 ||
   foundations.filingCount < 10_000 ||
   businessFormation.states.length !== 51 ||
@@ -374,7 +378,7 @@ const snapshot: PublicDataSnapshot = {
       recordCount: secFilings.length,
       sourceUrl: sourceUrls.secApi,
       methodology:
-        "Latest Form 4, Form 144, 8-K, Schedule 13D, and Schedule 13G filing metadata. Filing does not itself prove a completed liquidity event.",
+        "Exact-form EDGAR metadata plus underlying ownership XML. Completed gross proceeds are recognized only from Form 4 sale transactions with reported shares and price or completed prior sales explicitly disclosed on Form 144. Proposed Form 144 values remain excluded from completed liquidity.",
     },
     {
       id: "adv",
@@ -422,6 +426,7 @@ const snapshot: PublicDataSnapshot = {
     updatedAt: generatedAt,
     filings: secFilings,
   },
+  liquidity,
   advisers,
   foundations,
   businessFormation,

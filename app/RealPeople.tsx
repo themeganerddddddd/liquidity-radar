@@ -1,7 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { PublicDataSnapshot, SecFiling } from "../lib/public-data";
+import type {
+  PublicDataSnapshot,
+  PublicHoldingPosition,
+  PublicLiquidityEvent,
+  SecFiling,
+} from "../lib/public-data";
+
+export type LiquidityRange = {
+  low: number;
+  median: number;
+  high: number;
+};
 
 export type RealPersonRecord = {
   id: string;
@@ -11,12 +22,100 @@ export type RealPersonRecord = {
   issuers: string[];
   forms: string[];
   filings: SecFiling[];
+  liquidityEvents: PublicLiquidityEvent[];
+  holdings: PublicHoldingPosition[];
+  grossCompletedSales: number;
+  grossPurchases: number;
+  proposedSaleValue: number;
+  estimatedNetProceeds: LiquidityRange;
+  estimatedUnobservedDeployment: LiquidityRange;
+  estimatedRemainingLiquidity: LiquidityRange;
+  estimatedPortfolioValue: number;
+  confidence: number;
+  relationship: string;
+  location: string;
+  lastLiquidityDate: string;
   lastFiledAt: string;
   archiveEntityId: string;
 };
 
+const netRetention = { low: 0.48, median: 0.63, high: 0.78 };
+const annualUnobservedRetention = { low: 0.72, median: 0.86, high: 0.96 };
+
+function daysBetween(from: string, to: string) {
+  const fromDate = new Date(`${from.slice(0, 10)}T00:00:00Z`).getTime();
+  const toDate = new Date(`${to.slice(0, 10)}T00:00:00Z`).getTime();
+  if (!Number.isFinite(fromDate) || !Number.isFinite(toDate)) return 0;
+  return Math.max(0, (toDate - fromDate) / 86_400_000);
+}
+
+export function estimateLiquidity(
+  events: PublicLiquidityEvent[],
+  asOfDate: string,
+) {
+  const sales = events.filter(
+    (event) => event.eventType === "completed_public_share_sale",
+  );
+  const purchases = events.filter(
+    (event) => event.eventType === "completed_public_share_purchase",
+  );
+  const grossCompletedSales = sales.reduce(
+    (sum, event) => sum + event.grossAmount,
+    0,
+  );
+  const grossPurchases = purchases.reduce(
+    (sum, event) => sum + event.grossAmount,
+    0,
+  );
+  const estimatedNetProceeds: LiquidityRange = {
+    low: grossCompletedSales * netRetention.low,
+    median: grossCompletedSales * netRetention.median,
+    high: grossCompletedSales * netRetention.high,
+  };
+  const retainedBeforePurchases = sales.reduce<LiquidityRange>(
+    (range, event) => {
+      const years = daysBetween(event.transactionDate, asOfDate) / 365.25;
+      range.low +=
+        event.grossAmount *
+        netRetention.low *
+        annualUnobservedRetention.low ** years;
+      range.median +=
+        event.grossAmount *
+        netRetention.median *
+        annualUnobservedRetention.median ** years;
+      range.high +=
+        event.grossAmount *
+        netRetention.high *
+        annualUnobservedRetention.high ** years;
+      return range;
+    },
+    { low: 0, median: 0, high: 0 },
+  );
+  const estimatedRemainingLiquidity: LiquidityRange = {
+    low: Math.max(0, retainedBeforePurchases.low - grossPurchases),
+    median: Math.max(0, retainedBeforePurchases.median - grossPurchases),
+    high: Math.max(0, retainedBeforePurchases.high - grossPurchases),
+  };
+  const estimatedUnobservedDeployment: LiquidityRange = {
+    low: Math.max(0, estimatedNetProceeds.low - retainedBeforePurchases.low),
+    median: Math.max(
+      0,
+      estimatedNetProceeds.median - retainedBeforePurchases.median,
+    ),
+    high: Math.max(0, estimatedNetProceeds.high - retainedBeforePurchases.high),
+  };
+
+  return {
+    grossCompletedSales,
+    grossPurchases,
+    estimatedNetProceeds,
+    estimatedUnobservedDeployment,
+    estimatedRemainingLiquidity,
+  };
+}
+
 function entityKind(name: string): RealPersonRecord["kind"] {
-  return /\b(LLC|L\.L\.C\.|INC|CORP|LTD|LP|L\.P\.|TRUST|FUND|CAPITAL|PARTNERS|HOLDINGS)\b/i.test(
+  return /\b(LLC|L\.L\.C\.|INC|CORP|LTD|LP|L\.P\.|TRUST|GRAT|IRREVOCABLE|FOUNDATION|FUND|CAPITAL|PARTNERS|HOLDINGS)\b/i.test(
     name,
   )
     ? "Entity"
@@ -46,34 +145,117 @@ function archiveEntityId(url: string) {
 }
 
 export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
-  const grouped = new Map<string, SecFiling[]>();
+  const names = new Map<string, string>();
 
   for (const filing of data.sec.filings) {
     const name = filing.reportingParty.trim();
     if (!name) continue;
-    const key = name.toLocaleLowerCase();
-    grouped.set(key, [...(grouped.get(key) ?? []), filing]);
+    names.set(name.toLocaleLowerCase(), name);
+  }
+  for (const event of data.liquidity?.events ?? []) {
+    if (event.reportingParty.trim())
+      names.set(event.reportingParty.toLocaleLowerCase(), event.reportingParty);
+  }
+  for (const holding of data.liquidity?.holdings ?? []) {
+    if (holding.reportingParty.trim())
+      names.set(
+        holding.reportingParty.toLocaleLowerCase(),
+        holding.reportingParty,
+      );
   }
 
-  return [...grouped.entries()]
-    .map(([key, filings]) => {
+  return [...names.entries()]
+    .map(([key, name]) => {
+      const filings = data.sec.filings.filter(
+        (filing) => filing.reportingParty.toLocaleLowerCase() === key,
+      );
       const ordered = [...filings].sort((left, right) =>
         right.updatedAt.localeCompare(left.updatedAt),
       );
-      const name = ordered[0].reportingParty.trim();
+      const liquidityEvents = (data.liquidity?.events ?? []).filter(
+        (event) => event.reportingParty.toLocaleLowerCase() === key,
+      );
+      const holdings = (data.liquidity?.holdings ?? []).filter(
+        (holding) => holding.reportingParty.toLocaleLowerCase() === key,
+      );
+      const estimate = estimateLiquidity(liquidityEvents, data.generatedAt);
+      const proposedSaleValue = liquidityEvents
+        .filter((event) => event.eventType === "proposed_public_share_sale")
+        .reduce((sum, event) => sum + event.grossAmount, 0);
+      const issuers = [
+        ...new Set([
+          ...ordered.map((filing) => filing.issuer),
+          ...liquidityEvents.map((event) => event.issuer),
+          ...holdings.map((holding) => holding.issuer),
+        ]),
+      ].filter(Boolean);
+      const forms = [
+        ...new Set([
+          ...ordered.map((filing) => filing.form),
+          ...liquidityEvents.map((event) => event.form),
+        ]),
+      ];
+      const latestEvidence = [...liquidityEvents].sort((left, right) =>
+        right.transactionDate.localeCompare(left.transactionDate),
+      )[0];
+      const latestLocation = liquidityEvents.find(
+        (event) => event.location.city || event.location.state,
+      )?.location;
+      const estimatedPortfolioValue = holdings.reduce(
+        (sum, holding) => sum + (holding.estimatedValue ?? 0),
+        0,
+      );
+      const completedSaleCount = liquidityEvents.filter(
+        (event) => event.eventType === "completed_public_share_sale",
+      ).length;
+      const confidence =
+        completedSaleCount > 0
+          ? Math.min(96, 86 + completedSaleCount * 2)
+          : proposedSaleValue > 0
+            ? 38
+            : holdings.length
+              ? 24
+              : 15;
       return {
         id: `${recordId(name)}-${key.length}`,
         name,
         kind: entityKind(name),
         initials: initials(name),
-        issuers: [...new Set(ordered.map((filing) => filing.issuer))],
-        forms: [...new Set(ordered.map((filing) => filing.form))],
+        issuers,
+        forms,
         filings: ordered,
-        lastFiledAt: ordered[0].filedAt,
-        archiveEntityId: archiveEntityId(ordered[0].url),
+        liquidityEvents,
+        holdings,
+        grossCompletedSales: estimate.grossCompletedSales,
+        grossPurchases: estimate.grossPurchases,
+        proposedSaleValue,
+        estimatedNetProceeds: estimate.estimatedNetProceeds,
+        estimatedUnobservedDeployment: estimate.estimatedUnobservedDeployment,
+        estimatedRemainingLiquidity: estimate.estimatedRemainingLiquidity,
+        estimatedPortfolioValue,
+        confidence,
+        relationship: latestEvidence?.relationship || "SEC reporting party",
+        location: latestLocation
+          ? [latestLocation.city, latestLocation.state, latestLocation.country]
+              .filter(Boolean)
+              .join(", ")
+          : "Location not established",
+        lastLiquidityDate:
+          latestEvidence?.transactionDate || ordered[0]?.filedAt || "",
+        lastFiledAt: ordered[0]?.filedAt || latestEvidence?.filingDate || "",
+        archiveEntityId:
+          latestEvidence?.reportingPartyCik ||
+          holdings[0]?.reportingPartyCik ||
+          (ordered[0] ? archiveEntityId(ordered[0].url) : "Not available"),
       };
     })
-    .sort((left, right) => right.lastFiledAt.localeCompare(left.lastFiledAt));
+    .sort(
+      (left, right) =>
+        right.estimatedRemainingLiquidity.median -
+          left.estimatedRemainingLiquidity.median ||
+        right.proposedSaleValue - left.proposedSaleValue ||
+        right.lastFiledAt.localeCompare(left.lastFiledAt),
+    );
 }
 
 function displayDate(value: string) {
@@ -90,6 +272,19 @@ function nameSort(value: string) {
   return value.toLocaleLowerCase();
 }
 
+function compactCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+function moneyRange(range: LiquidityRange) {
+  return `${compactCurrency(range.low)}–${compactCurrency(range.high)}`;
+}
+
 export function RealPeopleDirectory({
   people,
   query,
@@ -101,9 +296,9 @@ export function RealPeopleDirectory({
   onQuery: (query: string) => void;
   onPerson: (person: RealPersonRecord) => void;
 }) {
-  const [form, setForm] = useState("All forms");
-  const [kind, setKind] = useState("All reporting parties");
-  const forms = [...new Set(people.flatMap((person) => person.forms))].sort();
+  const [evidence, setEvidence] = useState("All liquidity evidence");
+  const [kind, setKind] = useState("People only");
+  const [sort, setSort] = useState("Estimated liquidity");
 
   const filtered = useMemo(
     () =>
@@ -114,14 +309,37 @@ export function RealPeopleDirectory({
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()),
         )
-        .filter((person) => form === "All forms" || person.forms.includes(form))
-        .filter(
-          (person) => kind === "All reporting parties" || person.kind === kind,
+        .filter((person) =>
+          kind === "All reporting parties"
+            ? true
+            : kind === "People only"
+              ? person.kind === "Person"
+              : person.kind === "Entity",
         )
-        .sort((left, right) =>
-          nameSort(left.name).localeCompare(nameSort(right.name)),
-        ),
-    [form, kind, people, query],
+        .filter((person) => {
+          if (evidence === "Completed sales")
+            return person.grossCompletedSales > 0;
+          if (evidence === "Proposed sales")
+            return person.proposedSaleValue > 0;
+          if (evidence === "Reported holdings")
+            return person.holdings.length > 0;
+          return true;
+        })
+        .sort((left, right) => {
+          if (sort === "Estimated liquidity")
+            return (
+              right.estimatedRemainingLiquidity.median -
+              left.estimatedRemainingLiquidity.median
+            );
+          if (sort === "Gross proceeds")
+            return right.grossCompletedSales - left.grossCompletedSales;
+          if (sort === "Most recent")
+            return right.lastLiquidityDate.localeCompare(
+              left.lastLiquidityDate,
+            );
+          return nameSort(left.name).localeCompare(nameSort(right.name));
+        }),
+    [evidence, kind, people, query, sort],
   );
 
   return (
@@ -138,16 +356,16 @@ export function RealPeopleDirectory({
           />
         </label>
         <label>
-          <span>Record type</span>
+          <span>Liquidity evidence</span>
           <select
-            value={form}
-            onChange={(event) => setForm(event.target.value)}
-            aria-label="Filter people by SEC form"
+            value={evidence}
+            onChange={(event) => setEvidence(event.target.value)}
+            aria-label="Filter people by liquidity evidence"
           >
-            <option>All forms</option>
-            {forms.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
+            <option>All liquidity evidence</option>
+            <option>Completed sales</option>
+            <option>Proposed sales</option>
+            <option>Reported holdings</option>
           </select>
         </label>
         <label>
@@ -157,9 +375,22 @@ export function RealPeopleDirectory({
             onChange={(event) => setKind(event.target.value)}
             aria-label="Filter by reporting party type"
           >
+            <option>People only</option>
             <option>All reporting parties</option>
-            <option>Person</option>
-            <option>Entity</option>
+            <option>Entities only</option>
+          </select>
+        </label>
+        <label>
+          <span>Sort by</span>
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            aria-label="Sort people"
+          >
+            <option>Estimated liquidity</option>
+            <option>Gross proceeds</option>
+            <option>Most recent</option>
+            <option>Name</option>
           </select>
         </label>
         <div className="real-people-result-count">
@@ -175,9 +406,9 @@ export function RealPeopleDirectory({
         <div className="real-people-row heading">
           <span>Reporting party</span>
           <span>Linked issuer</span>
-          <span>Observed records</span>
-          <span>Latest filing</span>
-          <span>Evidence</span>
+          <span>Completed gross proceeds</span>
+          <span>Estimated remaining liquidity</span>
+          <span>Latest evidence</span>
         </div>
         {filtered.map((person) => (
           <button
@@ -203,14 +434,29 @@ export function RealPeopleDirectory({
               </small>
             </span>
             <span>
-              <strong>{person.filings.length}</strong>
-              <small>{person.forms.join(", ")}</small>
+              <strong>
+                {person.grossCompletedSales > 0
+                  ? compactCurrency(person.grossCompletedSales)
+                  : "No completed sale"}
+              </strong>
+              <small>
+                {person.proposedSaleValue > 0
+                  ? `${compactCurrency(person.proposedSaleValue)} proposed`
+                  : `${person.liquidityEvents.length} qualifying events`}
+              </small>
             </span>
             <span>
-              <strong>{displayDate(person.lastFiledAt)}</strong>
-              <small>SEC EDGAR</small>
+              <strong>
+                {person.grossCompletedSales > 0
+                  ? moneyRange(person.estimatedRemainingLiquidity)
+                  : "Not yet estimated"}
+              </strong>
+              <small>{person.confidence}% confidence</small>
             </span>
-            <b>View profile →</b>
+            <span>
+              <strong>{displayDate(person.lastLiquidityDate)}</strong>
+              <small>View profile →</small>
+            </span>
           </button>
         ))}
         {!filtered.length && (
@@ -222,12 +468,29 @@ export function RealPeopleDirectory({
       </section>
 
       <p className="real-workspace-footnote">
-        Names and issuer relationships on this page are taken from SEC filing
-        metadata. Inclusion does not by itself prove investable cash, net worth,
-        or intent to invest.
+        Completed gross proceeds are calculated from reported shares sold and
+        transaction prices. Remaining liquidity is an estimated range after
+        configurable tax, fee, known-purchase, and unobserved-deployment
+        assumptions; it is not a bank balance.
       </p>
     </>
   );
+}
+
+function eventLabel(event: PublicLiquidityEvent) {
+  if (event.eventType === "completed_public_share_sale")
+    return "Completed public-share sale";
+  if (event.eventType === "completed_public_share_purchase")
+    return "Completed public-share purchase";
+  return "Proposed public-share sale";
+}
+
+function eventRange(event: PublicLiquidityEvent) {
+  return {
+    low: event.grossAmount * netRetention.low,
+    median: event.grossAmount * netRetention.median,
+    high: event.grossAmount * netRetention.high,
+  };
 }
 
 export function RealPersonProfile({
@@ -248,6 +511,8 @@ export function RealPersonProfile({
         candidate.issuers.some((issuer) => person.issuers.includes(issuer)),
     )
     .slice(0, 8);
+  const latestSource =
+    person.liquidityEvents[0]?.sourceUrl || person.filings[0]?.url;
 
   return (
     <>
@@ -259,56 +524,76 @@ export function RealPersonProfile({
         <div className="real-person-profile-identity">
           <span>{person.initials || "SEC"}</span>
           <div>
-            <p className="eyebrow">SEC-observed reporting party</p>
+            <p className="eyebrow">Evidence-linked liquidity profile</p>
             <div>
               <h1>{person.name}</h1>
-              <b>{person.kind}</b>
+              <b>{person.confidence}% confidence</b>
             </div>
             <p>
-              Publicly associated with {person.issuers.join(", ")} through{" "}
-              {person.forms.join(", ")} filing metadata.
+              {person.relationship} at {person.issuers.join(", ")} ·{" "}
+              {person.location}. Latest liquidity evidence{" "}
+              {displayDate(person.lastLiquidityDate)}.
             </p>
           </div>
         </div>
         <div className="real-person-profile-summary">
-          <span>Observed public records</span>
-          <strong>{person.filings.length}</strong>
-          <small>Latest filing {displayDate(person.lastFiledAt)}</small>
-          <a href={person.filings[0].url} target="_blank" rel="noreferrer">
-            Open latest SEC record ↗
-          </a>
+          <span>Estimated remaining liquidity</span>
+          <strong>
+            {person.grossCompletedSales > 0
+              ? moneyRange(person.estimatedRemainingLiquidity)
+              : "Not yet estimated"}
+          </strong>
+          <small>
+            Median {compactCurrency(person.estimatedRemainingLiquidity.median)}{" "}
+            · calculated from completed public sales
+          </small>
+          {latestSource && (
+            <a href={latestSource} target="_blank" rel="noreferrer">
+              Open latest supporting record ↗
+            </a>
+          )}
         </div>
       </section>
 
       <div className="real-profile-disclosure">
-        <strong>Evidence boundary</strong>
+        <strong>Estimate, not bank balance</strong>
         <p>
-          This profile summarizes attributable filing metadata. Liquidity Radar
-          does not infer this party’s cash balance, net worth, investment
-          intent, or deployable capital from the filing alone.
+          Gross sale proceeds are observed or calculated from SEC records.
+          Estimated net and remaining liquidity apply visible tax, fee,
+          completed-purchase, and time-based unobserved-deployment assumptions.
+          Actual cash on hand can differ materially.
         </p>
       </div>
 
-      <section className="real-profile-kpis" aria-label="Profile summary">
+      <section className="real-profile-kpis" aria-label="Liquidity summary">
         <article>
-          <span>Linked issuers</span>
-          <strong>{person.issuers.length}</strong>
-          <small>{person.issuers.join(", ")}</small>
+          <span>Completed gross proceeds</span>
+          <strong>{compactCurrency(person.grossCompletedSales)}</strong>
+          <small>
+            {
+              person.liquidityEvents.filter(
+                (event) => event.eventType === "completed_public_share_sale",
+              ).length
+            }{" "}
+            completed sale events
+          </small>
         </article>
         <article>
-          <span>SEC forms observed</span>
-          <strong>{person.forms.length}</strong>
-          <small>{person.forms.join(", ")}</small>
+          <span>Estimated net proceeds</span>
+          <strong>{moneyRange(person.estimatedNetProceeds)}</strong>
+          <small>After modeled tax and transaction-cost ranges</small>
         </article>
         <article>
-          <span>Latest public activity</span>
-          <strong>{displayDate(person.lastFiledAt)}</strong>
-          <small>Based on the indexed EDGAR feed</small>
+          <span>Known public purchases</span>
+          <strong>{compactCurrency(person.grossPurchases)}</strong>
+          <small>Subtracted as documented cash deployment</small>
         </article>
         <article>
-          <span>Liquidity conclusion</span>
-          <strong>Not asserted</strong>
-          <small>Transaction-level review required</small>
+          <span>Estimated remaining liquidity</span>
+          <strong>{moneyRange(person.estimatedRemainingLiquidity)}</strong>
+          <small>
+            Median {compactCurrency(person.estimatedRemainingLiquidity.median)}
+          </small>
         </article>
       </section>
 
@@ -317,31 +602,137 @@ export function RealPersonProfile({
           <article className="real-profile-panel">
             <div className="panel-head">
               <div>
-                <p className="eyebrow">Source timeline</p>
-                <h2>Observed SEC filing history</h2>
+                <p className="eyebrow">Cash-creation ledger</p>
+                <h2>When liquidity was received or proposed</h2>
               </div>
-              <span>{person.filings.length} records</span>
+              <span>{person.liquidityEvents.length} qualifying events</span>
             </div>
-            <div className="real-profile-timeline">
-              {person.filings.map((filing) => (
-                <a
-                  key={`${filing.form}-${filing.accession}`}
-                  href={filing.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <i />
-                  <div>
+            {person.liquidityEvents.length ? (
+              <div className="real-liquidity-ledger">
+                <div className="real-liquidity-ledger-row heading">
+                  <span>Event and date</span>
+                  <span>Reported calculation</span>
+                  <span>Estimated net effect</span>
+                  <span>Evidence</span>
+                </div>
+                {person.liquidityEvents.map((event) => (
+                  <a
+                    className={`real-liquidity-ledger-row ${event.status}`}
+                    key={event.id}
+                    href={event.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <span>
-                      {filing.form} · {displayDate(filing.filedAt)}
+                      <strong>{eventLabel(event)}</strong>
+                      <small>
+                        {displayDate(event.transactionDate)} · {event.issuer}
+                      </small>
                     </span>
-                    <strong>{filing.issuer}</strong>
-                    <small>Accession {filing.accession}</small>
-                  </div>
-                  <b>SEC ↗</b>
-                </a>
-              ))}
+                    <span>
+                      <strong>
+                        {event.eventType === "completed_public_share_purchase"
+                          ? "−"
+                          : event.status === "completed"
+                            ? "+"
+                            : ""}
+                        {compactCurrency(event.grossAmount)}
+                      </strong>
+                      <small>
+                        {event.shares.toLocaleString()} shares ×{" "}
+                        {compactCurrency(event.pricePerShare)}
+                      </small>
+                    </span>
+                    <span>
+                      <strong>
+                        {event.status === "completed" &&
+                        event.eventType === "completed_public_share_sale"
+                          ? moneyRange(eventRange(event))
+                          : event.status === "proposed"
+                            ? "Not counted until completed"
+                            : `−${compactCurrency(event.grossAmount)}`}
+                      </strong>
+                      <small>
+                        {event.status === "completed"
+                          ? event.amountClassification
+                          : "proposed only"}
+                      </small>
+                    </span>
+                    <b>{event.form} · SEC ↗</b>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="real-profile-empty">
+                No completed or proposed cash-generating transaction was
+                extracted from this party’s currently indexed filings.
+              </p>
+            )}
+          </article>
+
+          <article className="real-profile-panel">
+            <div className="panel-head">
+              <div>
+                <p className="eyebrow">Observed portfolio</p>
+                <h2>Reported securities positions</h2>
+              </div>
+              <span>
+                {person.holdings.length} positions ·{" "}
+                {compactCurrency(person.estimatedPortfolioValue)} valued
+              </span>
             </div>
+            {person.holdings.length ? (
+              <div className="real-holdings-table">
+                <div className="real-holdings-row heading">
+                  <span>Issuer / security</span>
+                  <span>Shares reported</span>
+                  <span>Reference price</span>
+                  <span>Estimated value</span>
+                </div>
+                {person.holdings.map((holding) => (
+                  <a
+                    className="real-holdings-row"
+                    href={holding.sourceUrl}
+                    key={holding.id}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span>
+                      <strong>{holding.issuer}</strong>
+                      <small>
+                        {holding.securityTitle} ·{" "}
+                        {holding.directOrIndirect === "D"
+                          ? "Direct"
+                          : holding.directOrIndirect === "I"
+                            ? "Indirect"
+                            : holding.directOrIndirect}
+                      </small>
+                    </span>
+                    <strong>{holding.shares.toLocaleString()}</strong>
+                    <span>
+                      {holding.referencePrice === null
+                        ? "Not reported"
+                        : compactCurrency(holding.referencePrice)}
+                    </span>
+                    <b>
+                      {holding.estimatedValue === null
+                        ? "Not valued"
+                        : compactCurrency(holding.estimatedValue)}
+                    </b>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="real-profile-empty">
+                No post-transaction position was available in the currently
+                indexed ownership filings.
+              </p>
+            )}
+            <p className="real-profile-panel-note">
+              Portfolio coverage is limited to securities disclosed in indexed
+              SEC ownership forms. Values use a filing transaction price only
+              when one is reported; this is not a complete personal portfolio.
+            </p>
           </article>
 
           <article className="real-profile-panel">
@@ -363,7 +754,10 @@ export function RealPersonProfile({
                     <i>{candidate.initials || "SEC"}</i>
                     <span>
                       <strong>{candidate.name}</strong>
-                      <small>{candidate.issuers.join(", ")}</small>
+                      <small>
+                        {candidate.issuers.join(", ")} ·{" "}
+                        {moneyRange(candidate.estimatedRemainingLiquidity)}
+                      </small>
                     </span>
                     <b>→</b>
                   </button>
@@ -383,7 +777,7 @@ export function RealPersonProfile({
             <div className="panel-head">
               <div>
                 <p className="eyebrow">Profile facts</p>
-                <h2>What the record establishes</h2>
+                <h2>Observed identity and role</h2>
               </div>
             </div>
             <dl className="real-profile-facts">
@@ -392,31 +786,58 @@ export function RealPersonProfile({
                 <dd>{person.name}</dd>
               </div>
               <div>
-                <dt>Party classification</dt>
-                <dd>{person.kind}</dd>
+                <dt>Relationship</dt>
+                <dd>{person.relationship}</dd>
               </div>
               <div>
                 <dt>Issuer relationship</dt>
                 <dd>{person.issuers.join(", ")}</dd>
               </div>
               <div>
-                <dt>SEC archive entity ID</dt>
+                <dt>Public location</dt>
+                <dd>{person.location}</dd>
+              </div>
+              <div>
+                <dt>Reporting-owner CIK</dt>
                 <dd>{person.archiveEntityId}</dd>
               </div>
               <div>
-                <dt>Source publisher</dt>
-                <dd>U.S. Securities and Exchange Commission</dd>
+                <dt>Proposed sale value</dt>
+                <dd>{compactCurrency(person.proposedSaleValue)}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article className="real-profile-panel real-model-card">
+            <p className="eyebrow">Current model assumptions</p>
+            <h2>How remaining liquidity is estimated</h2>
+            <dl>
+              <div>
+                <dt>Net proceeds retained</dt>
+                <dd>48% low · 63% median · 78% high</dd>
+              </div>
+              <div>
+                <dt>Annual unobserved retention</dt>
+                <dd>72% low · 86% median · 96% high</dd>
+              </div>
+              <div>
+                <dt>Known public purchases</dt>
+                <dd>Subtracted at reported gross cost</dd>
+              </div>
+              <div>
+                <dt>Form 144 proposals</dt>
+                <dd>Excluded until completion evidence appears</dd>
               </div>
             </dl>
           </article>
 
           <article className="real-profile-panel real-profile-limit">
-            <p className="eyebrow">Not established by this profile</p>
+            <p className="eyebrow">Known limitations</p>
             <ul>
-              <li>Personal cash balance or net worth</li>
-              <li>Available investment allocation</li>
-              <li>Current employer title or biography</li>
-              <li>Contact information</li>
+              <li>Private spending and investments are not fully observable</li>
+              <li>Tax basis and actual tax treatment are not known</li>
+              <li>Holdings outside SEC ownership reports are excluded</li>
+              <li>The estimate is not an actual bank-account balance</li>
             </ul>
           </article>
         </aside>

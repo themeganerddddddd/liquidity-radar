@@ -8322,7 +8322,7 @@ td small {
   border-radius: 8px;
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(260px, 1fr) 160px 190px auto;
+  grid-template-columns: minmax(240px, 1fr) 175px 145px 145px auto;
   margin-bottom: 10px;
   padding: 12px;
 }
@@ -8589,7 +8589,7 @@ button.real-people-row:focus-visible {
 .real-person-profile-summary > strong {
   color: #fff;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 34px;
+  font-size: 28px;
   font-weight: 400;
 }
 
@@ -8865,9 +8865,170 @@ button.real-people-row:focus-visible {
   padding: 18px 4px 9px;
 }
 
+.real-liquidity-ledger,
+.real-holdings-table {
+  display: grid;
+  overflow-x: auto;
+}
+
+.real-liquidity-ledger-row {
+  align-items: center;
+  border-bottom: 1px solid #e6ece8;
+  color: inherit;
+  display: grid;
+  gap: 12px;
+  grid-template-columns:
+    minmax(190px, 1.1fr) minmax(140px, 0.75fr) minmax(150px, 0.8fr)
+    78px;
+  min-height: 66px;
+  min-width: 680px;
+  padding: 8px 4px;
+  text-decoration: none;
+}
+
+.real-liquidity-ledger-row.heading {
+  color: var(--quiet);
+  font-size: 7px;
+  font-weight: 850;
+  min-height: 33px;
+  text-transform: uppercase;
+}
+
+.real-liquidity-ledger-row:last-child {
+  border-bottom: 0;
+}
+
+a.real-liquidity-ledger-row:hover {
+  background: #f4f8f5;
+}
+
+.real-liquidity-ledger-row > span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.real-liquidity-ledger-row strong {
+  font-size: 9px;
+}
+
+.real-liquidity-ledger-row small {
+  color: var(--quiet);
+  font-size: 7px;
+  line-height: 1.35;
+}
+
+.real-liquidity-ledger-row.completed > span:nth-child(2) strong {
+  color: #13776a;
+}
+
+.real-liquidity-ledger-row.proposed > span:nth-child(2) strong {
+  color: #a16d25;
+}
+
+.real-liquidity-ledger-row > b {
+  color: #15766a;
+  font-size: 8px;
+  text-align: right;
+}
+
+.real-holdings-row {
+  align-items: center;
+  border-bottom: 1px solid #e6ece8;
+  color: inherit;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(210px, 1.2fr) 105px 105px 110px;
+  min-height: 58px;
+  min-width: 620px;
+  padding: 7px 4px;
+  text-decoration: none;
+}
+
+.real-holdings-row.heading {
+  color: var(--quiet);
+  font-size: 7px;
+  font-weight: 850;
+  min-height: 32px;
+  text-transform: uppercase;
+}
+
+.real-holdings-row:last-child {
+  border-bottom: 0;
+}
+
+a.real-holdings-row:hover {
+  background: #f4f8f5;
+}
+
+.real-holdings-row > span:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.real-holdings-row strong,
+.real-holdings-row b {
+  font-size: 9px;
+}
+
+.real-holdings-row small,
+.real-holdings-row > span {
+  color: var(--quiet);
+  font-size: 7px;
+}
+
+.real-holdings-row > b {
+  color: #15766a;
+}
+
+.real-profile-panel-note {
+  background: #f0f4f1;
+  border-radius: 5px;
+  color: #697873;
+  font-size: 8px;
+  line-height: 1.5;
+  margin-top: 9px;
+  padding: 9px 10px;
+}
+
+.real-model-card {
+  background: #eaf3ef;
+}
+
+.real-model-card h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 5px 0 12px;
+}
+
+.real-model-card dl {
+  display: grid;
+}
+
+.real-model-card dl > div {
+  border-top: 1px solid #d2e1dc;
+  display: grid;
+  gap: 4px;
+  padding: 9px 0;
+}
+
+.real-model-card dt {
+  color: #60736d;
+  font-size: 7px;
+  text-transform: uppercase;
+}
+
+.real-model-card dd {
+  color: #284b45;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
 @media (max-width: 1180px) {
   .real-people-controls {
-    grid-template-columns: minmax(250px, 1fr) 150px 175px;
+    grid-template-columns: minmax(250px, 1fr) 175px 145px 145px;
   }
 
   .real-people-result-count {

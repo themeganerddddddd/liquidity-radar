@@ -60,10 +60,10 @@ const viewCopy: Record<
   { eyebrow: string; title: string; detail: string }
 > = {
   dashboard: {
-    eyebrow: "Official public-data workspace",
+    eyebrow: "Evidence-backed personal liquidity",
     title: "Good afternoon.",
     detail:
-      "Monitor attributable capital signals from the SEC, IRS, Census Bureau, and Bureau of Economic Analysis.",
+      "Track when public records show people receiving cash, how much may remain deployable, and which evidence supports each estimate.",
   },
   map: {
     eyebrow: "Regional intelligence",
@@ -72,10 +72,10 @@ const viewCopy: Record<
       "Compare official state-level business formation, adviser, asset, and economic-growth records.",
   },
   people: {
-    eyebrow: "Attributable SEC identities",
-    title: "People and reporting parties",
+    eyebrow: "Personal liquidity search",
+    title: "People with attributable capital events",
     detail:
-      "Search real names connected to current SEC ownership filings, then inspect the evidence behind each profile.",
+      "Rank real reporting parties by completed gross proceeds and estimated remaining liquidity, then inspect every model input.",
   },
   profile: {
     eyebrow: "SEC reporting-party profile",
@@ -371,6 +371,20 @@ function Dashboard({
   onNavigate: (view: WorkspaceView) => void;
   onPerson: (person: RealPersonRecord) => void;
 }) {
+  const liquidPeople = people.filter(
+    (person) => person.kind === "Person" && person.grossCompletedSales > 0,
+  );
+  const completedGross = liquidPeople.reduce(
+    (sum, person) => sum + person.grossCompletedSales,
+    0,
+  );
+  const remainingMedian = liquidPeople.reduce(
+    (sum, person) => sum + person.estimatedRemainingLiquidity.median,
+    0,
+  );
+  const proposedGross = people
+    .filter((person) => person.kind === "Person")
+    .reduce((sum, person) => sum + person.proposedSaleValue, 0);
   const statePulse = useMemo(
     () =>
       [...data.businessFormation.states]
@@ -407,8 +421,9 @@ function Dashboard({
             : "Verified snapshot"}
         </span>
         <p>
-          Every visible record is tied to an official publisher. No fictional
-          people, inferred balances, or modeled liquidity events are included.
+          Every profile is tied to transaction-level public evidence. Completed
+          proceeds are separated from proposed sales, and every remaining-cash
+          range exposes its model assumptions.
         </p>
         <button type="button" onClick={() => onNavigate("sources")}>
           Evidence policy →
@@ -417,30 +432,28 @@ function Dashboard({
 
       <section className="real-workspace-kpis" aria-label="Public data summary">
         <article>
-          <span>Named reporting parties</span>
-          <strong>{people.length.toLocaleString()}</strong>
-          <small>Real names in the current SEC window</small>
+          <span>Completed gross proceeds</span>
+          <strong>{compactCurrency(completedGross)}</strong>
+          <small>Shares sold × reported transaction price</small>
           <b>SEC</b>
         </article>
         <article>
-          <span>Registered advisers</span>
-          <strong>{data.advisers.firmCount.toLocaleString()}</strong>
-          <small>{data.advisers.period} Form ADV roster</small>
+          <span>People with completed-sale evidence</span>
+          <strong>{liquidPeople.length.toLocaleString()}</strong>
+          <small>Ranked by modeled remaining liquidity</small>
           <b>SEC</b>
         </article>
         <article>
-          <span>Private-foundation filings</span>
-          <strong>{data.foundations.filingCount.toLocaleString()}</strong>
-          <small>{data.foundations.year} IRS index</small>
-          <b>IRS</b>
+          <span>Estimated remaining liquidity</span>
+          <strong>{compactCurrency(remainingMedian)}</strong>
+          <small>Median across completed-sale profiles</small>
+          <b>Modeled</b>
         </article>
         <article>
-          <span>Business applications</span>
-          <strong>
-            {data.businessFormation.national.applications.toLocaleString()}
-          </strong>
-          <small>{data.businessFormation.period} national total</small>
-          <b>Census</b>
+          <span>Proposed sale pipeline</span>
+          <strong>{compactCurrency(proposedGross)}</strong>
+          <small>Form 144 values excluded until completed</small>
+          <b>SEC</b>
         </article>
       </section>
 
@@ -448,30 +461,40 @@ function Dashboard({
         <article className="real-workspace-panel">
           <div className="panel-head">
             <div>
-              <p className="eyebrow">Observed reporting parties</p>
-              <h2>Recently indexed people</h2>
+              <p className="eyebrow">Personal liquidity ranking</p>
+              <h2>People with recent capital events</h2>
             </div>
             <button type="button" onClick={() => onNavigate("people")}>
               View all
             </button>
           </div>
           <div className="real-record-list real-person-preview-list">
-            {people.slice(0, 7).map((person) => (
-              <button
-                type="button"
-                key={person.id}
-                onClick={() => onPerson(person)}
-              >
-                <span>{person.initials || "SEC"}</span>
-                <div>
-                  <strong>{person.name}</strong>
-                  <small>
-                    {person.issuers[0]} · {person.forms.join(", ")}
-                  </small>
-                </div>
-                <b aria-hidden="true">→</b>
-              </button>
-            ))}
+            {people
+              .filter(
+                (person) =>
+                  person.kind === "Person" &&
+                  (person.grossCompletedSales > 0 ||
+                    person.proposedSaleValue > 0),
+              )
+              .slice(0, 7)
+              .map((person) => (
+                <button
+                  type="button"
+                  key={person.id}
+                  onClick={() => onPerson(person)}
+                >
+                  <span>{person.initials || "SEC"}</span>
+                  <div>
+                    <strong>{person.name}</strong>
+                    <small>
+                      {person.grossCompletedSales > 0
+                        ? `${compactCurrency(person.grossCompletedSales)} gross · ${compactCurrency(person.estimatedRemainingLiquidity.median)} median remaining`
+                        : `${compactCurrency(person.proposedSaleValue)} proposed · not counted as completed`}
+                    </small>
+                  </div>
+                  <b aria-hidden="true">→</b>
+                </button>
+              ))}
           </div>
         </article>
 
@@ -715,12 +738,13 @@ function SourcesView({ data }: { data: PublicDataSnapshot }) {
     <>
       <PageIntro view="sources" />
       <div className="real-methodology-note">
-        <strong>Observed stays observed.</strong>
+        <strong>Evidence first. Estimates second.</strong>
         <p>
-          Liquidity Radar does not turn a filing into a completed liquidity
-          event, firm assets into personal wealth, or a foundation return into
-          deployable individual capital. The test workspace deliberately
-          excludes those unsupported inferences.
+          Liquidity Radar treats Form 4 sale transactions and completed
+          prior-sale disclosures as cash-creation evidence when shares and
+          proceeds are available. Form 144 proposals remain proposed. Taxes,
+          fees, private deployment, and remaining liquidity are modeled as
+          ranges and never presented as observed bank balances.
         </p>
       </div>
       <section className="real-source-directory">
@@ -833,7 +857,7 @@ export function RealRadarApp() {
           view="people"
           action={
             <span className="real-count-pill">
-              {people.length} real reporting parties
+              {people.length} real liquidity profiles
             </span>
           }
         />
