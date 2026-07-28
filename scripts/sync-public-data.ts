@@ -1,9 +1,11 @@
-import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parse } from "csv-parse/sync";
 import { strFromU8, unzipSync } from "fflate";
 import {
   fetchCurrentSecFilings,
+  fetchSecLiquidityEvidence,
+  mergePublicLiquidityEvidence,
+  selectLiquidityProfileCoverage,
   type AdviserFirm,
   type FoundationFiling,
   type PublicDataSnapshot,
@@ -11,6 +13,12 @@ import {
   type StateBusinessFormation,
   type StateEconomy,
 } from "../lib/public-data";
+import { parseFtcExitSignals } from "../lib/exit-signals";
+import { parseSecInsiderArchive } from "../lib/sec-insider-data";
+import {
+  readChunkedPublicSnapshot,
+  writeChunkedPublicSnapshot,
+} from "./public-snapshot-files";
 
 const configuredSecUserAgent = process.env.SEC_USER_AGENT;
 
@@ -23,7 +31,12 @@ const SEC_USER_AGENT = configuredSecUserAgent;
 
 const sourceUrls = {
   secApi:
-    "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+    "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+  secInsiderArchives: [
+    "https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip",
+    "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2026q1_form345.zip",
+    "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2025q4_form345.zip",
+  ],
   advisers:
     "https://www.sec.gov/data-research/sec-markets-data/information-about-registered-investment-advisers-exempt-reporting-advisers",
   adviserZip:
@@ -36,6 +49,9 @@ const sourceUrls = {
   censusCsv: "https://www.census.gov/econ/bfs/csv/bfs_monthly.csv",
   bea: "https://www.bea.gov/itable/regional-gdp-and-personal-income",
   beaZip: "https://apps.bea.gov/regional/zip/SQGDP.zip",
+  ftc: "https://www.ftc.gov/legal-library/browse/early-termination-notices",
+  censusOwners:
+    "https://www.census.gov/data/tables/2024/econ/abs/2024-abs-characteristics-of-owners.html",
 } as const;
 
 const stateNames: Record<string, string> = {
@@ -343,17 +359,100 @@ async function regionalEconomySnapshot() {
   };
 }
 
-const [secFilings, advisers, foundations, businessFormation, regionalEconomy] =
-  await Promise.all([
-    fetchCurrentSecFilings(SEC_USER_AGENT),
-    adviserSnapshot(),
-    foundationSnapshot(),
-    businessFormationSnapshot(),
-    regionalEconomySnapshot(),
-  ]);
+async function existingSnapshot() {
+  try {
+    return await readChunkedPublicSnapshot(
+      path.join(process.cwd(), "public", "data", "public-signals.json"),
+    );
+  } catch {
+    return null;
+  }
+}
+
+async function insiderHistorySnapshot() {
+  const evidence = [];
+  for (const url of sourceUrls.secInsiderArchives) {
+    try {
+      evidence.push(
+        parseSecInsiderArchive(
+          await download(url, {
+            "user-agent": SEC_USER_AGENT,
+          }),
+        ),
+      );
+    } catch {
+      // The verified checked-in history remains available when SEC bulk data is temporarily unavailable.
+    }
+  }
+  return evidence;
+}
+
+async function exitSignalsSnapshot() {
+  const pages = await Promise.all(
+    Array.from({ length: 5 }, async (_, page) => {
+      const suffix = page ? `?page=${page}` : "";
+      return downloadText(`${sourceUrls.ftc}${suffix}`, {
+        "user-agent": SEC_USER_AGENT,
+      });
+    }),
+  );
+  const records = [
+    ...new Map(
+      pages.flatMap(parseFtcExitSignals).map((record) => [record.id, record]),
+    ).values(),
+  ]
+    .sort((left, right) => right.date.localeCompare(left.date))
+    .slice(0, 100);
+  return {
+    updatedAt: new Date().toISOString(),
+    records,
+  };
+}
+
+const previousSnapshot = await existingSnapshot();
+const [
+  secFilings,
+  advisers,
+  foundations,
+  businessFormation,
+  regionalEconomy,
+  historicalEvidence,
+  exitSignals,
+] = await Promise.all([
+  fetchCurrentSecFilings(SEC_USER_AGENT),
+  adviserSnapshot(),
+  foundationSnapshot(),
+  businessFormationSnapshot(),
+  regionalEconomySnapshot(),
+  insiderHistorySnapshot(),
+  exitSignalsSnapshot().catch(
+    () =>
+      previousSnapshot?.exitSignals ?? {
+        updatedAt: new Date().toISOString(),
+        records: [],
+      },
+  ),
+]);
+
+const currentLiquidity = await fetchSecLiquidityEvidence(
+  secFilings,
+  SEC_USER_AGENT,
+);
+const liquidity = selectLiquidityProfileCoverage(
+  mergePublicLiquidityEvidence(
+    ...(historicalEvidence.length
+      ? historicalEvidence
+      : previousSnapshot
+        ? [previousSnapshot.liquidity]
+        : []),
+    currentLiquidity,
+  ),
+  1500,
+);
 
 if (
   secFilings.length < 10 ||
+  liquidity.events.length < 5 ||
   advisers.firmCount < 10_000 ||
   foundations.filingCount < 10_000 ||
   businessFormation.states.length !== 51 ||
@@ -368,13 +467,13 @@ const snapshot: PublicDataSnapshot = {
   sources: [
     {
       id: "sec",
-      name: "EDGAR current filings",
+      name: "EDGAR insider transactions",
       publisher: "U.S. Securities and Exchange Commission",
-      freshness: "Near real time",
-      recordCount: secFilings.length,
+      freshness: `${liquidity.coverage?.startDate || "Historical"} to ${liquidity.coverage?.endDate || "current"}`,
+      recordCount: liquidity.events.length,
       sourceUrl: sourceUrls.secApi,
       methodology:
-        "Latest Form 4, Form 144, 8-K, Schedule 13D, and Schedule 13G filing metadata. Filing does not itself prove a completed liquidity event.",
+        "Quarterly SEC Insider Transactions Data Sets plus exact-form current EDGAR metadata and underlying ownership XML. Completed gross proceeds are recognized only from Form 4 sale transactions with reported shares and price or completed prior sales explicitly disclosed on Form 144. Proposed Form 144 values remain excluded from completed liquidity.",
     },
     {
       id: "adv",
@@ -384,7 +483,7 @@ const snapshot: PublicDataSnapshot = {
       recordCount: advisers.firmCount,
       sourceUrl: sourceUrls.advisers,
       methodology:
-        "Approved SEC-registered advisers with public office and reported regulatory-asset fields.",
+        "Approved SEC-registered advisers with public office and reported regulatory-asset fields. Used only as regional capital-market context; adviser assets are not attributed to the firm or its employees as liquidity.",
     },
     {
       id: "irs",
@@ -394,7 +493,7 @@ const snapshot: PublicDataSnapshot = {
       recordCount: foundations.filingCount,
       sourceUrl: sourceUrls.foundations,
       methodology:
-        "Electronically filed private-foundation returns indexed by the IRS. Values are filing metadata, not modeled wealth.",
+        "Electronically filed private-foundation returns indexed by the IRS. Retained as source context only until return-level asset and cash fields can be verified; no foundation value enters a liquidity estimate.",
     },
     {
       id: "census",
@@ -416,12 +515,24 @@ const snapshot: PublicDataSnapshot = {
       methodology:
         "Quarterly state real GDP in millions of chained 2017 dollars, with quarter-over-quarter change calculated by Liquidity Radar.",
     },
+    {
+      id: "ftc",
+      name: "HSR early-termination notices",
+      publisher: "Federal Trade Commission",
+      freshness: exitSignals.records[0]?.date || "Current public notices",
+      recordCount: exitSignals.records.length,
+      sourceUrl: sourceUrls.ftc,
+      methodology:
+        "Recent public HSR early-termination notices identify acquiring parties, acquired parties, and acquired entities. They are deal-watch signals only and do not prove closing, consideration, or personal proceeds.",
+    },
   ],
   sec: {
     mode: "snapshot",
     updatedAt: generatedAt,
     filings: secFilings,
   },
+  liquidity,
+  exitSignals,
   advisers,
   foundations,
   businessFormation,
@@ -434,8 +545,7 @@ const output = path.join(
   "data",
   "public-signals.json",
 );
-await mkdir(path.dirname(output), { recursive: true });
-await writeFile(output, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
+await writeChunkedPublicSnapshot(snapshot, output);
 
 console.log(
   JSON.stringify({

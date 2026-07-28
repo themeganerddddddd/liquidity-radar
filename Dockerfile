@@ -12,9 +12,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/worker ./worker
-COPY --from=build /app/.openai ./.openai
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
+COPY --from=build /app/next.config.ts ./next.config.ts
 EXPOSE 3000
 CMD ["npm", "run", "start"]
-

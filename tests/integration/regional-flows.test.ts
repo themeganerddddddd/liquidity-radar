@@ -1,140 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { events, people, regions } from "../../app/data";
-import {
-  filterLiquidityEvents,
-  filterRegionalPeople,
-  peopleConnectedToRegion,
-} from "../../lib/data-query";
-import { calculateAffinity, selectActiveRegion } from "../../lib/regional";
-import { DEMO_API_KEY } from "../../lib/api";
-import { GET as getEvents } from "../../app/api/v1/events/route";
-import { GET as getPeople } from "../../app/api/v1/people/route";
+import publicSignalsJson from "../../public/data/public-signals.json";
+import type { PublicDataSnapshot } from "../../lib/public-data";
 
-function apiRequest(path: string) {
-  return new Request(`https://example.test${path}`, {
-    headers: { authorization: `Bearer ${DEMO_API_KEY}` },
-  });
-}
+const data = publicSignalsJson as PublicDataSnapshot;
 
-describe("connected event search", () => {
-  it("searches by person name", () => {
-    const matches = filterLiquidityEvents({ q: "Elena Park" });
-    expect(matches.length).toBeGreaterThan(0);
-    expect(matches.every((event) => event.person === "Elena Park")).toBe(true);
-  });
-
-  it("searches by location and industry", () => {
-    expect(filterLiquidityEvents({ q: "Maryland" }).length).toBeGreaterThan(0);
-    expect(
-      filterLiquidityEvents({ q: "biotechnology Maryland" }).some(
-        (event) => event.person === "Elena Park",
-      ),
-    ).toBe(true);
-  });
-
-  it("combines free text with structured region filters", () => {
-    const matches = filterLiquidityEvents({
-      q: "biotechnology",
-      region: "montgomery-county-md",
-      minConfidence: 65,
-      status: "Completed",
-    });
-    expect(matches.length).toBeGreaterThan(0);
-    expect(
-      matches.every(
-        (event) =>
-          event.industry === "Biotechnology" &&
-          event.regionSlug === "montgomery-county-md",
-      ),
-    ).toBe(true);
-  });
-});
-
-describe("regional detail and affinity contracts", () => {
-  it("returns relevant people and events for Montgomery County", () => {
-    expect(
-      peopleConnectedToRegion("montgomery-county-md").length,
-    ).toBeGreaterThan(2);
-    expect(
-      filterLiquidityEvents({ region: "montgomery-county-md" }).length,
-    ).toBeGreaterThan(2);
-  });
-
-  it("respects workspace home region and user-selected override priority", () => {
-    expect(selectActiveRegion({ homeRegion: "montgomery-county-md" })).toBe(
-      "montgomery-county-md",
+describe("state public-record relationships", () => {
+  it("joins Census and BEA coverage by jurisdiction code", () => {
+    const censusCodes = new Set(
+      data.businessFormation.states.map((state) => state.code),
     );
-    expect(
-      selectActiveRegion({
-        recentRegion: "new-york",
-        homeRegion: "montgomery-county-md",
-      }),
-    ).toBe("new-york");
+    const beaCodes = new Set(
+      data.regionalEconomy.states.map((state) => state.code),
+    );
+    expect(beaCodes).toEqual(censusCodes);
   });
 
-  it("changes affinity when the selected region changes", () => {
-    const elena = people.find((person) => person.name === "Elena Park")!;
-    const montgomery = regions.find(
-      (region) => region.slug === "montgomery-county-md",
-    )!;
-    const newYork = regions.find((region) => region.slug === "new-york")!;
-    expect(calculateAffinity(elena, montgomery, regions).score).toBeGreaterThan(
-      calculateAffinity(elena, newYork, regions).score,
-    );
+  it("contains nonnegative state applications and projections", () => {
+    for (const state of data.businessFormation.states) {
+      expect(state.applications).toBeGreaterThanOrEqual(0);
+      expect(state.projectedFormations).toBeGreaterThanOrEqual(0);
+    }
   });
 
-  it("keeps suppressed profiles out of regional and affinity filters", () => {
-    const suppressed = new Set(
-      people
-        .filter((person) => person.status === "Pending review")
-        .map((person) => person.id),
-    );
-    const results = filterRegionalPeople({
-      region: "maryland",
-      affinityRegion: "maryland",
-    });
-    expect(results.every((record) => !suppressed.has(record.person.id))).toBe(
-      true,
-    );
-  });
-});
-
-describe("regional API filtering", () => {
-  it("filters the Events API by region and search terms", async () => {
-    const response = await getEvents(
-      apiRequest(
-        "/api/v1/events?region=montgomery-county-md&q=biotechnology&limit=50",
-      ),
-    );
-    const body = (await response.json()) as {
-      data: Array<{ location: { region_slug: string }; industry: string }>;
-    };
-    expect(response.status).toBe(200);
-    expect(body.data.length).toBeGreaterThan(0);
-    expect(
-      body.data.every(
-        (record) =>
-          record.location.region_slug === "montgomery-county-md" &&
-          record.industry === "Biotechnology",
-      ),
-    ).toBe(true);
+  it("keeps adviser assets attached to reported state summaries", () => {
+    expect(data.advisers.states.length).toBeGreaterThan(40);
+    for (const state of data.advisers.states) {
+      expect(state.firms).toBeGreaterThanOrEqual(0);
+      expect(state.regulatoryAssets).toBeGreaterThanOrEqual(0);
+    }
   });
 
-  it("filters the People API by affinity", async () => {
-    const response = await getPeople(
-      apiRequest(
-        "/api/v1/people?region=montgomery-county-md&affinityRegion=montgomery-county-md&minAffinity=60&limit=50",
-      ),
-    );
-    const body = (await response.json()) as {
-      data: Array<{ affinity: { score: number } }>;
-    };
-    expect(response.status).toBe(200);
-    expect(body.data.length).toBeGreaterThan(0);
-    expect(body.data.every((record) => record.affinity.score >= 60)).toBe(true);
+  it("preserves direct SEC filing links and accession identifiers", () => {
+    for (const filing of data.sec.filings) {
+      expect(filing.accession).toMatch(/\d{10}-\d{2}-\d{6}/);
+      expect(filing.url).toMatch(/^https:\/\/www\.sec\.gov\//);
+    }
   });
-});
-
-it("keeps the expanded fictional event set populated", () => {
-  expect(events.length).toBeGreaterThanOrEqual(720);
 });

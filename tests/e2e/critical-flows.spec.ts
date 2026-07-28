@@ -1,83 +1,133 @@
 import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { buildRealPeople } from "../../app/RealPeople";
+import type { PublicDataSnapshot } from "../../lib/public-data";
 
-async function login(
-  page: import("@playwright/test").Page,
-  account = "customer@liquidityradar.local",
-) {
+const snapshotJson = JSON.parse(
+  readFileSync(
+    new URL("../../public/data/public-signals.json", import.meta.url),
+    "utf8",
+  ),
+) as PublicDataSnapshot;
+
+async function signInWithDummy(page: import("@playwright/test").Page) {
   await page.goto("/");
-  const submit = page.getByRole("button", {
-    name: "Open demonstration workspace",
-  });
-  await expect(submit).toBeEnabled();
-  await page.getByLabel("Email").selectOption(account);
-  await submit.click();
+  await expect(
+    page.getByRole("heading", { name: "Sign in to Liquidity Radar" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Sign in to test dashboard" }).click();
 }
 
-test("customer can sign in, search, inspect evidence, save, alert, match, and export", async ({
+test("the restored workspace shell loads its official dashboard", async ({
   page,
 }) => {
-  await login(page);
-  await expect(page.getByText("Good afternoon, Maya.")).toBeVisible();
+  await signInWithDummy(page);
   await expect(
-    page.getByRole("heading", { name: "Live signals, clearly separated" }),
+    page.getByRole("heading", { name: "Liquidity Radar" }),
   ).toBeVisible();
   await expect(
-    page.getByText("EDGAR current filings", { exact: true }),
+    page.getByText("Real records only", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("navigation", { name: "Product navigation" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Form ADV adviser roster", { exact: true }),
+    page.getByRole("heading", { name: "People with recent capital events" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "People" }).click();
-  await page
-    .getByPlaceholder("Search by person, company, metro…")
-    .fill("Amara");
-  await page.getByText("Amara Voss", { exact: true }).click();
-  await expect(page.getByText("Estimate, not a bank balance.")).toBeVisible();
-  await page
-    .getByRole("button", { name: "estimated Founder ownership" })
-    .click();
   await expect(
-    page.getByText("Financing history + beneficial ownership filing"),
+    page.getByRole("heading", { name: "State activity pulse" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Create alert" }).click();
-  await expect(page.getByText("Alert created for Amara Voss")).toBeVisible();
-  await page.getByRole("button", { name: "Capital match" }).click();
-  await page
-    .getByRole("button", { name: "Generate explained matches" })
-    .click();
+
+  await page.getByRole("button", { name: "SEC filings" }).click();
   await expect(
-    page.getByText("qualified matches", { exact: true }),
+    page.getByRole("heading", { name: "Current public filings" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "People" }).click();
-  const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: /Export \d+ results/ }).click();
-  await downloadPromise;
+
+  await page.getByRole("button", { name: "Sources & methodology" }).click();
+  await expect(
+    page.getByText("EDGAR insider transactions", { exact: true }).first(),
+  ).toBeVisible();
 });
 
-test("analyst can review and publish an event", async ({ page }) => {
-  await login(page, "analyst@liquidityradar.local");
-  await expect(page.getByText("Review queue", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Approve & publish" }).click();
-  await expect(page.getByText("Event approved and published")).toBeVisible();
-});
-
-test("administrator can change plan, create API key, inspect jobs, and open privacy workflow", async ({
+test("real SEC names are searchable and open evidence-linked profiles", async ({
   page,
 }) => {
-  await login(page, "admin@liquidityradar.local");
+  const liquidityEvent = snapshotJson.liquidity.events.find(
+    (event) => event.eventType === "completed_public_share_sale",
+  );
+  if (!liquidityEvent)
+    throw new Error("The official snapshot has no completed sale.");
+  const person = buildRealPeople(snapshotJson).find((record) =>
+    record.liquidityEvents.some((event) => event.id === liquidityEvent.id),
+  );
+  if (!person) throw new Error("The completed sale has no directory profile.");
+
+  await signInWithDummy(page);
+  await page.getByLabel("Search people and public records").fill(person.name);
+  await page.getByRole("option").first().click();
+
+  await expect(page.getByRole("heading", { name: person.name })).toBeVisible();
+  await expect(page.getByText("Estimate, not bank balance")).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "When liquidity was received or proposed",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Open latest supporting record ↗" }),
+  ).toHaveAttribute("href", liquidityEvent.sourceUrl);
+
   await page
-    .getByRole("button", { name: "MS Maya Singh Platform admin" })
+    .locator(".side-nav")
+    .getByRole("button", { name: "Search directory" })
     .click();
-  await page.getByLabel("Simulate plan change").selectOption("Enterprise");
   await expect(
-    page.getByText("Workspace plan changed to Enterprise"),
+    page.getByRole("heading", { name: "Capital directory" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Create API key" }).click();
-  await expect(page.getByText("Copy this secret now")).toBeVisible();
-  await page.getByRole("button", { name: "Data operations" }).click();
-  await expect(page.getByText("Ingestion & jobs")).toBeVisible();
-  await page.getByRole("button", { name: "Privacy requests" }).click();
+  await page
+    .getByLabel("Search people and reporting parties")
+    .fill(person.name);
+  if (person.kind === "Entity") {
+    await page
+      .getByLabel("Filter by reporting party type")
+      .selectOption("All reporting parties");
+  }
   await expect(
-    page.getByText("Submit a correction or privacy request"),
+    page.getByRole("button", {
+      name: `Open profile for ${person.name}`,
+    }),
   ).toBeVisible();
+});
+
+test("a browser-local test account can register and retain its session", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("tab", { name: "Create test account" }).click();
+  await page.getByLabel("Display name").fill("Ada Tester");
+  await page.getByLabel("Test email").fill("ada@example.test");
+  await page.locator('input[name="password"]').fill("TestRadar2026");
+  await page.getByLabel("Confirm password").fill("TestRadar2026");
+  await page
+    .getByLabel(/I understand this is a device-local test account/)
+    .check();
+  await page
+    .getByRole("button", { name: "Create account and continue" })
+    .click();
+
+  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await page.getByLabel("Email").fill("ada@example.test");
+  await page.locator('input[name="password"]').fill("TestRadar2026");
+  await page.getByRole("button", { name: "Sign in to test dashboard" }).click();
+  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible();
+});
+
+test("legacy fictional workspace routes are unavailable", async ({ page }) => {
+  const response = await page.goto("/people");
+  expect(response?.status()).toBe(404);
+  await expect(page.getByText("404")).toBeVisible();
 });

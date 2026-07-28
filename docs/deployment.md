@@ -1,6 +1,19 @@
 # Deployment
 
-The primary deployment target is OpenAI Sites with Cloudflare Workers-compatible ESM, D1, and R2. Production values are managed through Sites rather than committed environment files. The source build is `npm run build`; the worker entry is `worker/index.ts`.
+The test deployment target is Vercel using the native Next.js build:
 
-For other container platforms, use Node 22+, run migrations before traffic, keep web and long-running worker processes separate, inject secrets, enforce production checks, and provide durable SQL and object storage. The current repository does not include a PostgreSQL compatibility layer.
+```bash
+npm run build
+```
 
+Vercel should detect Next.js and publish the generated `.next` output. Pin the
+project to Node.js 22 and configure a descriptive `SEC_USER_AGENT` containing a
+monitored contact address.
+
+GitHub is the source of truth for deployments. Commits to `main` create
+production deployments; non-production branches can be used for Vercel preview
+links.
+
+The previous Cloudflare-compatible build remains available as
+`npm run build:sites`, but Cloudflare D1/R2 workspace routes are not exposed by
+the real-record-only Vercel surface.

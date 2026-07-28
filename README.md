@@ -1,92 +1,83 @@
 # Liquidity Radar
 
-Liquidity Radar is an evidence-linked private-capital intelligence product. It estimates where personal liquidity is created, who may control it, what range may remain deployable, where **known deployment** has occurred, and which people plausibly fit an opportunity.
+Liquidity Radar is a real-public-record explorer for state economic and capital
+signals. The public application displays attributable records from:
 
-It never claims to know bank balances. Private-liquidity figures are shown as low, median, and high estimates with confidence, calculation date, classification, evidence, and uncertainty.
+- SEC EDGAR current filings
+- SEC Form ADV registered-adviser data
+- IRS Form 990-PF filing indexes
+- Census Business Formation Statistics
+- BEA Regional Accounts
 
-## Quick start
+The deployed surface intentionally excludes fictional people, modeled
+liquidity events, inferred bank balances, and unsupported personal-liquidity
+estimates.
 
-Requires Node.js 22.13 or newer.
+## Local development
+
+Requires Node.js 22.
 
 ```bash
 npm install
-npm run setup
-npm run dev
+npm run dev:vercel
 ```
 
 Open `http://localhost:3000`.
 
-The map renders official U.S. Census state boundaries as a fixed, accessible
-SVG and requires no map token.
+The public test build is sign-in gated with a browser-local account system.
+Shared dummy credentials are:
 
-Demonstration accounts use the local-only password `RadarDemo!2026`:
+```text
+Email: demo@liquidityradar.test
+Password: RadarDemo!2026
+```
 
-- `customer@liquidityradar.local`
-- `analyst@liquidityradar.local`
-- `admin@liquidityradar.local`
+Testers can also register an account. Registered accounts, salted password
+hashes, and sessions remain in that browser's local storage; they are not sent
+to the application server and do not work across devices. This is deliberately
+not production authentication.
 
-The local API key is `lr_demo_local_2026`.
-
-## Product surfaces
-
-The demonstration includes marketing and access, an official public-data layer,
-a fixed state capital map, multi-field event search, region-connected people
-and organization search, region-relative affinity, person evidence ledger,
-regional trends and capital matches, rankings, opportunity matching, saved
-searches, alerts, reports, CSV/PDF export, `/api/v1`, analyst review, source
-management, identity resolution, jobs, privacy requests, workspace
-entitlements, methodology, health, and readiness.
-
-Named people, modeled liquidity events, and person-level values in the
-demonstration workspace are fictional. The public-data layer contains current
-government records from SEC EDGAR, SEC Form ADV, IRS Form 990-PF, Census
-Business Formation Statistics, and BEA Regional Accounts. Those records are
-visually separated and linked to their publishers.
-
-## Data and persistence
-
-Cloudflare D1 stores workspace records and audit events. R2 is declared for source documents and generated artifacts. The included Drizzle schema models people, organizations, locations, sources, evidence claims, events, model runs, estimates, customer records, API keys, privacy requests, jobs, and audit logs.
-
-The included connector fixtures cover Form 4 sales, multi-transaction filings, non-liquidity awards, Form 144 proposals, 8-K acquisition language, Schedule 13D ownership, malformed input, and duplicates.
-
-## Commands
+## Validation
 
 ```bash
-npm run setup
-npm run dev
-npm run build
-npm run start
-npm run worker
-npm run format
-npm run lint
-npm run typecheck
-npm run test
-npm run test:integration
-npm run test:e2e
 npm run validate
-npm run db:generate
-npm run db:migrate
-npm run db:seed
-npm run db:reset
-npm run data:sync-public
-npm run ingest:sec
-npm run ingest:feeds
-npm run estimates:recalculate
-npm run aggregates:rebuild
-npm run fixtures:load
+npm run test:e2e
 ```
 
-## API
+`npm run build` creates the native Next.js `.next` output expected by Vercel.
+The legacy OpenAI Sites target remains available through
+`npm run build:sites`.
 
-Send `Authorization: Bearer lr_demo_local_2026` in local requests.
+## Public data
+
+The checked-in verified snapshot is
+`public/data/public-signals.json`. Refresh it from official publishers with:
 
 ```bash
-curl http://localhost:3000/api/v1/people \
-  -H "Authorization: Bearer lr_demo_local_2026"
+SEC_USER_AGENT="Liquidity Radar monitored-contact@example.com" npm run data:sync-public
 ```
 
-OpenAPI: `http://localhost:3000/api/v1/openapi.json`.
+The public `/api/public-data` route refreshes current SEC filing metadata at
+request time when `SEC_USER_AGENT` is configured and falls back to the verified
+snapshot when the live feed is unavailable.
 
-## Documentation
+The `Daily public-data sync` GitHub workflow refreshes the checked-in snapshot
+each day, validates it, and pushes a new commit when official records change.
+That commit triggers the connected Vercel deployment. Add a repository secret
+named `SEC_USER_AGENT` containing a descriptive product name and monitored
+contact email before enabling the schedule. Form ADV, IRS, Census, and BEA
+remain snapshot-backed contextual sources; person-level liquidity calculations
+use transaction evidence from SEC Forms 4 and 144.
 
-See [`docs/`](./docs) for architecture, models, estimation and confidence methodology, geography, connectors, privacy, security, API, deployment, testing, operations, and limitations.
+## Vercel
+
+Connect the GitHub repository to a Vercel project and configure:
+
+```text
+SEC_USER_AGENT=Liquidity Radar monitored-contact@example.com
+```
+
+The public test release includes only browser-local dummy authentication.
+Production accounts, server-verified sessions, roles, email verification,
+recovery, and scheduled persistence must be added through a managed identity
+provider and database before accepting real user information.

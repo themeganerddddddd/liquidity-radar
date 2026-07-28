@@ -1,5 +1,5 @@
-import { RadarApp } from "../RadarApp";
+import { notFound } from "next/navigation";
 
 export default function ApplicationRoute() {
-  return <RadarApp />;
+  notFound();
 }

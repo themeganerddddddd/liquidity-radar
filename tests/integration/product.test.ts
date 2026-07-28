@@ -1,75 +1,60 @@
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { events, people, regions } from "../../app/data";
 import publicSignalsJson from "../../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../../lib/public-data";
-import { DEMO_API_KEY, authorizeApi, publicPerson } from "../../lib/api";
+import { readChunkedPublicSnapshot } from "../../scripts/public-snapshot-files";
 
-describe("publication and workspace isolation contracts", () => {
-  it("excludes pending-review people from customer results", () => {
-    const published = people.filter(
-      (person) => person.status !== "Pending review",
+const publicSignals = publicSignalsJson as PublicDataSnapshot;
+
+describe("official public-record contracts", () => {
+  it("ships validated coverage from six government source families", () => {
+    expect(publicSignals.sources).toHaveLength(6);
+    expect(new Set(publicSignals.sources.map((source) => source.id))).toEqual(
+      new Set(["sec", "adv", "irs", "census", "bea", "ftc"]),
     );
-    expect(published.length).toBeLessThan(people.length);
-    expect(published.every((person) => person.confidence >= 65)).toBe(true);
-  });
-
-  it("suppresses precise coordinates from API person output", () => {
-    const output = publicPerson(people[0]);
-    expect(output.primary_economic_location).toMatch(/,\s[A-Z]{2}$/);
-    expect(output).not.toHaveProperty("coordinates");
-    expect(output).not.toHaveProperty("address");
-  });
-
-  it("requires the configured demonstration API key", () => {
     expect(
-      authorizeApi(
-        new Request("https://example.test", {
-          headers: { authorization: `Bearer ${DEMO_API_KEY}` },
-        }),
+      publicSignals.sources.every((source) =>
+        source.sourceUrl.startsWith("https://"),
       ),
     ).toBe(true);
-    expect(authorizeApi(new Request("https://example.test"))).toBe(false);
   });
-});
 
-describe("regional and event aggregate contracts", () => {
-  it("ships validated official public-source coverage alongside demo records", () => {
-    const publicSignals = publicSignalsJson as PublicDataSnapshot;
-    expect(publicSignals.advisers.firmCount).toBeGreaterThan(10_000);
-    expect(publicSignals.foundations.filingCount).toBeGreaterThan(10_000);
+  it("covers every state and the District of Columbia", () => {
     expect(publicSignals.businessFormation.states).toHaveLength(51);
     expect(publicSignals.regionalEconomy.states).toHaveLength(51);
-    expect(publicSignals.sec.filings.length).toBeGreaterThanOrEqual(10);
-    expect(publicSignals.sources).toHaveLength(5);
-  });
-
-  it("covers every state and the District of Columbia with expanded demo data", () => {
-    expect(new Set(regions.map((region) => region.code)).size).toBe(51);
-    expect(regions.length).toBeGreaterThanOrEqual(52);
-    expect(people.length).toBeGreaterThanOrEqual(240);
-    expect(events.length).toBeGreaterThanOrEqual(720);
-  });
-
-  it("keeps retention and leakage complementary for known deployment", () => {
-    for (const region of regions)
-      expect(region.retained + region.leakage).toBeCloseTo(1);
-  });
-
-  it("keeps proposed events distinct from completed events", () => {
-    expect(events.some((event) => event.status === "Proposed")).toBe(true);
     expect(
-      events
-        .filter((event) => event.status === "Proposed")
-        .every((event) => event.explanation.includes("not assumed")),
-    ).toBe(true);
+      new Set(publicSignals.businessFormation.states.map((state) => state.code))
+        .size,
+    ).toBe(51);
   });
 
-  it("includes range, confidence, evidence, geography, and publication fields for export", () => {
-    const record = people[1];
-    expect(record.remaining.low).toBeLessThan(record.remaining.median);
-    expect(record.remaining.median).toBeLessThan(record.remaining.high);
-    expect(record.sourceCount).toBeGreaterThan(0);
-    expect(record.location).toBeTruthy();
-    expect(record.status).toBeTruthy();
+  it("contains attributable filing and institutional records", () => {
+    expect(publicSignals.sec.filings.length).toBeGreaterThanOrEqual(10);
+    expect(publicSignals.advisers.firmCount).toBeGreaterThan(10_000);
+    expect(publicSignals.advisers.topFirms.length).toBeGreaterThan(0);
+    expect(publicSignals.foundations.filingCount).toBeGreaterThan(10_000);
+    expect(publicSignals.foundations.recentFilings.length).toBeGreaterThan(0);
+    expect(publicSignals.exitSignals?.records.length).toBeGreaterThan(0);
+  });
+
+  it("does not label official records as fictional demonstration data", () => {
+    expect(JSON.stringify(publicSignals).toLowerCase()).not.toContain(
+      "fictional",
+    );
+    expect(JSON.stringify(publicSignals).toLowerCase()).not.toContain(
+      "demo account",
+    );
+  });
+
+  it("reconstructs the complete chunked liquidity history", async () => {
+    const hydrated = await readChunkedPublicSnapshot(
+      path.join(process.cwd(), "public", "data", "public-signals.json"),
+    );
+
+    expect(publicSignals.liquidity.chunkUrls?.length).toBe(12);
+    expect(hydrated.liquidity.events.length).toBeGreaterThan(40_000);
+    expect(
+      new Set(hydrated.liquidity.events.map((event) => event.id)).size,
+    ).toBe(hydrated.liquidity.events.length);
   });
 });
