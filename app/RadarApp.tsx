@@ -6,7 +6,7 @@ import {
   evidence,
   events,
   jobs,
-  organizations,
+  organizationProfiles,
   people,
   regions,
   reviewQueue,
@@ -64,6 +64,7 @@ const getServerLocationSnapshot = () => "http://localhost/";
 function viewFromPath(pathname: string, params: URLSearchParams): View {
   if (/^\/people\/[^/]+/.test(pathname)) return "profile";
   if (/^\/regions\/[^/]+/.test(pathname)) return "region";
+  if (/^\/organizations\/[^/]+/.test(pathname)) return "organizations";
   const routes: Record<string, View> = {
     "/": "dashboard",
     "/map": "map",
@@ -3244,7 +3245,131 @@ function OperationsViews({
   return null;
 }
 
-function OrganizationsView({ notify }: { notify: (message: string) => void }) {
+function OrganizationsView({
+  selectedSlug,
+  notify,
+  onOrganization,
+  onRegion,
+  onPerson,
+}: {
+  selectedSlug: string;
+  notify: (message: string) => void;
+  onOrganization: (slug: string) => void;
+  onRegion: (slug: string) => void;
+  onPerson: (person: Person) => void;
+}) {
+  const selected = organizationProfiles.find(
+    (organization) => organization.slug === selectedSlug,
+  );
+  if (selected) {
+    const connectedPeople = people.filter(
+      (person) => person.organization === selected.name,
+    );
+    const connectedEvents = events.filter(
+      (event) => event.organizationSlug === selected.slug,
+    );
+    return (
+      <>
+        <nav className="breadcrumbs" aria-label="Breadcrumb">
+          <button onClick={() => onOrganization("")}>Organizations</button>
+          <span>/</span>
+          <span>{selected.name}</span>
+        </nav>
+        <div className="page-intro">
+          <div>
+            <p className="eyebrow">Connected organization profile</p>
+            <h1>{selected.name}</h1>
+            <p>
+              {selected.type.replaceAll("_", " ")} · {selected.industry} ·{" "}
+              {selected.publicClassification}
+            </p>
+          </div>
+          <button
+            className="button secondary"
+            onClick={() => onOrganization("")}
+          >
+            Back to organizations
+          </button>
+        </div>
+        <section className="organization-profile-metrics">
+          <article>
+            <span>Connected people</span>
+            <strong>{connectedPeople.length}</strong>
+          </article>
+          <article>
+            <span>Documented events</span>
+            <strong>{connectedEvents.length}</strong>
+          </article>
+          <article>
+            <span>Connected regions</span>
+            <strong>{selected.regionSlugs.length}</strong>
+          </article>
+        </section>
+        <section className="organization-profile-grid">
+          <article>
+            <p className="eyebrow">Geographic footprint</p>
+            <h2>Connected regions</h2>
+            <div className="organization-profile-list">
+              {selected.regionSlugs.map((slug) => {
+                const region = getRegion(slug);
+                return region ? (
+                  <button key={slug} onClick={() => onRegion(slug)}>
+                    <strong>{region.name}</strong>
+                    <span>{region.type} profile →</span>
+                  </button>
+                ) : null;
+              })}
+            </div>
+          </article>
+          <article>
+            <p className="eyebrow">People graph</p>
+            <h2>Associated people</h2>
+            <div className="organization-profile-list">
+              {connectedPeople.length ? (
+                connectedPeople.map((person) => (
+                  <button key={person.id} onClick={() => onPerson(person)}>
+                    <strong>{person.name}</strong>
+                    <span>
+                      {person.role} · {person.industry} →
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <p>No published people are connected to this organization.</p>
+              )}
+            </div>
+          </article>
+          <article>
+            <p className="eyebrow">Evidence-linked activity</p>
+            <h2>Organization events</h2>
+            <div className="organization-profile-list">
+              {connectedEvents.length ? (
+                connectedEvents.slice(0, 8).map((event) => (
+                  <button
+                    key={event.id}
+                    onClick={() => {
+                      const person = people.find(
+                        (candidate) => candidate.id === event.personId,
+                      );
+                      if (person) onPerson(person);
+                    }}
+                  >
+                    <strong>{event.type}</strong>
+                    <span>
+                      {event.person} · {event.regionName} · {event.date} →
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <p>No published events are connected to this organization.</p>
+              )}
+            </div>
+          </article>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
       <PageIntro
@@ -3259,11 +3384,11 @@ function OrganizationsView({ notify }: { notify: (message: string) => void }) {
         }
       />
       <section className="organization-grid">
-        {organizations.map((name, index) => (
-          <article key={name}>
+        {organizationProfiles.map((organization, index) => (
+          <article key={organization.id}>
             <div>
               <span className="org-monogram">
-                {name
+                {organization.name
                   .split(" ")
                   .slice(0, 2)
                   .map((word) => word[0])
@@ -3281,17 +3406,10 @@ function OrganizationsView({ notify }: { notify: (message: string) => void }) {
                         : "Family office"}
               </span>
             </div>
-            <h2>{name}</h2>
+            <h2>{organization.name}</h2>
             <p>
-              {
-                [
-                  "Life Sciences",
-                  "Enterprise Software",
-                  "Climate Technology",
-                  "Advanced Manufacturing",
-                ][index % 4]
-              }{" "}
-              · {regions[index % regions.length].metro}
+              {organization.industry} ·{" "}
+              {getRegion(organization.regionSlugs[0])?.metro}
             </p>
             <dl>
               <div>
@@ -3309,7 +3427,7 @@ function OrganizationsView({ notify }: { notify: (message: string) => void }) {
             </dl>
             <button
               className="text-link"
-              onClick={() => notify(`${name} profile opened`)}
+              onClick={() => onOrganization(organization.slug)}
             >
               Open organization profile →
             </button>
@@ -3568,6 +3686,8 @@ export function RadarApp() {
     regions[0];
   const pathPersonSlug =
     currentUrl.pathname.match(/^\/people\/([^/]+)/)?.[1] || "";
+  const pathOrganizationSlug =
+    currentUrl.pathname.match(/^\/organizations\/([^/]+)/)?.[1] || "";
   const currentPerson =
     people.find((person) => person.slug === pathPersonSlug) || selectedPerson;
   const queryString = currentUrl.searchParams.toString();
@@ -3622,6 +3742,15 @@ export function RadarApp() {
     setView("profile");
     applyLocation(
       `/people/${person.slug}`,
+      new URLSearchParams({ affinityRegion: activeRegion.slug }),
+    );
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function openOrganization(slug: string) {
+    setView("organizations");
+    applyLocation(
+      slug ? `/organizations/${slug}` : "/organizations",
       new URLSearchParams({ affinityRegion: activeRegion.slug }),
     );
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3787,12 +3916,7 @@ export function RadarApp() {
         }
         onPerson={openPerson}
         onRegion={openRegion}
-        onOrganization={(slug) =>
-          applyLocation(
-            "/organizations",
-            new URLSearchParams({ organization: slug }),
-          )
-        }
+        onOrganization={openOrganization}
         notify={notify}
       />
     );
@@ -3824,7 +3948,15 @@ export function RadarApp() {
       />
     );
   else if (view === "organizations")
-    content = <OrganizationsView notify={notify} />;
+    content = (
+      <OrganizationsView
+        selectedSlug={pathOrganizationSlug}
+        notify={notify}
+        onOrganization={openOrganization}
+        onRegion={openRegion}
+        onPerson={openPerson}
+      />
+    );
   else if (view === "regions")
     content = (
       <RegionsDirectory onRegion={openRegion} onMap={() => navigate("map")} />
@@ -3839,12 +3971,7 @@ export function RadarApp() {
         onPerson={openPerson}
         onEvents={(filters) => openFilteredView("feed", filters)}
         onPeople={(filters) => openFilteredView("people", filters)}
-        onOrganization={(slug) =>
-          applyLocation(
-            "/organizations",
-            new URLSearchParams({ organization: slug }),
-          )
-        }
+        onOrganization={openOrganization}
       />
     );
   else if (view === "rankings")

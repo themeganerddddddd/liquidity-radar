@@ -102,6 +102,19 @@ test("event search combines person, location, industry, region, URL, and back st
     "montgomery-county-md",
   );
 
+  await page
+    .getByRole("button", { name: "Blue Mesa Foods", exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/organizations\/blue-mesa-foods/);
+  await expect(
+    page.getByRole("heading", { name: "Blue Mesa Foods", level: 1 }),
+  ).toBeVisible();
+  await page.goBack();
+  await expect(page.getByLabel("Search events")).toHaveValue(
+    "biotechnology Maryland",
+  );
+
   await page.getByLabel("Event status").selectOption("Completed");
   await expect(page).toHaveURL(/status=Completed/);
   await page.goBack();
