@@ -221,6 +221,7 @@ function archiveEntityId(url: string) {
 export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
   const names = new Map<string, string[]>();
   const nameToKey = new Map<string, string>();
+  const accessionToKey = new Map<string, string>();
   const eventsByKey = new Map<string, PublicLiquidityEvent[]>();
   const holdingsByKey = new Map<string, PublicHoldingPosition[]>();
   const filingsByKey = new Map<string, SecFiling[]>();
@@ -240,6 +241,7 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
     const current = eventsByKey.get(key) ?? [];
     current.push(event);
     eventsByKey.set(key, current);
+    accessionToKey.set(event.accession, key);
   }
   for (const holding of data.liquidity?.holdings ?? []) {
     if (!holding.reportingParty.trim()) continue;
@@ -253,7 +255,9 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
     const name = filing.reportingParty.trim();
     if (!name) continue;
     const key =
-      nameToKey.get(normalizedName(name)) ?? `name:${normalizedName(name)}`;
+      nameToKey.get(normalizedName(name)) ??
+      accessionToKey.get(filing.accession) ??
+      `name:${normalizedName(name)}`;
     addName(key, name);
     const current = filingsByKey.get(key) ?? [];
     current.push(filing);
@@ -479,6 +483,10 @@ function grossCompletedCapital(person: RealPersonRecord) {
   return person.grossCompletedSales + person.grossCompletedExitCash;
 }
 
+export function headlineSaleValue(person: RealPersonRecord) {
+  return grossCompletedCapital(person) || person.proposedSaleValue;
+}
+
 export function compareDirectoryPeople(
   left: RealPersonRecord,
   right: RealPersonRecord,
@@ -493,7 +501,7 @@ export function compareDirectoryPeople(
   } else if (key === "location") {
     comparison = left.location.localeCompare(right.location);
   } else if (key === "gross") {
-    comparison = grossCompletedCapital(left) - grossCompletedCapital(right);
+    comparison = headlineSaleValue(left) - headlineSaleValue(right);
   } else if (key === "liquidity") {
     comparison =
       left.estimatedRemainingLiquidity.median -
@@ -863,7 +871,7 @@ export function RealPeopleDirectory({
             aria-label="Sort people"
           >
             <option value="liquidity">Estimated liquidity</option>
-            <option value="gross">Gross proceeds</option>
+            <option value="gross">Sale value</option>
             <option value="recent">Most recent</option>
             <option value="name">Name</option>
             <option value="issuer">Linked issuer</option>
@@ -889,7 +897,7 @@ export function RealPeopleDirectory({
           {sortHeading("name", "Reporting party")}
           {sortHeading("issuer", "Linked issuer")}
           {sortHeading("location", "Reported location")}
-          {sortHeading("gross", "Completed gross proceeds")}
+          {sortHeading("gross", "Completed / proposed value")}
           {sortHeading("liquidity", "Estimated remaining liquidity")}
           {sortHeading("recent", "Latest evidence")}
         </div>
@@ -922,20 +930,19 @@ export function RealPeopleDirectory({
             </span>
             <span>
               <strong>
-                {person.grossCompletedSales > 0
-                  ? compactCurrency(
-                      person.grossCompletedSales +
-                        person.grossCompletedExitCash,
-                    )
-                  : person.grossCompletedExitCash > 0
-                    ? compactCurrency(person.grossCompletedExitCash)
-                    : "No completed sale"}
+                {headlineSaleValue(person) > 0
+                  ? compactCurrency(headlineSaleValue(person))
+                  : "No attributable sale"}
               </strong>
               <small>
-                {person.grossCompletedExitCash > 0
-                  ? `${compactCurrency(person.grossCompletedExitCash)} from attributed completed exit`
+                {grossCompletedCapital(person) > 0
+                  ? person.proposedSaleValue > 0
+                    ? `${compactCurrency(person.proposedSaleValue)} additional proposed sale`
+                    : person.grossCompletedExitCash > 0
+                      ? `${compactCurrency(person.grossCompletedExitCash)} from attributed completed exit`
+                      : "Completed SEC sale value"
                   : person.proposedSaleValue > 0
-                    ? `${compactCurrency(person.proposedSaleValue)} proposed`
+                    ? "Proposed Form 144 sale · not yet completed"
                     : person.unallocatedJointSaleValue > 0
                       ? `${compactCurrency(person.unallocatedJointSaleValue)} joint-filing amount; not personally allocated`
                       : `${person.liquidityEvents.length} qualifying events`}
@@ -1029,6 +1036,7 @@ export function RealPersonProfile({
     person.filings[0]?.url;
   const completedCapital =
     person.grossCompletedSales + person.grossCompletedExitCash;
+  const proposedOnly = completedCapital === 0 && person.proposedSaleValue > 0;
 
   return (
     <>
@@ -1054,18 +1062,30 @@ export function RealPersonProfile({
             </div>
           </div>
           <div className="real-person-profile-summary">
-            <span>Estimated remaining liquidity</span>
+            <span>
+              {proposedOnly
+                ? "Proposed sale value"
+                : "Estimated remaining liquidity"}
+            </span>
             <strong>
-              {person.estimatedNetProceeds.high > 0
-                ? moneyRange(person.estimatedRemainingLiquidity)
-                : person.grossCompletedExitCash > 0
-                  ? "Entity receipt not modeled"
-                  : "Not yet estimated"}
+              {proposedOnly
+                ? compactCurrency(person.proposedSaleValue)
+                : person.estimatedNetProceeds.high > 0
+                  ? moneyRange(person.estimatedRemainingLiquidity)
+                  : person.grossCompletedExitCash > 0
+                    ? "Entity receipt not modeled"
+                    : "Not yet estimated"}
             </strong>
             <small>
-              Median{" "}
-              {compactCurrency(person.estimatedRemainingLiquidity.median)} ·
-              calculated from attributed completed events
+              {proposedOnly ? (
+                <>Form 144 signal · excluded from cash until completed</>
+              ) : (
+                <>
+                  Median{" "}
+                  {compactCurrency(person.estimatedRemainingLiquidity.median)} ·
+                  calculated from attributed completed events
+                </>
+              )}
             </small>
             {latestSource && (
               <a href={latestSource} target="_blank" rel="noreferrer">
@@ -1090,19 +1110,47 @@ export function RealPersonProfile({
 
         <section className="real-profile-kpis" aria-label="Liquidity summary">
           <article>
-            <span>Completed gross proceeds</span>
-            <strong>{compactCurrency(completedCapital)}</strong>
+            <span>
+              {proposedOnly
+                ? "Proposed sale value"
+                : "Completed gross proceeds"}
+            </span>
+            <strong>
+              {compactCurrency(
+                proposedOnly ? person.proposedSaleValue : completedCapital,
+              )}
+            </strong>
             <small>
-              {
-                person.liquidityEvents.filter(
-                  (event) =>
-                    event.eventType === "completed_public_share_sale" &&
-                    event.attributionBasis !== "joint_filing_unallocated",
-                ).length
-              }{" "}
-              securities sale events · {person.exitAttributions.length}{" "}
-              completed exit attribution
-              {person.exitAttributions.length === 1 ? "" : "s"}
+              {proposedOnly ? (
+                <>
+                  {
+                    person.liquidityEvents.filter(
+                      (event) =>
+                        event.eventType === "proposed_public_share_sale",
+                    ).length
+                  }{" "}
+                  Form 144 proposal
+                  {person.liquidityEvents.filter(
+                    (event) => event.eventType === "proposed_public_share_sale",
+                  ).length === 1
+                    ? ""
+                    : "s"}{" "}
+                  · not cash received
+                </>
+              ) : (
+                <>
+                  {
+                    person.liquidityEvents.filter(
+                      (event) =>
+                        event.eventType === "completed_public_share_sale" &&
+                        event.attributionBasis !== "joint_filing_unallocated",
+                    ).length
+                  }{" "}
+                  securities sale events · {person.exitAttributions.length}{" "}
+                  completed exit attribution
+                  {person.exitAttributions.length === 1 ? "" : "s"}
+                </>
+              )}
             </small>
           </article>
           <article>
