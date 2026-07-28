@@ -6,6 +6,7 @@ import type {
   PublicLiquidityChunk,
 } from "../lib/public-data";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
+import { normalizePublicLocation } from "../lib/public-locations";
 import {
   buildRealPeople,
   RealPeopleDirectory,
@@ -83,7 +84,7 @@ const viewCopy: Record<
     eyebrow: "Local business development",
     title: "Saved territories and alerts",
     detail:
-      "Build metro-radius searches around public business locations, save territory rules, and surface matching capital events.",
+      "Build city/metro-radius searches around public business locations, save territory rules, and surface matching capital events.",
   },
   profile: {
     eyebrow: "SEC reporting-party profile",
@@ -669,12 +670,19 @@ function ConfirmedExitsPanel({
   const [location, setLocation] = useState("All locations");
   const [attribution, setAttribution] = useState("All attribution");
   const allRecords = data.completedExits?.records ?? [];
+  const locationDisplay = (locationValue: {
+    city: string;
+    state: string;
+    country: string;
+  }) => normalizePublicLocation(locationValue).display;
   const locationOptions = [
     ...new Set(
       allRecords
         .flatMap((record) => [
-          record.location.display,
-          ...record.ownerAttributions.map((owner) => owner.location.display),
+          locationDisplay(record.location),
+          ...record.ownerAttributions.map((owner) =>
+            locationDisplay(owner.location),
+          ),
         ])
         .filter((value) => value && value !== "Location not established"),
     ),
@@ -688,11 +696,11 @@ function ConfirmedExitsPanel({
       record.sellerOrTarget,
       record.accession,
       record.consideration.summary,
-      record.location.display,
+      locationDisplay(record.location),
       ...record.ownerAttributions.flatMap((owner) => [
         owner.name,
         owner.relationship,
-        owner.location.display,
+        locationDisplay(owner.location),
       ]),
     ]
       .join(" ")
@@ -701,13 +709,14 @@ function ConfirmedExitsPanel({
       location === "All locations"
         ? true
         : location === "Location not established"
-          ? record.location.display === "Location not established" &&
+          ? locationDisplay(record.location) === "Location not established" &&
             record.ownerAttributions.every(
-              (owner) => owner.location.display === "Location not established",
+              (owner) =>
+                locationDisplay(owner.location) === "Location not established",
             )
-          : record.location.display === location ||
+          : locationDisplay(record.location) === location ||
             record.ownerAttributions.some(
-              (owner) => owner.location.display === location,
+              (owner) => locationDisplay(owner.location) === location,
             );
     const matchesAttribution =
       attribution === "All attribution"
@@ -860,7 +869,7 @@ function ConfirmedExitsPanel({
               )}
             </span>
             <span>
-              <strong>{record.location.display}</strong>
+              <strong>{locationDisplay(record.location)}</strong>
               <small>
                 {record.location.basis === "company_headquarters"
                   ? "Company headquarters"
@@ -910,7 +919,9 @@ function DealWatchPanel({
   const locationOptions = [
     ...new Set(
       allRecords.flatMap((record) =>
-        record.businessProfiles.map((profile) => profile.headquarters.display),
+        record.businessProfiles.map(
+          (profile) => normalizePublicLocation(profile.headquarters).display,
+        ),
       ),
     ),
   ].sort();
@@ -924,7 +935,7 @@ function DealWatchPanel({
         profile.name,
         profile.industry,
         profile.description,
-        profile.headquarters.display,
+        normalizePublicLocation(profile.headquarters).display,
         profile.headquarters.country,
       ]),
       record.id,
@@ -937,7 +948,9 @@ function DealWatchPanel({
         : location === "Location not established"
           ? record.businessProfiles.length === 0
           : record.businessProfiles.some(
-              (profile) => profile.headquarters.display === location,
+              (profile) =>
+                normalizePublicLocation(profile.headquarters).display ===
+                location,
             );
     return searchText.includes(combinedQuery) && matchesLocation;
   });
@@ -1016,8 +1029,9 @@ function DealWatchPanel({
                 </span>
                 <span>
                   <strong>
-                    {profile?.headquarters.display ??
-                      "Location not established"}
+                    {profile
+                      ? normalizePublicLocation(profile.headquarters).display
+                      : "Location not established"}
                   </strong>
                   <small>
                     {profile

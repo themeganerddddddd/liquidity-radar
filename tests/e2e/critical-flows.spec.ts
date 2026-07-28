@@ -152,7 +152,7 @@ test("confirmed exits, owner attribution, and saved metro alerts are usable", as
     .locator(".side-nav")
     .getByRole("button", { name: "Territories & alerts" })
     .click();
-  const metro = page.getByLabel("Territory metro center");
+  const metro = page.getByLabel("Territory city or metro center");
   await metro.selectOption({ index: 1 });
   await page.getByRole("button", { name: "Save territory and alert" }).click();
   await expect(
