@@ -7,10 +7,19 @@ import { readChunkedPublicSnapshot } from "../../scripts/public-snapshot-files";
 const publicSignals = publicSignalsJson as PublicDataSnapshot;
 
 describe("official public-record contracts", () => {
-  it("ships validated coverage from six government source families", () => {
-    expect(publicSignals.sources).toHaveLength(6);
+  it("ships validated coverage from eight government source families", () => {
+    expect(publicSignals.sources).toHaveLength(8);
     expect(new Set(publicSignals.sources.map((source) => source.id))).toEqual(
-      new Set(["sec", "adv", "irs", "census", "bea", "ftc"]),
+      new Set([
+        "sec",
+        "sec_exits",
+        "adv",
+        "irs",
+        "census",
+        "census_geo",
+        "bea",
+        "ftc",
+      ]),
     );
     expect(
       publicSignals.sources.every((source) =>
@@ -35,6 +44,16 @@ describe("official public-record contracts", () => {
     expect(publicSignals.foundations.filingCount).toBeGreaterThan(10_000);
     expect(publicSignals.foundations.recentFilings.length).toBeGreaterThan(0);
     expect(publicSignals.exitSignals?.records.length).toBeGreaterThan(0);
+    expect(publicSignals.completedExits?.records.length).toBeGreaterThanOrEqual(
+      5,
+    );
+    expect(
+      publicSignals.completedExits?.records.some((record) =>
+        record.ownerAttributions.some((owner) => owner.kind === "person"),
+      ),
+    ).toBe(true);
+    expect(publicSignals.geography?.metros.length).toBeGreaterThan(300);
+    expect(publicSignals.geography?.places.length).toBeGreaterThan(100);
   });
 
   it("does not label official records as fictional demonstration data", () => {

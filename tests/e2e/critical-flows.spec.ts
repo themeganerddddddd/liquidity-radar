@@ -126,6 +126,41 @@ test("a browser-local test account can register and retain its session", async (
   await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible();
 });
 
+test("confirmed exits, owner attribution, and saved metro alerts are usable", async ({
+  page,
+}) => {
+  await signInWithDummy(page);
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "Business exit watch" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Completed exits and deal watch" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Confirmed close", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Mario Alberto Accardi", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("tab", { name: /Deal watch/ }).click();
+  await expect(
+    page.getByText("Deal signal—not cash evidence", { exact: true }),
+  ).toBeVisible();
+
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "Territories & alerts" })
+    .click();
+  const metro = page.getByLabel("Territory metro center");
+  await metro.selectOption({ index: 1 });
+  await page.getByRole("button", { name: "Save territory and alert" }).click();
+  await expect(
+    page.getByRole("heading", { name: "1 active territories" }),
+  ).toBeVisible();
+  await expect(page.getByText("Stored on this device")).toBeVisible();
+});
+
 test("legacy fictional workspace routes are unavailable", async ({ page }) => {
   const response = await page.goto("/people");
   expect(response?.status()).toBe(404);

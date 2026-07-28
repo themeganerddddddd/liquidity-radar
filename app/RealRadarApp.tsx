@@ -13,6 +13,7 @@ import {
   type RealPersonRecord,
 } from "./RealPeople";
 import { PublicStateMap } from "./PublicStateMap";
+import { TerritoriesView } from "./TerritoriesView";
 import {
   clearTestSession,
   readTestSession,
@@ -21,7 +22,14 @@ import {
 } from "./TestAuth";
 
 type WorkspaceView =
-  "dashboard" | "map" | "people" | "profile" | "filings" | "exits" | "sources";
+  | "dashboard"
+  | "map"
+  | "people"
+  | "profile"
+  | "territories"
+  | "filings"
+  | "exits"
+  | "sources";
 
 const navigation: Array<{
   label: string;
@@ -32,6 +40,7 @@ const navigation: Array<{
     items: [
       { view: "dashboard", label: "Dashboard", icon: "DB" },
       { view: "people", label: "Search directory", icon: "DIR" },
+      { view: "territories", label: "Territories & alerts", icon: "AL" },
       { view: "map", label: "State signals", icon: "US" },
     ],
   },
@@ -70,6 +79,12 @@ const viewCopy: Record<
     detail:
       "Search people, firms, issuers, completed sales, proposed sales, and reported holdings from one directory.",
   },
+  territories: {
+    eyebrow: "Local business development",
+    title: "Saved territories and alerts",
+    detail:
+      "Build metro-radius searches around public business locations, save territory rules, and surface matching capital events.",
+  },
   profile: {
     eyebrow: "SEC reporting-party profile",
     title: "Evidence-linked profile",
@@ -83,10 +98,10 @@ const viewCopy: Record<
       "Review recently indexed ownership and transaction filings directly from the SEC public record.",
   },
   exits: {
-    eyebrow: "Transaction intelligence",
-    title: "Business exit watch",
+    eyebrow: "Confirmed and emerging transactions",
+    title: "Completed exits and deal watch",
     detail:
-      "Monitor public M&A signals, named acquired parties, and acquired businesses without treating a deal notice as personal cash.",
+      "Separate consummated SEC Item 2.01 transactions from pre-close FTC signals, then inspect consideration and supported owner attribution.",
   },
   sources: {
     eyebrow: "Evidence policy",
@@ -383,19 +398,24 @@ function Dashboard({
 }) {
   const coverage = liquidityCoverage(data);
   const liquidPeople = people.filter(
-    (person) => person.kind === "Person" && person.grossCompletedSales > 0,
+    (person) =>
+      person.kind === "Person" &&
+      person.grossCompletedSales + person.grossCompletedExitCash > 0,
   );
   const completedGross = liquidPeople.reduce(
-    (sum, person) => sum + person.grossCompletedSales,
+    (sum, person) =>
+      sum + person.grossCompletedSales + person.grossCompletedExitCash,
     0,
   );
   const remainingMedian = liquidPeople.reduce(
     (sum, person) => sum + person.estimatedRemainingLiquidity.median,
     0,
   );
-  const proposedGross = people
-    .filter((person) => person.kind === "Person")
-    .reduce((sum, person) => sum + person.proposedSaleValue, 0);
+  const completedBusinessExits = data.completedExits?.records ?? [];
+  const disclosedExitCash = completedBusinessExits.reduce(
+    (sum, record) => sum + (record.consideration.cashAmount ?? 0),
+    0,
+  );
   const statePulse = useMemo(
     () =>
       [...data.businessFormation.states]
@@ -433,8 +453,9 @@ function Dashboard({
         </span>
         <p>
           <strong>{coverage.label}.</strong> The dashboard combines completed
-          sale evidence with proposed-sale and holdings signals. Proposed deals
-          and Form 144 notices do not enter estimated cash.
+          securities sales with confirmed Item 2.01 transactions, proposed-sale
+          records, and holdings signals. FTC deal notices and Form 144 proposals
+          do not enter estimated cash.
         </p>
         <button type="button" onClick={() => onNavigate("sources")}>
           Methodology →
@@ -464,9 +485,9 @@ function Dashboard({
           <b>Modeled</b>
         </article>
         <article>
-          <span>Proposed sale pipeline</span>
-          <strong>{compactCurrency(proposedGross)}</strong>
-          <small>Form 144 values excluded until completed</small>
+          <span>Confirmed business exits</span>
+          <strong>{completedBusinessExits.length.toLocaleString()}</strong>
+          <small>{compactCurrency(disclosedExitCash)} disclosed cash</small>
           <b>SEC</b>
         </article>
       </section>
@@ -487,7 +508,8 @@ function Dashboard({
               .filter(
                 (person) =>
                   person.kind === "Person" &&
-                  (person.grossCompletedSales > 0 ||
+                  (person.grossCompletedSales + person.grossCompletedExitCash >
+                    0 ||
                     person.proposedSaleValue > 0),
               )
               .slice(0, 7)
@@ -501,8 +523,10 @@ function Dashboard({
                   <div>
                     <strong>{person.name}</strong>
                     <small>
-                      {person.grossCompletedSales > 0
-                        ? `${compactCurrency(person.grossCompletedSales)} gross · ${compactCurrency(person.estimatedRemainingLiquidity.median)} median remaining`
+                      {person.grossCompletedSales +
+                        person.grossCompletedExitCash >
+                      0
+                        ? `${compactCurrency(person.grossCompletedSales + person.grossCompletedExitCash)} gross · ${compactCurrency(person.estimatedRemainingLiquidity.median)} median remaining`
                         : `${compactCurrency(person.proposedSaleValue)} proposed · not counted as completed`}
                     </small>
                   </div>
@@ -634,7 +658,238 @@ function FilingsView({
   );
 }
 
-function ExitSignalsView({
+function ConfirmedExitsPanel({
+  data,
+  query,
+}: {
+  data: PublicDataSnapshot;
+  query: string;
+}) {
+  const [completedQuery, setCompletedQuery] = useState("");
+  const [location, setLocation] = useState("All locations");
+  const [attribution, setAttribution] = useState("All attribution");
+  const allRecords = data.completedExits?.records ?? [];
+  const locationOptions = [
+    ...new Set(
+      allRecords
+        .flatMap((record) => [
+          record.location.display,
+          ...record.ownerAttributions.map((owner) => owner.location.display),
+        ])
+        .filter((value) => value && value !== "Location not established"),
+    ),
+  ].sort();
+  const combinedQuery = `${query} ${completedQuery}`.trim().toLocaleLowerCase();
+  const records = allRecords.filter((record) => {
+    const searchText = [
+      record.filer,
+      record.subjectBusiness,
+      record.buyer,
+      record.sellerOrTarget,
+      record.accession,
+      record.consideration.summary,
+      record.location.display,
+      ...record.ownerAttributions.flatMap((owner) => [
+        owner.name,
+        owner.relationship,
+        owner.location.display,
+      ]),
+    ]
+      .join(" ")
+      .toLocaleLowerCase();
+    const matchesLocation =
+      location === "All locations"
+        ? true
+        : location === "Location not established"
+          ? record.location.display === "Location not established" &&
+            record.ownerAttributions.every(
+              (owner) => owner.location.display === "Location not established",
+            )
+          : record.location.display === location ||
+            record.ownerAttributions.some(
+              (owner) => owner.location.display === location,
+            );
+    const matchesAttribution =
+      attribution === "All attribution"
+        ? true
+        : attribution === "Named people"
+          ? record.ownerAttributions.some((owner) => owner.kind === "person")
+          : attribution === "Named entities"
+            ? record.ownerAttributions.some((owner) => owner.kind === "entity")
+            : record.ownerAttributions.length === 0;
+    return (
+      searchText.includes(combinedQuery) &&
+      matchesLocation &&
+      matchesAttribution
+    );
+  });
+  const disclosedCash = records.reduce(
+    (sum, record) => sum + (record.consideration.cashAmount ?? 0),
+    0,
+  );
+  const personAttributions = records.reduce(
+    (sum, record) =>
+      sum +
+      record.ownerAttributions.filter((owner) => owner.kind === "person")
+        .length,
+    0,
+  );
+
+  return (
+    <>
+      <div className="real-confirmed-disclosure">
+        <strong>Confirmed close</strong>
+        <p>
+          Every row is backed by SEC Form 8-K Item 2.01. The SEC limits this
+          item to consummated significant acquisitions or dispositions.
+          Consideration and named recipients remain blank unless a filing
+          discloses them.
+        </p>
+      </div>
+      <section
+        className="real-exit-controls real-confirmed-controls"
+        aria-label="Completed-exit filters"
+      >
+        <label>
+          <span>Search confirmed exits</span>
+          <input
+            type="search"
+            value={completedQuery}
+            onChange={(event) => setCompletedQuery(event.target.value)}
+            placeholder="Search business, buyer, seller, owner, place, or accession…"
+            aria-label="Search completed exits"
+          />
+        </label>
+        <label>
+          <span>Public location</span>
+          <select
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+            aria-label="Filter completed exits by location"
+          >
+            <option>All locations</option>
+            {locationOptions.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+            <option>Location not established</option>
+          </select>
+        </label>
+        <label>
+          <span>Owner attribution</span>
+          <select
+            value={attribution}
+            onChange={(event) => setAttribution(event.target.value)}
+            aria-label="Filter completed exits by owner attribution"
+          >
+            <option>All attribution</option>
+            <option>Named people</option>
+            <option>Named entities</option>
+            <option>No named owner</option>
+          </select>
+        </label>
+        <div>
+          <strong>{compactCurrency(disclosedCash)}</strong>
+          <span>
+            disclosed cash across results · {personAttributions} named-person
+            attribution{personAttributions === 1 ? "" : "s"}
+          </span>
+        </div>
+      </section>
+      <section className="real-directory-card real-confirmed-directory">
+        <div className="real-directory-head real-confirmed-row">
+          <span>Completed</span>
+          <span>Business / transaction</span>
+          <span>Disclosed consideration</span>
+          <span>Supported owner attribution</span>
+          <span>Location and evidence</span>
+        </div>
+        {records.map((record) => (
+          <article
+            className="real-directory-row real-confirmed-row real-confirmed-record"
+            key={record.id}
+          >
+            <span>
+              <strong>{displayDate(record.completedAt)}</strong>
+              <small>Filed {displayDate(record.filedAt)}</small>
+              <i>Item 2.01</i>
+            </span>
+            <span>
+              <strong>{record.subjectBusiness}</strong>
+              <small>
+                {record.buyer} · {record.sellerOrTarget}
+              </small>
+              <p>
+                {record.transactionType} · filer was {record.filerRole}
+              </p>
+            </span>
+            <span>
+              <strong>
+                {record.consideration.cashAmount !== null
+                  ? `${compactCurrency(record.consideration.cashAmount)} cash`
+                  : record.consideration.cashPerShare !== null
+                    ? `$${record.consideration.cashPerShare.toLocaleString()} cash / share`
+                    : "Amount not disclosed"}
+              </strong>
+              <small>{record.consideration.summary}</small>
+            </span>
+            <span className="real-owner-attributions">
+              {record.ownerAttributions.length ? (
+                record.ownerAttributions.slice(0, 3).map((owner) => (
+                  <a
+                    href={owner.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    key={`${record.id}-${owner.name}`}
+                  >
+                    <strong>{owner.name}</strong>
+                    <small>
+                      {owner.relationship}
+                      {owner.attributedCash !== null
+                        ? ` · ${compactCurrency(owner.attributedCash)} gross`
+                        : " · amount not allocated"}
+                    </small>
+                  </a>
+                ))
+              ) : (
+                <>
+                  <strong>No supported owner attribution</strong>
+                  <small>
+                    No recipient inferred from the transaction alone.
+                  </small>
+                </>
+              )}
+            </span>
+            <span>
+              <strong>{record.location.display}</strong>
+              <small>
+                {record.location.basis === "company_headquarters"
+                  ? "Company headquarters"
+                  : record.location.basis === "public_business_address"
+                    ? "Public business address"
+                    : "No sourced location"}
+              </small>
+              <a href={record.sourceUrl} target="_blank" rel="noreferrer">
+                Open SEC 8-K ↗
+              </a>
+            </span>
+          </article>
+        ))}
+        {!records.length && (
+          <p className="real-empty">
+            No completed Item 2.01 records match these filters.
+          </p>
+        )}
+      </section>
+      <p className="real-workspace-footnote">
+        Named-person amounts are gross filing-based calculations before taxes,
+        fees, option exercise costs, or later deployment. Entity-level seller
+        proceeds are never presented as personal cash.
+      </p>
+    </>
+  );
+}
+
+function DealWatchPanel({
   data,
   query,
 }: {
@@ -692,15 +947,6 @@ function ExitSignalsView({
 
   return (
     <>
-      <PageIntro
-        view="exits"
-        action={
-          <span className="real-count-pill">
-            {records.length.toLocaleString()} of{" "}
-            {allRecords.length.toLocaleString()} deal signals
-          </span>
-        }
-      />
       <div className="real-signal-disclosure">
         <strong>Deal signal—not cash evidence</strong>
         <p>
@@ -822,9 +1068,8 @@ function ExitSignalsView({
             prove that a business is for sale.
           </p>
           <p>
-            The next high-value feed is completed acquisition or disposition
-            evidence from SEC Form 8-K Item 2.01, followed by disclosed
-            consideration and owner attribution.
+            Use the Confirmed closes tab when you need consummated Item 2.01
+            evidence, disclosed consideration, and supported owner attribution.
           </p>
           <a
             href="https://www.census.gov/data/tables/2024/econ/abs/2024-abs-characteristics-of-owners.html"
@@ -853,6 +1098,58 @@ function ExitSignalsView({
   );
 }
 
+function ExitSignalsView({
+  data,
+  query,
+}: {
+  data: PublicDataSnapshot;
+  query: string;
+}) {
+  const [mode, setMode] = useState<"confirmed" | "watch">("confirmed");
+  const confirmedCount = data.completedExits?.records.length ?? 0;
+  const watchCount = data.exitSignals?.records.length ?? 0;
+
+  return (
+    <>
+      <PageIntro
+        view="exits"
+        action={
+          <span className="real-count-pill">
+            {confirmedCount} confirmed · {watchCount} deal signals
+          </span>
+        }
+      />
+      <div className="real-exit-mode" role="tablist" aria-label="Exit evidence">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "confirmed"}
+          className={mode === "confirmed" ? "active" : ""}
+          onClick={() => setMode("confirmed")}
+        >
+          Confirmed closes
+          <span>{confirmedCount} SEC Item 2.01</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "watch"}
+          className={mode === "watch" ? "active" : ""}
+          onClick={() => setMode("watch")}
+        >
+          Deal watch
+          <span>{watchCount} FTC signals</span>
+        </button>
+      </div>
+      {mode === "confirmed" ? (
+        <ConfirmedExitsPanel data={data} query={query} />
+      ) : (
+        <DealWatchPanel data={data} query={query} />
+      )}
+    </>
+  );
+}
+
 function SourcesView({ data }: { data: PublicDataSnapshot }) {
   return (
     <>
@@ -861,10 +1158,13 @@ function SourcesView({ data }: { data: PublicDataSnapshot }) {
         <strong>Evidence first. Estimates second.</strong>
         <p>
           Liquidity Radar treats Form 4 sale transactions and completed
-          prior-sale disclosures as cash-creation evidence when shares and
-          proceeds are available. Form 144 proposals remain proposed. Taxes,
-          fees, private deployment, and remaining liquidity are modeled as
-          ranges and never presented as observed bank balances.
+          prior-sale disclosures as securities-liquidity evidence when shares
+          and proceeds are available. Form 8-K Item 2.01 establishes a
+          consummated significant acquisition or disposition, but a person is
+          linked to proceeds only when a separate ownership filing supports the
+          attribution. Form 144 proposals remain proposed. Taxes, fees, private
+          deployment, and remaining liquidity are modeled as ranges and never
+          presented as observed bank balances.
         </p>
       </div>
       <section className="real-source-directory">
@@ -1050,6 +1350,7 @@ export function RealRadarApp() {
         />
         <RealPeopleDirectory
           people={people}
+          geography={data.geography}
           query={query}
           onQuery={setQuery}
           onPerson={openPerson}
@@ -1067,6 +1368,13 @@ export function RealRadarApp() {
     );
   } else if (view === "filings") {
     content = <FilingsView data={data} query={query} />;
+  } else if (view === "territories") {
+    content = (
+      <>
+        <PageIntro view="territories" />
+        <TerritoriesView data={data} people={people} onPerson={openPerson} />
+      </>
+    );
   } else if (view === "exits") {
     content = <ExitSignalsView data={data} query={query} />;
   } else {

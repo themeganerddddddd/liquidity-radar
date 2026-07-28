@@ -3,10 +3,17 @@
 import { useMemo, useState } from "react";
 import type {
   PublicDataSnapshot,
+  PublicCompletedExit,
   PublicHoldingPosition,
   PublicLiquidityEvent,
+  PublicOwnerAttribution,
   SecFiling,
 } from "../lib/public-data";
+import {
+  findPlaceCoordinates,
+  isWithinTerritory,
+  type Coordinates,
+} from "../lib/territories";
 
 export type LiquidityRange = {
   low: number;
@@ -23,8 +30,13 @@ export type RealPersonRecord = {
   forms: string[];
   filings: SecFiling[];
   liquidityEvents: PublicLiquidityEvent[];
+  exitAttributions: Array<{
+    exit: PublicCompletedExit;
+    owner: PublicOwnerAttribution;
+  }>;
   holdings: PublicHoldingPosition[];
   grossCompletedSales: number;
+  grossCompletedExitCash: number;
   grossPurchases: number;
   proposedSaleValue: number;
   estimatedNetProceeds: LiquidityRange;
@@ -34,6 +46,7 @@ export type RealPersonRecord = {
   confidence: number;
   relationship: string;
   location: string;
+  coordinates: Coordinates | null;
   lastLiquidityDate: string;
   lastFiledAt: string;
   archiveEntityId: string;
@@ -114,6 +127,41 @@ export function estimateLiquidity(
   };
 }
 
+function estimateAttributedExitLiquidity(
+  attributions: RealPersonRecord["exitAttributions"],
+  asOfDate: string,
+) {
+  return attributions.reduce(
+    (estimate, attribution) => {
+      const gross = attribution.owner.attributedCash ?? 0;
+      estimate.gross += gross;
+      if (attribution.owner.kind !== "person") return estimate;
+      const years =
+        daysBetween(attribution.exit.completedAt, asOfDate) / 365.25;
+      const net = {
+        low: gross * netRetention.low,
+        median: gross * netRetention.median,
+        high: gross * netRetention.high,
+      };
+      estimate.net.low += net.low;
+      estimate.net.median += net.median;
+      estimate.net.high += net.high;
+      estimate.remaining.low +=
+        net.low * annualUnobservedRetention.low ** years;
+      estimate.remaining.median +=
+        net.median * annualUnobservedRetention.median ** years;
+      estimate.remaining.high +=
+        net.high * annualUnobservedRetention.high ** years;
+      return estimate;
+    },
+    {
+      gross: 0,
+      net: { low: 0, median: 0, high: 0 },
+      remaining: { low: 0, median: 0, high: 0 },
+    },
+  );
+}
+
 function entityKind(name: string): RealPersonRecord["kind"] {
   return /\b(LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|CO|COMPANY|LTD|LIMITED|LP|L\.P\.|LLP|PLC|P\.L\.C\.|B\.?V\.?|N\.?V\.?|S\.?A\.?|AG|GMBH|TRUST|GRAT|IRREVOCABLE|FOUNDATION|FUND|CAPITAL|PARTNERS|HOLDINGS|INVESTMENT|INVESTMENTS|VENTURES|MANAGEMENT|GROUP|ASSOCIATES|MASTER)\b/i.test(
     name,
@@ -166,6 +214,7 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
   const eventsByKey = new Map<string, PublicLiquidityEvent[]>();
   const holdingsByKey = new Map<string, PublicHoldingPosition[]>();
   const filingsByKey = new Map<string, SecFiling[]>();
+  const exitsByKey = new Map<string, RealPersonRecord["exitAttributions"]>();
   const addName = (key: string, name: string) => {
     if (!name.trim()) return;
     const current = names.get(key) ?? [];
@@ -200,11 +249,24 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
     current.push(filing);
     filingsByKey.set(key, current);
   }
+  for (const exit of data.completedExits?.records ?? []) {
+    for (const owner of exit.ownerAttributions) {
+      if (!owner.name.trim()) continue;
+      const key =
+        nameToKey.get(normalizedName(owner.name)) ??
+        `name:${normalizedName(owner.name)}`;
+      addName(key, owner.name);
+      const current = exitsByKey.get(key) ?? [];
+      current.push({ exit, owner });
+      exitsByKey.set(key, current);
+    }
+  }
 
   return [...names.entries()]
     .map(([key, nameOptions]) => {
       const liquidityEvents = eventsByKey.get(key) ?? [];
       const holdings = holdingsByKey.get(key) ?? [];
+      const exitAttributions = exitsByKey.get(key) ?? [];
       const preferredName =
         liquidityEvents.find((event) => event.form === "Form 144")
           ?.reportingParty ||
@@ -217,6 +279,10 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
         right.updatedAt.localeCompare(left.updatedAt),
       );
       const estimate = estimateLiquidity(liquidityEvents, data.generatedAt);
+      const exitEstimate = estimateAttributedExitLiquidity(
+        exitAttributions,
+        data.generatedAt,
+      );
       const proposedSaleValue = liquidityEvents
         .filter((event) => event.eventType === "proposed_public_share_sale")
         .reduce((sum, event) => sum + event.grossAmount, 0);
@@ -225,20 +291,60 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
           ...ordered.map((filing) => filing.issuer),
           ...liquidityEvents.map((event) => event.issuer),
           ...holdings.map((holding) => holding.issuer),
+          ...exitAttributions.map(
+            (attribution) => attribution.exit.subjectBusiness,
+          ),
         ]),
       ].filter(Boolean);
       const forms = [
         ...new Set([
           ...ordered.map((filing) => filing.form),
           ...liquidityEvents.map((event) => event.form),
+          ...(exitAttributions.length ? ["Form 8-K Item 2.01"] : []),
         ]),
       ];
       const latestEvidence = [...liquidityEvents].sort((left, right) =>
         right.transactionDate.localeCompare(left.transactionDate),
       )[0];
-      const latestLocation = liquidityEvents.find(
-        (event) => event.location.city || event.location.state,
-      )?.location;
+      const latestLocation =
+        liquidityEvents.find(
+          (event) => event.location.city || event.location.state,
+        )?.location ??
+        exitAttributions.find(
+          (attribution) =>
+            attribution.owner.location.city || attribution.owner.location.state,
+        )?.owner.location;
+      const latestExitAttribution = [...exitAttributions].sort((left, right) =>
+        right.exit.completedAt.localeCompare(left.exit.completedAt),
+      )[0];
+      const lastLiquidityDate =
+        [
+          latestEvidence?.transactionDate ?? "",
+          latestExitAttribution?.exit.completedAt ?? "",
+          ordered[0]?.filedAt ?? "",
+        ]
+          .sort()
+          .at(-1) ?? "";
+      const combinedNetProceeds = {
+        low: estimate.estimatedNetProceeds.low + exitEstimate.net.low,
+        median: estimate.estimatedNetProceeds.median + exitEstimate.net.median,
+        high: estimate.estimatedNetProceeds.high + exitEstimate.net.high,
+      };
+      const combinedRemainingLiquidity = {
+        low:
+          estimate.estimatedRemainingLiquidity.low + exitEstimate.remaining.low,
+        median:
+          estimate.estimatedRemainingLiquidity.median +
+          exitEstimate.remaining.median,
+        high:
+          estimate.estimatedRemainingLiquidity.high +
+          exitEstimate.remaining.high,
+      };
+      const combinedDeployment = {
+        low: combinedNetProceeds.low - combinedRemainingLiquidity.low,
+        median: combinedNetProceeds.median - combinedRemainingLiquidity.median,
+        high: combinedNetProceeds.high - combinedRemainingLiquidity.high,
+      };
       const estimatedPortfolioValue = holdings.reduce(
         (sum, holding) => sum + (holding.estimatedValue ?? 0),
         0,
@@ -263,20 +369,34 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
         forms,
         filings: ordered,
         liquidityEvents,
+        exitAttributions,
         holdings,
         grossCompletedSales: estimate.grossCompletedSales,
+        grossCompletedExitCash: exitEstimate.gross,
         grossPurchases: estimate.grossPurchases,
         proposedSaleValue,
-        estimatedNetProceeds: estimate.estimatedNetProceeds,
-        estimatedUnobservedDeployment: estimate.estimatedUnobservedDeployment,
-        estimatedRemainingLiquidity: estimate.estimatedRemainingLiquidity,
+        estimatedNetProceeds: combinedNetProceeds,
+        estimatedUnobservedDeployment: combinedDeployment,
+        estimatedRemainingLiquidity: combinedRemainingLiquidity,
         estimatedPortfolioValue,
-        confidence,
-        relationship: latestEvidence?.relationship || "SEC reporting party",
+        confidence:
+          exitEstimate.gross > 0 ? Math.max(confidence, 94) : confidence,
+        relationship:
+          latestEvidence?.relationship ||
+          latestExitAttribution?.owner.relationship ||
+          "SEC reporting party",
         location: reportedLocation(latestLocation),
-        lastLiquidityDate:
-          latestEvidence?.transactionDate || ordered[0]?.filedAt || "",
-        lastFiledAt: ordered[0]?.filedAt || latestEvidence?.filingDate || "",
+        coordinates: findPlaceCoordinates(
+          data.geography,
+          latestLocation?.city ?? "",
+          latestLocation?.state ?? "",
+        ),
+        lastLiquidityDate,
+        lastFiledAt:
+          ordered[0]?.filedAt ||
+          latestEvidence?.filingDate ||
+          latestExitAttribution?.exit.filedAt ||
+          "",
         archiveEntityId:
           latestEvidence?.reportingPartyCik ||
           holdings[0]?.reportingPartyCik ||
@@ -357,11 +477,13 @@ function locationRegion(value: string) {
 
 export function RealPeopleDirectory({
   people,
+  geography,
   query,
   onQuery,
   onPerson,
 }: {
   people: RealPersonRecord[];
+  geography: PublicDataSnapshot["geography"];
   query: string;
   onQuery: (query: string) => void;
   onPerson: (person: RealPersonRecord) => void;
@@ -369,6 +491,8 @@ export function RealPeopleDirectory({
   const [evidence, setEvidence] = useState("All liquidity evidence");
   const [kind, setKind] = useState("People only");
   const [location, setLocation] = useState("All locations");
+  const [metroId, setMetroId] = useState("");
+  const [radiusMiles, setRadiusMiles] = useState(50);
   const [sort, setSort] = useState("Estimated liquidity");
   const [visibleCount, setVisibleCount] = useState(50);
   const locationOptions = useMemo(
@@ -395,6 +519,12 @@ export function RealPeopleDirectory({
             ...person.filings.map((filing) => filing.reportingParty),
             ...person.liquidityEvents.map((event) => event.reportingParty),
             ...person.holdings.map((holding) => holding.reportingParty),
+            ...person.exitAttributions.flatMap((attribution) => [
+              attribution.exit.subjectBusiness,
+              attribution.exit.buyer,
+              attribution.exit.sellerOrTarget,
+              attribution.owner.name,
+            ]),
           ]
             .join(" ")
             .toLocaleLowerCase()
@@ -412,9 +542,21 @@ export function RealPeopleDirectory({
             ? true
             : locationRegion(person.location) === location,
         )
+        .filter((person) =>
+          metroId
+            ? isWithinTerritory(
+                person.coordinates,
+                geography,
+                metroId,
+                radiusMiles,
+              )
+            : true,
+        )
         .filter((person) => {
           if (evidence === "Completed sales")
-            return person.grossCompletedSales > 0;
+            return (
+              person.grossCompletedSales + person.grossCompletedExitCash > 0
+            );
           if (evidence === "Proposed sales")
             return person.proposedSaleValue > 0;
           if (evidence === "Reported holdings")
@@ -428,14 +570,29 @@ export function RealPeopleDirectory({
               left.estimatedRemainingLiquidity.median
             );
           if (sort === "Gross proceeds")
-            return right.grossCompletedSales - left.grossCompletedSales;
+            return (
+              right.grossCompletedSales +
+              right.grossCompletedExitCash -
+              left.grossCompletedSales -
+              left.grossCompletedExitCash
+            );
           if (sort === "Most recent")
             return right.lastLiquidityDate.localeCompare(
               left.lastLiquidityDate,
             );
           return nameSort(left.name).localeCompare(nameSort(right.name));
         }),
-    [evidence, kind, location, people, query, sort],
+    [
+      evidence,
+      geography,
+      kind,
+      location,
+      metroId,
+      people,
+      query,
+      radiusMiles,
+      sort,
+    ],
   );
   const visible = filtered.slice(0, visibleCount);
 
@@ -470,6 +627,42 @@ export function RealPeopleDirectory({
               <option key={option}>{option}</option>
             ))}
             <option>Location not established</option>
+          </select>
+        </label>
+        <label>
+          <span>Metro center</span>
+          <select
+            value={metroId}
+            onChange={(event) => {
+              setVisibleCount(50);
+              setMetroId(event.target.value);
+            }}
+            aria-label="Filter by metropolitan area"
+          >
+            <option value="">All metros</option>
+            {(geography?.metros ?? []).map((metro) => (
+              <option value={metro.id} key={metro.id}>
+                {metro.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span>Radius</span>
+          <select
+            value={radiusMiles}
+            onChange={(event) => {
+              setVisibleCount(50);
+              setRadiusMiles(Number(event.target.value));
+            }}
+            disabled={!metroId}
+            aria-label="Metro radius in miles"
+          >
+            {[25, 50, 100, 150, 250].map((miles) => (
+              <option value={miles} key={miles}>
+                {miles} miles
+              </option>
+            ))}
           </select>
         </label>
         <label>
@@ -521,7 +714,12 @@ export function RealPeopleDirectory({
         </label>
         <div className="real-people-result-count">
           <strong>{filtered.length}</strong>
-          <span>attributable result{filtered.length === 1 ? "" : "s"}</span>
+          <span>
+            attributable result{filtered.length === 1 ? "" : "s"}
+            {metroId
+              ? ` · Census place-to-metro distance within ${radiusMiles} miles`
+              : ""}
+          </span>
         </div>
       </section>
 
@@ -567,20 +765,29 @@ export function RealPeopleDirectory({
             <span>
               <strong>
                 {person.grossCompletedSales > 0
-                  ? compactCurrency(person.grossCompletedSales)
-                  : "No completed sale"}
+                  ? compactCurrency(
+                      person.grossCompletedSales +
+                        person.grossCompletedExitCash,
+                    )
+                  : person.grossCompletedExitCash > 0
+                    ? compactCurrency(person.grossCompletedExitCash)
+                    : "No completed sale"}
               </strong>
               <small>
-                {person.proposedSaleValue > 0
-                  ? `${compactCurrency(person.proposedSaleValue)} proposed`
-                  : `${person.liquidityEvents.length} qualifying events`}
+                {person.grossCompletedExitCash > 0
+                  ? `${compactCurrency(person.grossCompletedExitCash)} from attributed completed exit`
+                  : person.proposedSaleValue > 0
+                    ? `${compactCurrency(person.proposedSaleValue)} proposed`
+                    : `${person.liquidityEvents.length} qualifying events`}
               </small>
             </span>
             <span>
               <strong>
-                {person.grossCompletedSales > 0
+                {person.estimatedNetProceeds.high > 0
                   ? moneyRange(person.estimatedRemainingLiquidity)
-                  : "Not yet estimated"}
+                  : person.grossCompletedExitCash > 0
+                    ? "Entity receipt not modeled"
+                    : "Not yet estimated"}
               </strong>
               <small>{person.confidence}% confidence</small>
             </span>
@@ -657,7 +864,11 @@ export function RealPersonProfile({
     )
     .slice(0, 8);
   const latestSource =
-    person.liquidityEvents[0]?.sourceUrl || person.filings[0]?.url;
+    person.exitAttributions[0]?.owner.sourceUrl ||
+    person.liquidityEvents[0]?.sourceUrl ||
+    person.filings[0]?.url;
+  const completedCapital =
+    person.grossCompletedSales + person.grossCompletedExitCash;
 
   return (
     <>
@@ -684,13 +895,15 @@ export function RealPersonProfile({
         <div className="real-person-profile-summary">
           <span>Estimated remaining liquidity</span>
           <strong>
-            {person.grossCompletedSales > 0
+            {person.estimatedNetProceeds.high > 0
               ? moneyRange(person.estimatedRemainingLiquidity)
-              : "Not yet estimated"}
+              : person.grossCompletedExitCash > 0
+                ? "Entity receipt not modeled"
+                : "Not yet estimated"}
           </strong>
           <small>
             Median {compactCurrency(person.estimatedRemainingLiquidity.median)}{" "}
-            · calculated from completed public sales
+            · calculated from attributed completed events
           </small>
           {latestSource && (
             <a href={latestSource} target="_blank" rel="noreferrer">
@@ -703,29 +916,36 @@ export function RealPersonProfile({
       <div className="real-profile-disclosure">
         <strong>Estimate, not bank balance</strong>
         <p>
-          Gross sale proceeds are observed or calculated from SEC records.
-          Estimated net and remaining liquidity apply visible tax, fee,
-          completed-purchase, and time-based unobserved-deployment assumptions.
-          Actual cash on hand can differ materially.
+          Gross proceeds are observed or calculated from SEC records. Completed
+          business-exit amounts are included only when an ownership filing or
+          explicit seller disclosure supports attribution. Estimated net and
+          remaining liquidity apply visible tax, fee, completed-purchase, and
+          time-based unobserved-deployment assumptions. Actual cash on hand can
+          differ materially.
         </p>
       </div>
 
       <section className="real-profile-kpis" aria-label="Liquidity summary">
         <article>
           <span>Completed gross proceeds</span>
-          <strong>{compactCurrency(person.grossCompletedSales)}</strong>
+          <strong>{compactCurrency(completedCapital)}</strong>
           <small>
             {
               person.liquidityEvents.filter(
                 (event) => event.eventType === "completed_public_share_sale",
               ).length
             }{" "}
-            completed sale events
+            securities sale events · {person.exitAttributions.length} completed
+            exit attribution{person.exitAttributions.length === 1 ? "" : "s"}
           </small>
         </article>
         <article>
           <span>Estimated net proceeds</span>
-          <strong>{moneyRange(person.estimatedNetProceeds)}</strong>
+          <strong>
+            {person.estimatedNetProceeds.high > 0
+              ? moneyRange(person.estimatedNetProceeds)
+              : "Not modeled"}
+          </strong>
           <small>After modeled tax and transaction-cost ranges</small>
         </article>
         <article>
@@ -735,7 +955,11 @@ export function RealPersonProfile({
         </article>
         <article>
           <span>Estimated remaining liquidity</span>
-          <strong>{moneyRange(person.estimatedRemainingLiquidity)}</strong>
+          <strong>
+            {person.estimatedNetProceeds.high > 0
+              ? moneyRange(person.estimatedRemainingLiquidity)
+              : "Not modeled"}
+          </strong>
           <small>
             Median {compactCurrency(person.estimatedRemainingLiquidity.median)}
           </small>
@@ -750,9 +974,12 @@ export function RealPersonProfile({
                 <p className="eyebrow">Cash-creation ledger</p>
                 <h2>When liquidity was received or proposed</h2>
               </div>
-              <span>{person.liquidityEvents.length} qualifying events</span>
+              <span>
+                {person.liquidityEvents.length + person.exitAttributions.length}{" "}
+                qualifying events
+              </span>
             </div>
-            {person.liquidityEvents.length ? (
+            {person.liquidityEvents.length || person.exitAttributions.length ? (
               <div className="real-liquidity-ledger">
                 <div className="real-liquidity-ledger-row heading">
                   <span>Event and date</span>
@@ -804,6 +1031,52 @@ export function RealPersonProfile({
                       </small>
                     </span>
                     <b>{event.form} · SEC ↗</b>
+                  </a>
+                ))}
+                {person.exitAttributions.map(({ exit, owner }) => (
+                  <a
+                    className="real-liquidity-ledger-row completed"
+                    key={`${exit.id}-${owner.name}`}
+                    href={owner.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span>
+                      <strong>Attributed completed business exit</strong>
+                      <small>
+                        {displayDate(exit.completedAt)} · {exit.subjectBusiness}
+                      </small>
+                    </span>
+                    <span>
+                      <strong>
+                        {owner.attributedCash !== null
+                          ? `+${compactCurrency(owner.attributedCash)}`
+                          : "Amount not allocated"}
+                      </strong>
+                      <small>
+                        {owner.attributedShares !== null &&
+                        owner.cashPerShare !== null
+                          ? `${owner.attributedShares.toLocaleString()} shares × ${compactCurrency(owner.cashPerShare)}`
+                          : owner.relationship}
+                      </small>
+                    </span>
+                    <span>
+                      <strong>
+                        {owner.attributedCash !== null &&
+                        owner.kind === "person"
+                          ? moneyRange({
+                              low: owner.attributedCash * netRetention.low,
+                              median:
+                                owner.attributedCash * netRetention.median,
+                              high: owner.attributedCash * netRetention.high,
+                            })
+                          : owner.kind === "entity"
+                            ? "Entity receipt—not modeled as personal liquidity"
+                            : "Not included in personal estimate"}
+                      </strong>
+                      <small>{owner.amountClassification}</small>
+                    </span>
+                    <b>{owner.sourceType} + Item 2.01 · SEC ↗</b>
                   </a>
                 ))}
               </div>
