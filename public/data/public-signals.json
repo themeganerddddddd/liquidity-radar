@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-07-28T03:02:19.235Z",
+  "generatedAt": "2026-07-28T14:57:59.055Z",
   "sources": [
     {
       "id": "sec",
       "name": "EDGAR current filings",
       "publisher": "U.S. Securities and Exchange Commission",
       "freshness": "Near real time",
-      "recordCount": 30,
+      "recordCount": 85,
       "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
       "methodology": "Latest Form 4, Form 144, 8-K, Schedule 13D, and Schedule 13G filing metadata. Filing does not itself prove a completed liquidity event."
     },
@@ -49,187 +49,727 @@
   ],
   "sec": {
     "mode": "snapshot",
-    "updatedAt": "2026-07-28T03:02:19.235Z",
+    "updatedAt": "2026-07-28T14:57:59.055Z",
     "filings": [
       {
-        "accession": "0001193125-26-318582",
+        "accession": "0001839882-26-036534",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:58:55-04:00",
-        "issuer": "ACTELIS NETWORKS INC",
-        "reportingParty": "White Lion Capital LLC",
-        "url": "https://www.sec.gov/Archives/edgar/data/1952614/000119312526318582/0001193125-26-318582-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:57:21-04:00",
+        "issuer": "MORGAN STANLEY (0000895421) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1666268/000183988226036534/0001839882-26-036534-index.htm"
       },
       {
-        "accession": "0001493152-26-034910",
+        "accession": "0001839882-26-036533",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:52:31-04:00",
-        "issuer": "Sharplink, Inc.",
-        "reportingParty": "MCKENZIE OBIE",
-        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034910/0001493152-26-034910-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:56:30-04:00",
+        "issuer": "MORGAN STANLEY (0000895421) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1666268/000183988226036533/0001839882-26-036533-index.htm"
       },
       {
-        "accession": "0001493152-26-034909",
+        "accession": "0001839882-26-036530",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:52:19-04:00",
-        "issuer": "Sharplink, Inc.",
-        "reportingParty": "Chalom Joseph",
-        "url": "https://www.sec.gov/Archives/edgar/data/2079719/000149315226034909/0001493152-26-034909-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:55:48-04:00",
+        "issuer": "MORGAN STANLEY (0000895421) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1666268/000183988226036530/0001839882-26-036530-index.htm"
       },
       {
-        "accession": "0001493152-26-034908",
+        "accession": "0001193125-26-319302",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:51:20-04:00",
-        "issuer": "Sharplink, Inc.",
-        "reportingParty": "Bernhard Leslie",
-        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034908/0001493152-26-034908-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:54:55-04:00",
+        "issuer": "GOLDMAN SACHS GROUP INC (0000886982) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1419828/000119312526319302/0001193125-26-319302-index.htm"
       },
       {
-        "accession": "0001493152-26-034905",
+        "accession": "0001918704-26-021396",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:50:32-04:00",
-        "issuer": "Sharplink, Inc.",
-        "reportingParty": "Camarda Michael D",
-        "url": "https://www.sec.gov/Archives/edgar/data/2133186/000149315226034905/0001493152-26-034905-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:54:36-04:00",
+        "issuer": "BANK OF AMERICA CORP /DE/ (0000070858) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1682472/000191870426021396/0001918704-26-021396-index.htm"
       },
       {
-        "accession": "0001493152-26-034902",
-        "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:49:52-04:00",
-        "issuer": "Sharplink, Inc.",
-        "reportingParty": "GUTKOWSKI ROBERT M",
-        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034902/0001493152-26-034902-index.htm"
+        "accession": "0001949846-26-000446",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:53:09-04:00",
+        "issuer": "FIRST COMMUNITY CORP /SC/ (0000932781) (Subject)",
+        "reportingParty": "Deutsch Fred Joseph",
+        "url": "https://www.sec.gov/Archives/edgar/data/2105824/000194984626000446/0001949846-26-000446-index.htm"
       },
       {
-        "accession": "0001493152-26-034901",
+        "accession": "0000950103-26-011253",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:49:15-04:00",
-        "issuer": "Sharplink, Inc.",
-        "reportingParty": "DeLucia Robert Michael",
-        "url": "https://www.sec.gov/Archives/edgar/data/1981535/000149315226034901/0001493152-26-034901-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:51:53-04:00",
+        "issuer": "ROYAL BANK OF CANADA (0001000275) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1000275/000095010326011253/0000950103-26-011253-index.htm"
       },
       {
-        "accession": "0000930413-26-002192",
+        "accession": "0001839882-26-036529",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:42:29-04:00",
-        "issuer": "5C Lending Partners Corp.",
-        "reportingParty": "LAWRY SETH W",
-        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002192/0000930413-26-002192-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:51:24-04:00",
+        "issuer": "UBS AG (0001114446) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1114446/000183988226036529/0001839882-26-036529-index.htm"
       },
       {
-        "accession": "0001781292-26-000007",
+        "accession": "0001918704-26-021395",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:42:12-04:00",
-        "issuer": "Scribe Therapeutics, Inc.",
-        "reportingParty": "Lucas Svetlana",
-        "url": "https://www.sec.gov/Archives/edgar/data/1853921/000178129226000007/0001781292-26-000007-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:51:23-04:00",
+        "issuer": "BANK OF AMERICA CORP /DE/ (0000070858) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1682472/000191870426021395/0001918704-26-021395-index.htm"
       },
       {
-        "accession": "0000930413-26-002191",
+        "accession": "0001839882-26-036528",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:41:31-04:00",
-        "issuer": "5C Lending Partners Corp.",
-        "reportingParty": "Fair James Thomas",
-        "url": "https://www.sec.gov/Archives/edgar/data/2032514/000093041326002191/0000930413-26-002191-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:50:51-04:00",
+        "issuer": "UBS AG (0001114446) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1114446/000183988226036528/0001839882-26-036528-index.htm"
       },
       {
-        "accession": "0000930413-26-002190",
+        "accession": "0001961099-26-000008",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:40:32-04:00",
-        "issuer": "5C Lending Partners Corp.",
-        "reportingParty": "Finnerty Sheila A",
-        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002190/0000930413-26-002190-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:50:03-04:00",
+        "issuer": "Grown Rogue International Inc.",
+        "reportingParty": "Strickler Jesse",
+        "url": "https://www.sec.gov/Archives/edgar/data/1961099/000196109926000008/0001961099-26-000008-index.htm"
       },
       {
-        "accession": "0000930413-26-002189",
-        "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:39:39-04:00",
-        "issuer": "5C Lending Partners Corp.",
-        "reportingParty": "Roos Jason T",
-        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002189/0000930413-26-002189-index.htm"
+        "accession": "0001949846-26-000445",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:50:02-04:00",
+        "issuer": "SCHWAB CHARLES CORP (0000316709) (Subject)",
+        "reportingParty": "Howard Dennis",
+        "url": "https://www.sec.gov/Archives/edgar/data/1825454/000194984626000445/0001949846-26-000445-index.htm"
       },
       {
-        "accession": "0000930413-26-002188",
+        "accession": "0000080661-26-000296",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:38:32-04:00",
-        "issuer": "5C Lending Partners Corp.",
-        "reportingParty": "Koester Michael E",
-        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002188/0000930413-26-002188-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:49:03-04:00",
+        "issuer": "PROGRESSIVE CORP/OH/",
+        "reportingParty": "WITALEC DANIEL J",
+        "url": "https://www.sec.gov/Archives/edgar/data/2123923/000008066126000296/0000080661-26-000296-index.htm"
       },
       {
-        "accession": "0001628280-26-049906",
-        "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:38:12-04:00",
-        "issuer": "Accelerant Holdings",
-        "reportingParty": "Sternberg Matthew David",
-        "url": "https://www.sec.gov/Archives/edgar/data/2008628/000162828026049906/0001628280-26-049906-index.htm"
+        "accession": "0001959173-26-005395",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:47:03-04:00",
+        "issuer": "Energy Recovery, Inc. (0001421517) (Subject)",
+        "reportingParty": "Yeung William",
+        "url": "https://www.sec.gov/Archives/edgar/data/1677876/000195917326005395/0001959173-26-005395-index.htm"
       },
       {
-        "accession": "0000930413-26-002187",
+        "accession": "0000080661-26-000294",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:37:15-04:00",
-        "issuer": "5C Lending Partners Corp.",
-        "reportingParty": "Connolly Thomas",
-        "url": "https://www.sec.gov/Archives/edgar/data/1998387/000093041326002187/0000930413-26-002187-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:46:04-04:00",
+        "issuer": "PROGRESSIVE CORP/OH/",
+        "reportingParty": "Stringer David M",
+        "url": "https://www.sec.gov/Archives/edgar/data/2006341/000008066126000294/0000080661-26-000294-index.htm"
       },
       {
-        "accession": "0001106578-26-000107",
+        "accession": "0001839882-26-036525",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:36:09-04:00",
-        "issuer": "UNITED THERAPEUTICS Corp",
-        "reportingParty": "ROTHBLATT MARTINE A",
-        "url": "https://www.sec.gov/Archives/edgar/data/1106578/000110657826000107/0001106578-26-000107-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:45:00-04:00",
+        "issuer": "UBS AG (0001114446) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1114446/000183988226036525/0001839882-26-036525-index.htm"
       },
       {
-        "accession": "0001193125-26-318556",
+        "accession": "0001579427-26-000007",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:30:04-04:00",
-        "issuer": "Loop Industries, Inc.",
-        "reportingParty": "GEYGAN JEFFREY RICHART",
-        "url": "https://www.sec.gov/Archives/edgar/data/1733547/000119312526318556/0001193125-26-318556-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:43:38-04:00",
+        "issuer": "Sterling Real Estate Trust",
+        "reportingParty": "Haugen Timothy",
+        "url": "https://www.sec.gov/Archives/edgar/data/1579427/000157942726000007/0001579427-26-000007-index.htm"
       },
       {
-        "accession": "0002127814-26-000004",
+        "accession": "0000080661-26-000292",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:26:14-04:00",
-        "issuer": "Scribe Therapeutics, Inc.",
-        "reportingParty": "Oakes Benjamin L.",
-        "url": "https://www.sec.gov/Archives/edgar/data/2127814/000212781426000004/0002127814-26-000004-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:43:10-04:00",
+        "issuer": "PROGRESSIVE CORP/OH/",
+        "reportingParty": "Quigg Andrew J",
+        "url": "https://www.sec.gov/Archives/edgar/data/1744203/000008066126000292/0000080661-26-000292-index.htm"
       },
       {
-        "accession": "0001282930-26-000004",
-        "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:25:02-04:00",
-        "issuer": "Scribe Therapeutics, Inc.",
-        "reportingParty": "GORDON CARL L",
-        "url": "https://www.sec.gov/Archives/edgar/data/1853921/000128293026000004/0001282930-26-000004-index.htm"
+        "accession": "0001959173-26-005394",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:43:10-04:00",
+        "issuer": "MARSH & MCLENNAN COMPANIES, INC. (0000062709) (Subject)",
+        "reportingParty": "South Martin",
+        "url": "https://www.sec.gov/Archives/edgar/data/1901227/000195917326005394/0001959173-26-005394-index.htm"
       },
       {
-        "accession": "0002130384-26-000004",
+        "accession": "0001709430-26-000008",
         "form": "Form 4",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T21:23:16-04:00",
-        "issuer": "Scribe Therapeutics, Inc.",
-        "reportingParty": "Watson James Dean",
-        "url": "https://www.sec.gov/Archives/edgar/data/2130384/000213038426000004/0002130384-26-000004-index.htm"
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:40:31-04:00",
+        "issuer": "Sterling Real Estate Trust",
+        "reportingParty": "Korsmo Michelle L.",
+        "url": "https://www.sec.gov/Archives/edgar/data/1709430/000170943026000008/0001709430-26-000008-index.htm"
+      },
+      {
+        "accession": "0000080661-26-000290",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:40:11-04:00",
+        "issuer": "PROGRESSIVE CORP/OH/",
+        "reportingParty": "Niederst Lori A",
+        "url": "https://www.sec.gov/Archives/edgar/data/1691371/000008066126000290/0000080661-26-000290-index.htm"
+      },
+      {
+        "accession": "0001839882-26-036521",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:40:11-04:00",
+        "issuer": "BANK OF NOVA SCOTIA (0000009631) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/9631/000183988226036521/0001839882-26-036521-index.htm"
+      },
+      {
+        "accession": "0001140361-26-029857",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:38:23-04:00",
+        "issuer": "TORONTO DOMINION BANK (0000947263) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/947263/000114036126029857/0001140361-26-029857-index.htm"
+      },
+      {
+        "accession": "0001193125-26-319159",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:38:01-04:00",
+        "issuer": "GOLDMAN SACHS GROUP INC (0000886982) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1419828/000119312526319159/0001193125-26-319159-index.htm"
+      },
+      {
+        "accession": "0000080661-26-000288",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:37:05-04:00",
+        "issuer": "PROGRESSIVE CORP/OH/",
+        "reportingParty": "Murphy John Jo",
+        "url": "https://www.sec.gov/Archives/edgar/data/1642477/000008066126000288/0000080661-26-000288-index.htm"
+      },
+      {
+        "accession": "0000950103-26-011252",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:34:38-04:00",
+        "issuer": "ROYAL BANK OF CANADA (0001000275) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1000275/000095010326011252/0000950103-26-011252-index.htm"
+      },
+      {
+        "accession": "0000080661-26-000286",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:33:44-04:00",
+        "issuer": "PROGRESSIVE CORP/OH/",
+        "reportingParty": "Griffith Susan Patricia",
+        "url": "https://www.sec.gov/Archives/edgar/data/1198113/000008066126000286/0000080661-26-000286-index.htm"
+      },
+      {
+        "accession": "0001959173-26-005393",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:33:36-04:00",
+        "issuer": "RICHARDSON ELECTRONICS, LTD. (0000355948) (Subject)",
+        "reportingParty": "Ben Robert J",
+        "url": "https://www.sec.gov/Archives/edgar/data/1512170/000195917326005393/0001959173-26-005393-index.htm"
+      },
+      {
+        "accession": "0001949846-26-000444",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:32:08-04:00",
+        "issuer": "SCHWAB CHARLES CORP (0000316709) (Subject)",
+        "reportingParty": "Bettinger Walter W",
+        "url": "https://www.sec.gov/Archives/edgar/data/1296479/000194984626000444/0001949846-26-000444-index.htm"
+      },
+      {
+        "accession": "0001193125-26-319140",
+        "form": "Form 4",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:31:20-04:00",
+        "issuer": "HarbourVest Private Investments Fund (0002020407) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/2020407/000119312526319140/0001193125-26-319140-index.htm"
+      },
+      {
+        "accession": "0001959173-26-005392",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:31:13-04:00",
+        "issuer": "ATI INC (0001018963) (Subject)",
+        "reportingParty": "Fields Kimberly A",
+        "url": "https://www.sec.gov/Archives/edgar/data/1773072/000195917326005392/0001959173-26-005392-index.htm"
+      },
+      {
+        "accession": "0001959173-26-005391",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:20:54-04:00",
+        "issuer": "PROGRESSIVE CORP/OH/ (0000080661) (Subject)",
+        "reportingParty": "Quigg Andrew J",
+        "url": "https://www.sec.gov/Archives/edgar/data/1744203/000195917326005391/0001959173-26-005391-index.htm"
+      },
+      {
+        "accession": "0001949846-26-000443",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:16:47-04:00",
+        "issuer": "PACKAGING CORP OF AMERICA (0000075677) (Subject)",
+        "reportingParty": "Hassfurther Thomas A",
+        "url": "https://www.sec.gov/Archives/edgar/data/1318252/000194984626000443/0001949846-26-000443-index.htm"
+      },
+      {
+        "accession": "0001949846-26-000442",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T10:06:46-04:00",
+        "issuer": "Live Oak Bancshares, Inc. (0001462120) (Subject)",
+        "reportingParty": "Moroz Mark Michael",
+        "url": "https://www.sec.gov/Archives/edgar/data/2066890/000194984626000442/0001949846-26-000442-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034950",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:57:16-04:00",
+        "issuer": "K - SRX Global Inc. (0001471727) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1471727/000149315226034950/0001493152-26-034950-index.htm"
+      },
+      {
+        "accession": "0001959173-26-005390",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:56:34-04:00",
+        "issuer": "Energy Recovery, Inc. (0001421517) (Subject)",
+        "reportingParty": "Clemente Rodney",
+        "url": "https://www.sec.gov/Archives/edgar/data/1668422/000195917326005390/0001959173-26-005390-index.htm"
+      },
+      {
+        "accession": "0001959173-26-005389",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:55:40-04:00",
+        "issuer": "BREAD FINANCIAL HOLDINGS, INC. (0001101215) (Subject)",
+        "reportingParty": "Lakhwara Praniti",
+        "url": "https://www.sec.gov/Archives/edgar/data/2026080/000195917326005389/0001959173-26-005389-index.htm"
+      },
+      {
+        "accession": "0001005817-26-000105",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:55:35-04:00",
+        "issuer": "K - TOMPKINS FINANCIAL CORP (0001005817) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1005817/000100581726000105/0001005817-26-000105-index.htm"
+      },
+      {
+        "accession": "0001959173-26-005388",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:46:22-04:00",
+        "issuer": "QUEST DIAGNOSTICS INC (0001022079) (Subject)",
+        "reportingParty": "DELANEY MARK E",
+        "url": "https://www.sec.gov/Archives/edgar/data/1955265/000195917326005388/0001959173-26-005388-index.htm"
+      },
+      {
+        "accession": "0001683168-26-005793",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:45:37-04:00",
+        "issuer": "K - Kinetic Seas Inc. (0001945619) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1945619/000168316826005793/0001683168-26-005793-index.htm"
+      },
+      {
+        "accession": "0001683168-26-005791",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:44:25-04:00",
+        "issuer": "K - Kinetic Seas Inc. (0001945619) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1945619/000168316826005791/0001683168-26-005791-index.htm"
+      },
+      {
+        "accession": "0001193125-26-319048",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:41:53-04:00",
+        "issuer": "K - Federal Home Loan Bank of Pittsburgh (0001330399) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1330399/000119312526319048/0001193125-26-319048-index.htm"
+      },
+      {
+        "accession": "0001959173-26-005387",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:41:01-04:00",
+        "issuer": "RICHARDSON ELECTRONICS, LTD. (0000355948) (Subject)",
+        "reportingParty": "Diddell Wendy",
+        "url": "https://www.sec.gov/Archives/edgar/data/1291981/000195917326005387/0001959173-26-005387-index.htm"
+      },
+      {
+        "accession": "0001104659-26-087359",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:28:54-04:00",
+        "issuer": "K - Midland States Bancorp, Inc. (0001466026) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1466026/000110465926087359/0001104659-26-087359-index.htm"
+      },
+      {
+        "accession": "0001628280-26-049952",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:24:14-04:00",
+        "issuer": "K - OPAL Fuels Inc. (0001842279) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1842279/000162828026049952/0001628280-26-049952-index.htm"
+      },
+      {
+        "accession": "0000049826-26-000047",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:21:11-04:00",
+        "issuer": "K - ILLINOIS TOOL WORKS INC (0000049826) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/49826/000004982626000047/0000049826-26-000047-index.htm"
+      },
+      {
+        "accession": "0001104659-26-087355",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:20:29-04:00",
+        "issuer": "K - COMMUNITY FINANCIAL SYSTEM, INC. (0000723188) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/723188/000110465926087355/0001104659-26-087355-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034947",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:19:00-04:00",
+        "issuer": "K12B - Uranium Royalty Corp. (0002143673) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/2143673/000149315226034947/0001493152-26-034947-index.htm"
+      },
+      {
+        "accession": "0001213900-26-082025",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:15:40-04:00",
+        "issuer": "K - BiomX Inc. (0001739174) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1739174/000121390026082025/0001213900-26-082025-index.htm"
+      },
+      {
+        "accession": "0001213900-26-082024",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:15:13-04:00",
+        "issuer": "K - Wetouch Technology Inc. (0001826660) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1826660/000121390026082024/0001213900-26-082024-index.htm"
+      },
+      {
+        "accession": "0001493152-26-034944",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:15:10-04:00",
+        "issuer": "K - PERMA FIX ENVIRONMENTAL SERVICES INC (0000891532) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/891532/000149315226034944/0001493152-26-034944-index.htm"
+      },
+      {
+        "accession": "0001628280-26-049946",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:11:00-04:00",
+        "issuer": "K - Workhorse Group Inc. (0001425287) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1425287/000162828026049946/0001628280-26-049946-index.htm"
+      },
+      {
+        "accession": "0001193125-26-318995",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:03:46-04:00",
+        "issuer": "K - CF BANKSHARES INC. (0001070680) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1070680/000119312526318995/0001193125-26-318995-index.htm"
+      },
+      {
+        "accession": "0001617553-26-000040",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:03:30-04:00",
+        "issuer": "K - ZIPRECRUITER, INC. (0001617553) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1617553/000161755326000040/0001617553-26-000040-index.htm"
+      },
+      {
+        "accession": "0000714562-26-000050",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:01:57-04:00",
+        "issuer": "K - FIRST FINANCIAL CORP /IN/ (0000714562) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/714562/000071456226000050/0000714562-26-000050-index.htm"
+      },
+      {
+        "accession": "0001654954-26-006947",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:00:23-04:00",
+        "issuer": "K - Onfolio Holdings, Inc (0001825452) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1825452/000165495426006947/0001654954-26-006947-index.htm"
+      },
+      {
+        "accession": "0001104659-26-087344",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T09:00:15-04:00",
+        "issuer": "K - John Marshall Bancorp, Inc. (0001710482) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1710482/000110465926087344/0001104659-26-087344-index.htm"
+      },
+      {
+        "accession": "0001973097-26-000021",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:49:10-04:00",
+        "issuer": "SOUTH PLAINS FINANCIAL, INC. (0001163668) (Subject)",
+        "reportingParty": "Stein James D.",
+        "url": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000021/0001973097-26-000021-index.htm"
+      },
+      {
+        "accession": "0001104659-26-087330",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:40:03-04:00",
+        "issuer": "K - Waste Connections, Inc. (0001318220) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1318220/000110465926087330/0001104659-26-087330-index.htm"
+      },
+      {
+        "accession": "0001383650-26-000025",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:35:51-04:00",
+        "issuer": "K - Cheniere Energy Partners, L.P. (0001383650) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1383650/000138365026000025/0001383650-26-000025-index.htm"
+      },
+      {
+        "accession": "0000003570-26-000025",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:35:38-04:00",
+        "issuer": "K - Cheniere Energy, Inc. (0000003570) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/3570/000000357026000025/0000003570-26-000025-index.htm"
+      },
+      {
+        "accession": "0001213900-26-082007",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:35:34-04:00",
+        "issuer": "K - RELMADA THERAPEUTICS, INC. (0001553643) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1553643/000121390026082007/0001213900-26-082007-index.htm"
+      },
+      {
+        "accession": "0001628280-26-049937",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:35:19-04:00",
+        "issuer": "K - Bicara Therapeutics Inc. (0002023658) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/2023658/000162828026049937/0001628280-26-049937-index.htm"
+      },
+      {
+        "accession": "0001171843-26-004912",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:35:16-04:00",
+        "issuer": "K - ITRON, INC. (0000780571) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/780571/000117184326004912/0001171843-26-004912-index.htm"
+      },
+      {
+        "accession": "0001973097-26-000020",
+        "form": "Form 144",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:33:10-04:00",
+        "issuer": "SOUTH PLAINS FINANCIAL, INC. (0001163668) (Subject)",
+        "reportingParty": "Stein James D.",
+        "url": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000020/0001973097-26-000020-index.htm"
+      },
+      {
+        "accession": "0001640334-26-001243",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:30:18-04:00",
+        "issuer": "K - SolarMax Technology, Inc. (0001519472) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1519472/000164033426001243/0001640334-26-001243-index.htm"
+      },
+      {
+        "accession": "0001140361-26-029841",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:20:37-04:00",
+        "issuer": "K - STANDARD BIOTOOLS INC. (0001162194) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1162194/000114036126029841/0001140361-26-029841-index.htm"
+      },
+      {
+        "accession": "0001193125-26-318940",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:19:44-04:00",
+        "issuer": "K - UNIVERSAL HEALTH SERVICES INC (0000352915) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/352915/000119312526318940/0001193125-26-318940-index.htm"
+      },
+      {
+        "accession": "0001193125-26-318936",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:16:27-04:00",
+        "issuer": "K - ASP Isotopes Inc. (0001921865) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1921865/000119312526318936/0001193125-26-318936-index.htm"
+      },
+      {
+        "accession": "0000826675-26-000085",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:15:19-04:00",
+        "issuer": "K - DYNEX CAPITAL INC (0000826675) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/826675/000082667526000085/0000826675-26-000085-index.htm"
+      },
+      {
+        "accession": "0001104659-26-087322",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:15:13-04:00",
+        "issuer": "K - VALMONT INDUSTRIES INC (0000102729) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/102729/000110465926087322/0001104659-26-087322-index.htm"
+      },
+      {
+        "accession": "0000750686-26-000058",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:05:37-04:00",
+        "issuer": "K - CAMDEN NATIONAL CORP (0000750686) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/750686/000075068626000058/0000750686-26-000058-index.htm"
+      },
+      {
+        "accession": "0001213900-26-081996",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:05:26-04:00",
+        "issuer": "K - Turn Therapeutics Inc. (0002023016) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/2023016/000121390026081996/0001213900-26-081996-index.htm"
+      },
+      {
+        "accession": "0001193125-26-318919",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:05:20-04:00",
+        "issuer": "K - CTS CORP (0000026058) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/26058/000119312526318919/0001193125-26-318919-index.htm"
+      },
+      {
+        "accession": "0001193125-26-318918",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:05:17-04:00",
+        "issuer": "K - PACCAR INC (0000075362) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/75362/000119312526318918/0001193125-26-318918-index.htm"
+      },
+      {
+        "accession": "0001628280-26-049934",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:02:27-04:00",
+        "issuer": "K - HUBBELL INC (0000048898) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/48898/000162828026049934/0001628280-26-049934-index.htm"
+      },
+      {
+        "accession": "0000879635-26-000045",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:02:09-04:00",
+        "issuer": "K - MID PENN BANCORP INC (0000879635) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/879635/000087963526000045/0000879635-26-000045-index.htm"
+      },
+      {
+        "accession": "0001628280-26-049933",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:01:07-04:00",
+        "issuer": "K - ECOLAB INC. (0000031462) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/31462/000162828026049933/0001628280-26-049933-index.htm"
+      },
+      {
+        "accession": "0001477932-26-004536",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:00:57-04:00",
+        "issuer": "K - Edible Garden AG Inc (0001809750) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/1809750/000147793226004536/0001477932-26-004536-index.htm"
+      },
+      {
+        "accession": "0001477932-26-004535",
+        "form": "Form 8-K",
+        "filedAt": "2026-07-28",
+        "updatedAt": "2026-07-28T08:00:42-04:00",
+        "issuer": "K - KIDZ AI Inc. (0002022308) (Filer)",
+        "reportingParty": "",
+        "url": "https://www.sec.gov/Archives/edgar/data/2022308/000147793226004535/0001477932-26-004535-index.htm"
       },
       {
         "accession": "0001724756-26-000009",
@@ -259,67 +799,22 @@
         "url": "https://www.sec.gov/Archives/edgar/data/1042873/000104287326000005/0001042873-26-000005-index.htm"
       },
       {
-        "accession": "0001185185-26-003142",
-        "form": "Form 8-K",
+        "accession": "0001969223-26-000804",
+        "form": "Form 144",
         "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T17:30:53-04:00",
-        "issuer": "K/A - RTB Digital, Inc. (0001419275) (Filer)",
-        "reportingParty": "",
-        "url": "https://www.sec.gov/Archives/edgar/data/1419275/000118518526003142/0001185185-26-003142-index.htm"
+        "updatedAt": "2026-07-27T16:59:39-04:00",
+        "issuer": "Allegion plc (0001579241) (Subject)",
+        "reportingParty": "Eckersley Timothy P",
+        "url": "https://www.sec.gov/Archives/edgar/data/1589039/000196922326000804/0001969223-26-000804-index.htm"
       },
       {
-        "accession": "0001628280-26-049857",
-        "form": "Form 8-K",
+        "accession": "0001104659-26-086886",
+        "form": "Schedule 13D",
         "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T17:29:58-04:00",
-        "issuer": "K - Huron Consulting Group Inc. (0001289848) (Filer)",
+        "updatedAt": "2026-07-27T09:19:47-04:00",
+        "issuer": "GENCO SHIPPING & TRADING LTD (0001326200) (Subject)",
         "reportingParty": "",
-        "url": "https://www.sec.gov/Archives/edgar/data/1289848/000162828026049857/0001628280-26-049857-index.htm"
-      },
-      {
-        "accession": "0001493152-26-034862",
-        "form": "Form 8-K",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T17:28:24-04:00",
-        "issuer": "K - Ocean Power Technologies, Inc. (0001378140) (Filer)",
-        "reportingParty": "",
-        "url": "https://www.sec.gov/Archives/edgar/data/1378140/000149315226034862/0001493152-26-034862-index.htm"
-      },
-      {
-        "accession": "0001895262-26-000138",
-        "form": "Form 8-K",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T17:28:17-04:00",
-        "issuer": "K - Noble Corp plc (0001895262) (Filer)",
-        "reportingParty": "",
-        "url": "https://www.sec.gov/Archives/edgar/data/1895262/000189526226000138/0001895262-26-000138-index.htm"
-      },
-      {
-        "accession": "0001493152-26-034858",
-        "form": "Form 8-K",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T17:28:06-04:00",
-        "issuer": "K - NextBoat Inc. (0002067767) (Filer)",
-        "reportingParty": "",
-        "url": "https://www.sec.gov/Archives/edgar/data/2067767/000149315226034858/0001493152-26-034858-index.htm"
-      },
-      {
-        "accession": "0001140361-26-029776",
-        "form": "Form 8-K",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T17:27:25-04:00",
-        "issuer": "K/A - BED BATH & BEYOND, INC. (0001130713) (Filer)",
-        "reportingParty": "",
-        "url": "https://www.sec.gov/Archives/edgar/data/1130713/000114036126029776/0001140361-26-029776-index.htm"
-      },
-      {
-        "accession": "0001140361-26-029775",
-        "form": "Form 8-K",
-        "filedAt": "2026-07-27",
-        "updatedAt": "2026-07-27T17:27:11-04:00",
-        "issuer": "K - Vulcan Materials CO (0001396009) (Filer)",
-        "reportingParty": "",
-        "url": "https://www.sec.gov/Archives/edgar/data/1396009/000114036126029775/0001140361-26-029775-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1326200/000110465926086886/0001104659-26-086886-index.htm"
       }
     ]
   },

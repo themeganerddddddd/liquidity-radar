@@ -219,5 +219,5 @@ export async function fetchCurrentSecFilings(
       reportingParty: filing.reportingParty || reporterFallback || "",
     }))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-    .slice(0, 30);
+    .slice(0, 150);
 }

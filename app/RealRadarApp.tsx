@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import snapshotJson from "../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../lib/public-data";
+import {
+  buildRealPeople,
+  RealPeopleDirectory,
+  RealPersonProfile,
+  type RealPersonRecord,
+} from "./RealPeople";
 import { PublicStateMap } from "./PublicStateMap";
 import {
   clearTestSession,
@@ -14,7 +20,14 @@ import {
 const initialSnapshot = snapshotJson as PublicDataSnapshot;
 
 type WorkspaceView =
-  "dashboard" | "map" | "filings" | "advisers" | "foundations" | "sources";
+  | "dashboard"
+  | "map"
+  | "people"
+  | "profile"
+  | "filings"
+  | "advisers"
+  | "foundations"
+  | "sources";
 
 const navigation: Array<{
   label: string;
@@ -30,6 +43,7 @@ const navigation: Array<{
   {
     label: "Official records",
     items: [
+      { view: "people", label: "People", icon: "PPL" },
       { view: "filings", label: "SEC filings", icon: "4" },
       { view: "advisers", label: "Registered advisers", icon: "ADV" },
       { view: "foundations", label: "Foundations", icon: "PF" },
@@ -56,6 +70,18 @@ const viewCopy: Record<
     title: "State signal map",
     detail:
       "Compare official state-level business formation, adviser, asset, and economic-growth records.",
+  },
+  people: {
+    eyebrow: "Attributable SEC identities",
+    title: "People and reporting parties",
+    detail:
+      "Search real names connected to current SEC ownership filings, then inspect the evidence behind each profile.",
+  },
+  profile: {
+    eyebrow: "SEC reporting-party profile",
+    title: "Evidence-linked profile",
+    detail:
+      "Review the public records and issuer relationships attached to this reporting party.",
   },
   filings: {
     eyebrow: "SEC EDGAR",
@@ -172,8 +198,18 @@ function WorkspaceSidebar({
               <button
                 type="button"
                 key={item.view}
-                className={view === item.view ? "active" : ""}
-                aria-current={view === item.view ? "page" : undefined}
+                className={
+                  view === item.view ||
+                  (view === "profile" && item.view === "people")
+                    ? "active"
+                    : ""
+                }
+                aria-current={
+                  view === item.view ||
+                  (view === "profile" && item.view === "people")
+                    ? "page"
+                    : undefined
+                }
                 onClick={() => navigate(item.view)}
               >
                 <span>{item.icon}</span>
@@ -203,15 +239,19 @@ function WorkspaceSidebar({
 function WorkspaceHeader({
   view,
   session,
+  people,
   query,
   onQuery,
+  onPerson,
   onMenu,
   onLogout,
 }: {
   view: WorkspaceView;
   session: TestSession;
+  people: RealPersonRecord[];
   query: string;
   onQuery: (query: string) => void;
+  onPerson: (person: RealPersonRecord) => void;
   onMenu: () => void;
   onLogout: () => void;
 }) {
@@ -221,6 +261,17 @@ function WorkspaceHeader({
     .join("")
     .slice(0, 2)
     .toUpperCase();
+  const peopleResults =
+    query.trim().length > 1
+      ? people
+          .filter((person) =>
+            [person.name, ...person.issuers, ...person.forms]
+              .join(" ")
+              .toLocaleLowerCase()
+              .includes(query.trim().toLocaleLowerCase()),
+          )
+          .slice(0, 6)
+      : [];
 
   return (
     <header className="app-header">
@@ -232,24 +283,63 @@ function WorkspaceHeader({
       >
         ☰
       </button>
-      <label className="global-search">
-        <span aria-hidden="true">⌕</span>
-        <input
-          value={query}
-          onChange={(event) => onQuery(event.target.value)}
-          placeholder={
-            view === "filings"
-              ? "Filter SEC filings…"
-              : view === "advisers"
-                ? "Filter registered advisers…"
-                : view === "foundations"
-                  ? "Filter foundations…"
-                  : "Search this public-data workspace…"
-          }
-          aria-label="Search current dataset"
-        />
-        <kbd>/</kbd>
-      </label>
+      <div className="real-global-search-wrap">
+        <label className="global-search">
+          <span aria-hidden="true">⌕</span>
+          <input
+            value={query}
+            onChange={(event) => onQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && peopleResults[0]) {
+                event.preventDefault();
+                onPerson(peopleResults[0]);
+              }
+            }}
+            placeholder={
+              view === "filings"
+                ? "Filter SEC filings or find a reporting person…"
+                : view === "advisers"
+                  ? "Filter advisers or find a reporting person…"
+                  : view === "foundations"
+                    ? "Filter foundations or find a reporting person…"
+                    : "Search real people, firms, or issuers…"
+            }
+            aria-label="Search people and public records"
+            aria-controls={
+              peopleResults.length ? "global-people-results" : undefined
+            }
+          />
+          <kbd>/</kbd>
+        </label>
+        {peopleResults.length > 0 && (
+          <div
+            className="real-global-search-results"
+            id="global-people-results"
+            role="listbox"
+            aria-label="Matching SEC reporting parties"
+          >
+            <p>People and reporting parties</p>
+            {peopleResults.map((person) => (
+              <button
+                type="button"
+                role="option"
+                aria-selected="false"
+                key={person.id}
+                onClick={() => onPerson(person)}
+              >
+                <i>{person.initials || "SEC"}</i>
+                <span>
+                  <strong>{person.name}</strong>
+                  <small>
+                    {person.issuers[0]} · {person.forms.join(", ")}
+                  </small>
+                </span>
+                <b>→</b>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="header-actions">
         <span className="real-only-pill">
           <i />
@@ -272,10 +362,14 @@ function WorkspaceHeader({
 
 function Dashboard({
   data,
+  people,
   onNavigate,
+  onPerson,
 }: {
   data: PublicDataSnapshot;
+  people: RealPersonRecord[];
   onNavigate: (view: WorkspaceView) => void;
+  onPerson: (person: RealPersonRecord) => void;
 }) {
   const statePulse = useMemo(
     () =>
@@ -323,9 +417,9 @@ function Dashboard({
 
       <section className="real-workspace-kpis" aria-label="Public data summary">
         <article>
-          <span>Current SEC filings</span>
-          <strong>{data.sec.filings.length.toLocaleString()}</strong>
-          <small>EDGAR records in this feed</small>
+          <span>Named reporting parties</span>
+          <strong>{people.length.toLocaleString()}</strong>
+          <small>Real names in the current SEC window</small>
           <b>SEC</b>
         </article>
         <article>
@@ -354,30 +448,29 @@ function Dashboard({
         <article className="real-workspace-panel">
           <div className="panel-head">
             <div>
-              <p className="eyebrow">Observed filing activity</p>
-              <h2>Latest SEC records</h2>
+              <p className="eyebrow">Observed reporting parties</p>
+              <h2>Recently indexed people</h2>
             </div>
-            <button type="button" onClick={() => onNavigate("filings")}>
+            <button type="button" onClick={() => onNavigate("people")}>
               View all
             </button>
           </div>
-          <div className="real-record-list">
-            {data.sec.filings.slice(0, 7).map((filing) => (
-              <a
-                href={filing.url}
-                key={`${filing.form}-${filing.accession}`}
-                target="_blank"
-                rel="noreferrer"
+          <div className="real-record-list real-person-preview-list">
+            {people.slice(0, 7).map((person) => (
+              <button
+                type="button"
+                key={person.id}
+                onClick={() => onPerson(person)}
               >
-                <span>{filing.form}</span>
+                <span>{person.initials || "SEC"}</span>
                 <div>
-                  <strong>{filingName(filing)}</strong>
+                  <strong>{person.name}</strong>
                   <small>
-                    Filed {displayDate(filing.filedAt)} · {filing.accession}
+                    {person.issuers[0]} · {person.forms.join(", ")}
                   </small>
                 </div>
-                <b aria-hidden="true">↗</b>
-              </a>
+                <b aria-hidden="true">→</b>
+              </button>
             ))}
           </div>
         </article>
@@ -662,7 +755,11 @@ export function RealRadarApp() {
   const [view, setView] = useState<WorkspaceView>("dashboard");
   const [mobileNav, setMobileNav] = useState(false);
   const [query, setQuery] = useState("");
+  const [selectedPersonId, setSelectedPersonId] = useState("");
   const [data, setData] = useState(initialSnapshot);
+  const people = useMemo(() => buildRealPeople(data), [data]);
+  const selectedPerson =
+    people.find((person) => person.id === selectedPersonId) ?? people[0];
   const ready = useSyncExternalStore(
     subscribeToHydration,
     () => true,
@@ -693,6 +790,13 @@ export function RealRadarApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const openPerson = (person: RealPersonRecord) => {
+    setSelectedPersonId(person.id);
+    setView("profile");
+    setQuery("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (!ready) {
     return (
       <main className="test-auth-loading" aria-label="Loading test access">
@@ -712,9 +816,44 @@ export function RealRadarApp() {
 
   let content: React.ReactNode;
   if (view === "dashboard") {
-    content = <Dashboard data={data} onNavigate={navigate} />;
+    content = (
+      <Dashboard
+        data={data}
+        people={people}
+        onNavigate={navigate}
+        onPerson={openPerson}
+      />
+    );
   } else if (view === "map") {
     content = <PublicStateMap />;
+  } else if (view === "people") {
+    content = (
+      <>
+        <PageIntro
+          view="people"
+          action={
+            <span className="real-count-pill">
+              {people.length} real reporting parties
+            </span>
+          }
+        />
+        <RealPeopleDirectory
+          people={people}
+          query={query}
+          onQuery={setQuery}
+          onPerson={openPerson}
+        />
+      </>
+    );
+  } else if (view === "profile" && selectedPerson) {
+    content = (
+      <RealPersonProfile
+        person={selectedPerson}
+        people={people}
+        onBack={() => navigate("people")}
+        onPerson={openPerson}
+      />
+    );
   } else if (view === "filings") {
     content = <FilingsView data={data} query={query} />;
   } else if (view === "advisers") {
@@ -736,8 +875,10 @@ export function RealRadarApp() {
       <WorkspaceHeader
         view={view}
         session={effectiveSession}
+        people={people}
         query={query}
         onQuery={setQuery}
+        onPerson={openPerson}
         onMenu={() => setMobileNav((current) => !current)}
         onLogout={() => {
           clearTestSession();
