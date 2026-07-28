@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type {
   PublicDataSnapshot,
@@ -8,6 +8,22 @@ import type {
 } from "../lib/public-data";
 
 const chunkCount = 12;
+
+async function replaceFile(temporary: string, target: string) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      await rename(temporary, target);
+      return;
+    } catch (error) {
+      lastError = error;
+      const code = (error as NodeJS.ErrnoException).code;
+      if (!["EACCES", "EBUSY", "EPERM"].includes(code ?? "")) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 50 * 2 ** attempt));
+    }
+  }
+  throw lastError;
+}
 
 function partyKey(event: PublicLiquidityEvent) {
   return (
@@ -116,18 +132,19 @@ export async function writeChunkedPublicSnapshot(
   };
 
   await mkdir(path.dirname(output), { recursive: true });
-  await Promise.all([
-    writeFile(
-      output,
-      `${JSON.stringify(bootstrapSnapshot, null, 2)}\n`,
-      "utf8",
-    ),
-    ...chunks.map((chunk, index) =>
-      writeFile(
-        path.join(path.dirname(output), path.basename(chunkUrls[index])),
-        `${JSON.stringify(chunk, null, 2)}\n`,
-        "utf8",
-      ),
-    ),
-  ]);
+  const files = [
+    {
+      target: output,
+      contents: `${JSON.stringify(bootstrapSnapshot, null, 2)}\n`,
+    },
+    ...chunks.map((chunk, index) => ({
+      target: path.join(path.dirname(output), path.basename(chunkUrls[index])),
+      contents: `${JSON.stringify(chunk, null, 2)}\n`,
+    })),
+  ];
+  for (const file of files) {
+    const temporary = `${file.target}.tmp`;
+    await writeFile(temporary, file.contents, "utf8");
+    await replaceFile(temporary, file.target);
+  }
 }

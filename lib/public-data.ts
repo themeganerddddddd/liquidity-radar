@@ -26,6 +26,16 @@ export type SecFiling = {
   issuer: string;
   reportingParty: string;
   url: string;
+  location?: {
+    city: string;
+    state: string;
+    country: string;
+  };
+  locationBasis?:
+    | "reporting_owner_address"
+    | "seller_reported_address"
+    | "broker_business_address"
+    | "issuer_business_address";
 };
 
 export type PublicLiquidityEvent = {
@@ -64,6 +74,11 @@ export type PublicLiquidityEvent = {
     state: string;
     country: string;
   };
+  locationBasis?:
+    | "reporting_owner_address"
+    | "seller_reported_address"
+    | "broker_business_address"
+    | "issuer_business_address";
   sourceUrl: string;
   note: string;
 };
@@ -485,6 +500,35 @@ function relationshipLabel(ownerXml: string) {
   return relationships.join(", ") || "Reporting owner";
 }
 
+function filingLocation(xml: string) {
+  return {
+    city: tagValue(xml, "city"),
+    state:
+      tagValue(xml, "stateOrCountry") ||
+      tagValue(xml, "state") ||
+      tagValue(xml, "province"),
+    country: tagValue(xml, "country"),
+  };
+}
+
+function form4OwnerLocation(ownerXml: string) {
+  return {
+    city: tagValue(ownerXml, "rptOwnerCity"),
+    state:
+      tagValue(ownerXml, "rptOwnerState") ||
+      tagValue(ownerXml, "rptOwnerNonUSStateTerritory"),
+    country: tagValue(ownerXml, "rptOwnerCountry"),
+  };
+}
+
+function hasFilingLocation(location: {
+  city: string;
+  state: string;
+  country: string;
+}) {
+  return Boolean(location.city || location.state || location.country);
+}
+
 export function parseForm4Liquidity(
   xml: string,
   filing: SecFiling,
@@ -502,13 +546,7 @@ export function parseForm4Liquidity(
   const issuerCik = tagValue(xml, "issuerCik");
   const issuerSymbol = tagValue(xml, "issuerTradingSymbol");
   const relationship = relationshipLabel(ownerXml);
-  const location = {
-    city: tagValue(ownerXml, "rptOwnerCity"),
-    state:
-      tagValue(ownerXml, "rptOwnerState") ||
-      tagValue(ownerXml, "rptOwnerNonUSStateTerritory"),
-    country: tagValue(ownerXml, "rptOwnerCountry"),
-  };
+  const location = form4OwnerLocation(ownerXml);
   const underPlan = tagValue(xml, "aff10b5One") === "1";
   const transactionBlocks = [
     ...tagBlocks(xml, "nonDerivativeTransaction"),
@@ -581,6 +619,9 @@ export function parseForm4Liquidity(
         sharesOwnedAfter,
         broker: "",
         location,
+        locationBasis: hasFilingLocation(location)
+          ? "reporting_owner_address"
+          : undefined,
         sourceUrl: filing.url,
         note: [
           eventType === "completed_public_share_sale"
@@ -644,6 +685,11 @@ export function parseForm144Liquidity(
   const relationship =
     allTagValues(xml, "relationshipToIssuer").join(", ") || "Seller";
   const events: PublicLiquidityEvent[] = [];
+  const sellerXml = tagBlocks(xml, "sellerDetails")[0] ?? "";
+  const sellerLocation = filingLocation(sellerXml);
+  const issuerLocation = filingLocation(
+    tagBlocks(xml, "issuerAddress")[0] ?? "",
+  );
 
   const proposedSecurities = tagBlocks(xml, "securitiesInformation");
   (proposedSecurities.length ? proposedSecurities : [xml]).forEach(
@@ -654,6 +700,14 @@ export function parseForm144Liquidity(
       );
       const brokerXml =
         tagBlocks(security, "brokerOrMarketmakerDetails")[0] ?? "";
+      const brokerLocation = filingLocation(brokerXml);
+      const [location, locationBasis] = hasFilingLocation(sellerLocation)
+        ? [sellerLocation, "seller_reported_address" as const]
+        : hasFilingLocation(brokerLocation)
+          ? [brokerLocation, "broker_business_address" as const]
+          : hasFilingLocation(issuerLocation)
+            ? [issuerLocation, "issuer_business_address" as const]
+            : [{ city: "", state: "", country: "" }, undefined];
       const transactionDate =
         dateValue(tagValue(security, "approxSaleDate")) || filing.filedAt;
       if (shares <= 0 || grossAmount <= 0) return;
@@ -681,7 +735,8 @@ export function parseForm144Liquidity(
         directOrIndirect: "Not reported",
         sharesOwnedAfter: null,
         broker: tagValue(brokerXml, "name") || tagValue(security, "brokerName"),
-        location: { city: "", state: "", country: "" },
+        location,
+        locationBasis,
         sourceUrl: filing.url,
         note: "Proposed sale value reported on Form 144. This is not proof that the sale was completed.",
       });
@@ -693,6 +748,9 @@ export function parseForm144Liquidity(
     const grossAmount = numericValue(tagValue(sale, "grossProceeds"));
     const priorSeller = tagValue(sale, "sellerName") || reportingParty;
     if (shares <= 0 || grossAmount <= 0) return;
+    const location = hasFilingLocation(sellerLocation)
+      ? sellerLocation
+      : issuerLocation;
     events.push({
       id: `${filing.accession}-prior-sale-${index}`,
       accession: filing.accession,
@@ -720,7 +778,12 @@ export function parseForm144Liquidity(
       directOrIndirect: "Not reported",
       sharesOwnedAfter: null,
       broker: "",
-      location: { city: "", state: "", country: "" },
+      location,
+      locationBasis: hasFilingLocation(sellerLocation)
+        ? "seller_reported_address"
+        : hasFilingLocation(issuerLocation)
+          ? "issuer_business_address"
+          : undefined,
       sourceUrl: filing.url,
       note: "Completed prior-three-month sale disclosed on Form 144.",
     });
@@ -793,6 +856,68 @@ async function filingXml(
     signal,
   );
   return xmlResponse.ok ? xmlResponse.text() : "";
+}
+
+export function parseSecFilingLocation(xml: string, filing: SecFiling) {
+  if (filing.form === "Form 4") {
+    const ownerXml = tagBlocks(xml, "reportingOwner")[0] ?? "";
+    const location = form4OwnerLocation(ownerXml);
+    return hasFilingLocation(location)
+      ? {
+          location,
+          locationBasis: "reporting_owner_address" as const,
+        }
+      : null;
+  }
+  if (filing.form === "Form 144") {
+    const sellerLocation = filingLocation(
+      tagBlocks(xml, "sellerDetails")[0] ?? "",
+    );
+    if (hasFilingLocation(sellerLocation)) {
+      return {
+        location: sellerLocation,
+        locationBasis: "seller_reported_address" as const,
+      };
+    }
+    const brokerLocation = filingLocation(
+      tagBlocks(xml, "brokerOrMarketmakerDetails")[0] ?? "",
+    );
+    if (hasFilingLocation(brokerLocation)) {
+      return {
+        location: brokerLocation,
+        locationBasis: "broker_business_address" as const,
+      };
+    }
+    const issuerLocation = filingLocation(
+      tagBlocks(xml, "issuerAddress")[0] ?? "",
+    );
+    return hasFilingLocation(issuerLocation)
+      ? {
+          location: issuerLocation,
+          locationBasis: "issuer_business_address" as const,
+        }
+      : null;
+  }
+  return null;
+}
+
+export async function enrichSecFilingLocations(
+  filings: SecFiling[],
+  userAgent: string,
+  signal?: AbortSignal,
+) {
+  const enriched: SecFiling[] = [];
+  for (const filing of filings) {
+    try {
+      const xml = await filingXml(filing, userAgent, signal);
+      const result = xml ? parseSecFilingLocation(xml, filing) : null;
+      enriched.push(result ? { ...filing, ...result } : filing);
+    } catch {
+      enriched.push(filing);
+    }
+    await delay(110);
+  }
+  return enriched;
 }
 
 export async function fetchSecLiquidityEvidence(
@@ -877,7 +1002,15 @@ export function mergePublicLiquidityEvidence(
       const current = deduplicated.get(key);
       if (
         !current ||
-        (current.form === "Form 144" && event.form === "Form 4")
+        (current.form === "Form 144" && event.form === "Form 4") ||
+        (!current.location.city &&
+          !current.location.state &&
+          !current.location.country &&
+          Boolean(
+            event.location.city ||
+            event.location.state ||
+            event.location.country,
+          ))
       ) {
         deduplicated.set(key, event);
       }

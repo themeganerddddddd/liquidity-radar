@@ -43,6 +43,14 @@ snapshot.liquidity.events = snapshot.liquidity.events.map((event) => {
   return corrected;
 });
 
+snapshot.liquidity.events = snapshot.liquidity.events.map((event) =>
+  !event.locationBasis &&
+  event.form === "Form 4" &&
+  Boolean(event.location.city || event.location.state || event.location.country)
+    ? { ...event, locationBasis: "reporting_owner_address" }
+    : event,
+);
+
 const transactionOwners = snapshot.liquidity.events.reduce((groups, event) => {
   const key = underlyingTransactionKey(event);
   const owners = groups.get(key) ?? new Set<string>();

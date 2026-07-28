@@ -176,6 +176,12 @@ export function parseSecInsiderArchive(
           state: owner.RPTOWNER_STATE ?? "",
           country: owner.RPTOWNER_STATE_DESC ?? "",
         },
+        locationBasis:
+          owner.RPTOWNER_CITY ||
+          owner.RPTOWNER_STATE ||
+          owner.RPTOWNER_STATE_DESC
+            ? "reporting_owner_address"
+            : undefined,
         sourceUrl,
         note: [
           "Completed open-market or private sale reported in the SEC quarterly insider-transactions data set.",

@@ -22,16 +22,11 @@ const output = path.join(
   "public-signals.json",
 );
 const snapshot = await readChunkedPublicSnapshot(output);
-const accessionsWithLiquidity = new Set(
-  snapshot.liquidity.events.map((event) => event.accession),
-);
-const missingFilings = snapshot.sec.filings.filter(
-  (filing) =>
-    filing.form === "Form 144" &&
-    !accessionsWithLiquidity.has(filing.accession),
+const currentFilings = snapshot.sec.filings.filter(
+  (filing) => filing.form === "Form 144",
 );
 const currentEvidence = await fetchSecLiquidityEvidence(
-  missingFilings,
+  currentFilings,
   userAgent,
 );
 const liquidity = mergePublicLiquidityEvidence(
@@ -58,7 +53,7 @@ await writeChunkedPublicSnapshot(
 
 console.log(
   JSON.stringify({
-    requestedFilings: missingFilings.length,
+    requestedFilings: currentFilings.length,
     parsedEvents: currentEvidence.events.length,
     parsedFilings: new Set(
       currentEvidence.events.map((event) => event.accession),
