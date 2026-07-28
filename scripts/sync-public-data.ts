@@ -14,7 +14,13 @@ import {
   type StateEconomy,
 } from "../lib/public-data";
 import { parseFtcExitSignals } from "../lib/exit-signals";
+import {
+  fetchSecCompletedExits,
+  mergeCompletedExits,
+  verifiedCompletedExits,
+} from "../lib/completed-exits";
 import { parseSecInsiderArchive } from "../lib/sec-insider-data";
+import { censusGeographySource, fetchCensusGeography } from "./geography-data";
 import {
   readChunkedPublicSnapshot,
   writeChunkedPublicSnapshot,
@@ -32,6 +38,8 @@ const SEC_USER_AGENT = configuredSecUserAgent;
 const sourceUrls = {
   secApi:
     "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+  secCompletedExits:
+    "https://www.sec.gov/rules-regulations/staff-guidance/compliance-disclosure-interpretations/exchange-act-form-8-k",
   secInsiderArchives: [
     "https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets/2026q2_form345.zip",
     "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets/2026q1_form345.zip",
@@ -438,6 +446,10 @@ const currentLiquidity = await fetchSecLiquidityEvidence(
   secFilings,
   SEC_USER_AGENT,
 );
+const currentCompletedExits = await fetchSecCompletedExits(
+  secFilings,
+  SEC_USER_AGENT,
+);
 const liquidity = selectLiquidityProfileCoverage(
   mergePublicLiquidityEvidence(
     ...(historicalEvidence.length
@@ -449,10 +461,23 @@ const liquidity = selectLiquidityProfileCoverage(
   ),
   1500,
 );
+const completedExitRecords = mergeCompletedExits(
+  verifiedCompletedExits,
+  previousSnapshot?.completedExits?.records ?? [],
+  currentCompletedExits,
+).slice(0, 250);
+const geography = await fetchCensusGeography([
+  ...liquidity.events.map((event) => event.location),
+  ...completedExitRecords.flatMap((record) => [
+    record.location,
+    ...record.ownerAttributions.map((owner) => owner.location),
+  ]),
+]).catch(() => previousSnapshot?.geography);
 
 if (
   secFilings.length < 10 ||
   liquidity.events.length < 5 ||
+  completedExitRecords.length < verifiedCompletedExits.length ||
   advisers.firmCount < 10_000 ||
   foundations.filingCount < 10_000 ||
   businessFormation.states.length !== 51 ||
@@ -474,6 +499,17 @@ const snapshot: PublicDataSnapshot = {
       sourceUrl: sourceUrls.secApi,
       methodology:
         "Quarterly SEC Insider Transactions Data Sets plus exact-form current EDGAR metadata and underlying ownership XML. Completed gross proceeds are recognized only from Form 4 sale transactions with reported shares and price or completed prior sales explicitly disclosed on Form 144. Proposed Form 144 values remain excluded from completed liquidity.",
+    },
+    {
+      id: "sec_exits",
+      name: "Completed Form 8-K transactions",
+      publisher: "U.S. Securities and Exchange Commission",
+      freshness:
+        completedExitRecords[0]?.completedAt || "Current Item 2.01 filings",
+      recordCount: completedExitRecords.length,
+      sourceUrl: sourceUrls.secCompletedExits,
+      methodology:
+        "Form 8-K Item 2.01 records are treated as completed only because SEC guidance limits the item to consummated significant acquisitions and dispositions. Consideration is retained only when disclosed in the filing. Named-owner proceeds require a linked Form 4, Schedule 13D/G, or explicit seller disclosure; otherwise attribution remains unavailable.",
     },
     {
       id: "adv",
@@ -505,6 +541,20 @@ const snapshot: PublicDataSnapshot = {
       methodology:
         "Seasonally adjusted monthly business applications and projected employer formations for every state and D.C.",
     },
+    ...(geography
+      ? [
+          {
+            id: "census_geo" as const,
+            name: "U.S. place and metro reference points",
+            publisher: "U.S. Census Bureau",
+            freshness: "2025 Gazetteer",
+            recordCount: geography.places.length + geography.metros.length,
+            sourceUrl: censusGeographySource,
+            methodology:
+              "Representative Census Gazetteer coordinates for public SEC care-of cities and metropolitan statistical areas. Radius results measure straight-line distance between public place and metro reference points; they do not imply a residence.",
+          },
+        ]
+      : []),
     {
       id: "bea",
       name: "Regional real GDP",
@@ -533,6 +583,11 @@ const snapshot: PublicDataSnapshot = {
   },
   liquidity,
   exitSignals,
+  completedExits: {
+    updatedAt: generatedAt,
+    records: completedExitRecords,
+  },
+  geography,
   advisers,
   foundations,
   businessFormation,

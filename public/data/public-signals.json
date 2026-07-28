@@ -54,6 +54,24 @@
       "recordCount": 100,
       "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices",
       "methodology": "Recent public HSR early-termination notices identify acquiring parties, acquired parties, and acquired entities. They are deal-watch signals only and do not prove closing, consideration, or personal proceeds."
+    },
+    {
+      "id": "sec_exits",
+      "name": "Completed Form 8-K transactions",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "freshness": "2026-07-13",
+      "recordCount": 5,
+      "sourceUrl": "https://www.sec.gov/rules-regulations/staff-guidance/compliance-disclosure-interpretations/exchange-act-form-8-k",
+      "methodology": "Form 8-K Item 2.01 records are treated as completed only because SEC guidance limits the item to consummated significant acquisitions and dispositions. Consideration is retained only when disclosed in the filing. Named-owner proceeds require a linked Form 4, Schedule 13D/G, or explicit seller disclosure; otherwise attribution remains unavailable."
+    },
+    {
+      "id": "census_geo",
+      "name": "U.S. place and metro reference points",
+      "publisher": "U.S. Census Bureau",
+      "freshness": "2025 Gazetteer",
+      "recordCount": 589,
+      "sourceUrl": "https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2025.html",
+      "methodology": "Representative Census Gazetteer coordinates for public SEC care-of cities and metropolitan statistical areas. Radius results measure straight-line distance between public place and metro reference points; they do not imply a residence."
     }
   ],
   "sec": {
@@ -50360,6 +50378,4425 @@
         "name": "Vermont",
         "realGdpMillions": 37205.4,
         "quarterlyGrowth": 0.1
+      }
+    ]
+  },
+  "geography": {
+    "updatedAt": "2026-07-28T17:53:44.351Z",
+    "sourceUrl": "https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2025.html",
+    "places": [
+      {
+        "id": "0107000",
+        "name": "Birmingham city",
+        "state": "AL",
+        "latitude": 33.527174,
+        "longitude": -86.797036
+      },
+      {
+        "id": "0505320",
+        "name": "Bentonville city",
+        "state": "AR",
+        "latitude": 36.352662,
+        "longitude": -94.231181
+      },
+      {
+        "id": "0521070",
+        "name": "El Dorado city",
+        "state": "AR",
+        "latitude": 33.218982,
+        "longitude": -92.664071
+      },
+      {
+        "id": "0412000",
+        "name": "Chandler city",
+        "state": "AZ",
+        "latitude": 33.282765,
+        "longitude": -111.851819
+      },
+      {
+        "id": "0452930",
+        "name": "Paradise Valley town",
+        "state": "AZ",
+        "latitude": 33.552157,
+        "longitude": -111.96133
+      },
+      {
+        "id": "0455000",
+        "name": "Phoenix city",
+        "state": "AZ",
+        "latitude": 33.572154,
+        "longitude": -112.090132
+      },
+      {
+        "id": "0465000",
+        "name": "Scottsdale city",
+        "state": "AZ",
+        "latitude": 33.684272,
+        "longitude": -111.861448
+      },
+      {
+        "id": "0473000",
+        "name": "Tempe city",
+        "state": "AZ",
+        "latitude": 33.388414,
+        "longitude": -111.931782
+      },
+      {
+        "id": "0600947",
+        "name": "Aliso Viejo city",
+        "state": "CA",
+        "latitude": 33.57921,
+        "longitude": -117.728898
+      },
+      {
+        "id": "0606308",
+        "name": "Beverly Hills city",
+        "state": "CA",
+        "latitude": 34.07923,
+        "longitude": -118.402437
+      },
+      {
+        "id": "0608968",
+        "name": "Burbank CDP",
+        "state": "CA",
+        "latitude": 37.321084,
+        "longitude": -121.930618
+      },
+      {
+        "id": "0608954",
+        "name": "Burbank city",
+        "state": "CA",
+        "latitude": 34.190079,
+        "longitude": -118.326405
+      },
+      {
+        "id": "0610345",
+        "name": "Campbell city",
+        "state": "CA",
+        "latitude": 37.280244,
+        "longitude": -121.953296
+      },
+      {
+        "id": "0611194",
+        "name": "Carlsbad city",
+        "state": "CA",
+        "latitude": 33.129284,
+        "longitude": -117.284183
+      },
+      {
+        "id": "0611446",
+        "name": "Carpinteria city",
+        "state": "CA",
+        "latitude": 34.385234,
+        "longitude": -119.500759
+      },
+      {
+        "id": "0612552",
+        "name": "Cerritos city",
+        "state": "CA",
+        "latitude": 33.867745,
+        "longitude": -118.069471
+      },
+      {
+        "id": "0616532",
+        "name": "Costa Mesa city",
+        "state": "CA",
+        "latitude": 33.665905,
+        "longitude": -117.912336
+      },
+      {
+        "id": "0617610",
+        "name": "Cupertino city",
+        "state": "CA",
+        "latitude": 37.3194,
+        "longitude": -122.044957
+      },
+      {
+        "id": "0622230",
+        "name": "El Monte city",
+        "state": "CA",
+        "latitude": 34.074633,
+        "longitude": -118.029136
+      },
+      {
+        "id": "0622412",
+        "name": "El Segundo city",
+        "state": "CA",
+        "latitude": 33.910367,
+        "longitude": -118.425079
+      },
+      {
+        "id": "0625338",
+        "name": "Foster City city",
+        "state": "CA",
+        "latitude": 37.56482,
+        "longitude": -122.250782
+      },
+      {
+        "id": "0626000",
+        "name": "Fremont city",
+        "state": "CA",
+        "latitude": 37.49446,
+        "longitude": -121.94115
+      },
+      {
+        "id": "0630000",
+        "name": "Glendale city",
+        "state": "CA",
+        "latitude": 34.181393,
+        "longitude": -118.24583
+      },
+      {
+        "id": "0632548",
+        "name": "Hawthorne city",
+        "state": "CA",
+        "latitude": 33.914775,
+        "longitude": -118.348083
+      },
+      {
+        "id": "0636000",
+        "name": "Huntington Beach city",
+        "state": "CA",
+        "latitude": 33.698007,
+        "longitude": -118.003834
+      },
+      {
+        "id": "0636770",
+        "name": "Irvine city",
+        "state": "CA",
+        "latitude": 33.678399,
+        "longitude": -117.771254
+      },
+      {
+        "id": "0640438",
+        "name": "Larkspur city",
+        "state": "CA",
+        "latitude": 37.940544,
+        "longitude": -122.530229
+      },
+      {
+        "id": "0643000",
+        "name": "Long Beach city",
+        "state": "CA",
+        "latitude": 33.780791,
+        "longitude": -118.16818
+      },
+      {
+        "id": "0644000",
+        "name": "Los Angeles city",
+        "state": "CA",
+        "latitude": 34.019394,
+        "longitude": -118.410825
+      },
+      {
+        "id": "0644112",
+        "name": "Los Gatos town",
+        "state": "CA",
+        "latitude": 37.229944,
+        "longitude": -121.956874
+      },
+      {
+        "id": "0646870",
+        "name": "Menlo Park city",
+        "state": "CA",
+        "latitude": 37.479731,
+        "longitude": -122.148055
+      },
+      {
+        "id": "0647766",
+        "name": "Milpitas city",
+        "state": "CA",
+        "latitude": 37.433136,
+        "longitude": -121.890934
+      },
+      {
+        "id": "0649651",
+        "name": "Mountain View CDP",
+        "state": "CA",
+        "latitude": 38.009205,
+        "longitude": -122.11685
+      },
+      {
+        "id": "0649670",
+        "name": "Mountain View city",
+        "state": "CA",
+        "latitude": 37.399686,
+        "longitude": -122.079269
+      },
+      {
+        "id": "0650916",
+        "name": "Newark city",
+        "state": "CA",
+        "latitude": 37.504253,
+        "longitude": -122.03191
+      },
+      {
+        "id": "0653000",
+        "name": "Oakland city",
+        "state": "CA",
+        "latitude": 37.769846,
+        "longitude": -122.22569
+      },
+      {
+        "id": "0653980",
+        "name": "Orange city",
+        "state": "CA",
+        "latitude": 33.786971,
+        "longitude": -117.861265
+      },
+      {
+        "id": "0655282",
+        "name": "Palo Alto city",
+        "state": "CA",
+        "latitude": 37.39652,
+        "longitude": -122.143088
+      },
+      {
+        "id": "0656000",
+        "name": "Pasadena city",
+        "state": "CA",
+        "latitude": 34.160602,
+        "longitude": -118.137954
+      },
+      {
+        "id": "0657792",
+        "name": "Pleasanton city",
+        "state": "CA",
+        "latitude": 37.667185,
+        "longitude": -121.88123
+      },
+      {
+        "id": "0660102",
+        "name": "Redwood City city",
+        "state": "CA",
+        "latitude": 37.515274,
+        "longitude": -122.213672
+      },
+      {
+        "id": "0666000",
+        "name": "San Diego city",
+        "state": "CA",
+        "latitude": 32.830391,
+        "longitude": -117.120923
+      },
+      {
+        "id": "0667000",
+        "name": "San Francisco city",
+        "state": "CA",
+        "latitude": 37.727239,
+        "longitude": -123.032229
+      },
+      {
+        "id": "0668000",
+        "name": "San Jose city",
+        "state": "CA",
+        "latitude": 37.296011,
+        "longitude": -121.814552
+      },
+      {
+        "id": "0668252",
+        "name": "San Mateo city",
+        "state": "CA",
+        "latitude": 37.56031,
+        "longitude": -122.3106
+      },
+      {
+        "id": "0669084",
+        "name": "Santa Clara city",
+        "state": "CA",
+        "latitude": 37.364621,
+        "longitude": -121.967973
+      },
+      {
+        "id": "0669112",
+        "name": "Santa Cruz city",
+        "state": "CA",
+        "latitude": 36.974385,
+        "longitude": -122.035268
+      },
+      {
+        "id": "0670000",
+        "name": "Santa Monica city",
+        "state": "CA",
+        "latitude": 34.010911,
+        "longitude": -118.498245
+      },
+      {
+        "id": "0677000",
+        "name": "Sunnyvale city",
+        "state": "CA",
+        "latitude": 37.385797,
+        "longitude": -122.026316
+      },
+      {
+        "id": "0678582",
+        "name": "Thousand Oaks city",
+        "state": "CA",
+        "latitude": 34.19329,
+        "longitude": -118.874235
+      },
+      {
+        "id": "0680000",
+        "name": "Torrance city",
+        "state": "CA",
+        "latitude": 33.830453,
+        "longitude": -118.356618
+      },
+      {
+        "id": "0684410",
+        "name": "West Hollywood city",
+        "state": "CA",
+        "latitude": 34.088268,
+        "longitude": -118.371831
+      },
+      {
+        "id": "0684438",
+        "name": "Westlake Village city",
+        "state": "CA",
+        "latitude": 34.136675,
+        "longitude": -118.817367
+      },
+      {
+        "id": "0820000",
+        "name": "Denver city",
+        "state": "CO",
+        "latitude": 39.76185,
+        "longitude": -104.881105
+      },
+      {
+        "id": "0824785",
+        "name": "Englewood city",
+        "state": "CO",
+        "latitude": 39.646979,
+        "longitude": -104.994465
+      },
+      {
+        "id": "0846355",
+        "name": "Louisville city",
+        "state": "CO",
+        "latitude": 39.969576,
+        "longitude": -105.143271
+      },
+      {
+        "id": "0933690",
+        "name": "Greenwich CDP",
+        "state": "CT",
+        "latitude": 41.027773,
+        "longitude": -73.626931
+      },
+      {
+        "id": "0937000",
+        "name": "Hartford city",
+        "state": "CT",
+        "latitude": 41.765933,
+        "longitude": -72.681579
+      },
+      {
+        "id": "0950576",
+        "name": "New Canaan CDP",
+        "state": "CT",
+        "latitude": 41.141703,
+        "longitude": -73.490141
+      },
+      {
+        "id": "0955990",
+        "name": "Norwalk city",
+        "state": "CT",
+        "latitude": 41.092739,
+        "longitude": -73.419796
+      },
+      {
+        "id": "0968100",
+        "name": "Shelton city",
+        "state": "CT",
+        "latitude": 41.304577,
+        "longitude": -73.139215
+      },
+      {
+        "id": "0973000",
+        "name": "Stamford city",
+        "state": "CT",
+        "latitude": 41.079611,
+        "longitude": -73.54608
+      },
+      {
+        "id": "1150000",
+        "name": "Washington city",
+        "state": "DC",
+        "latitude": 38.904243,
+        "longitude": -77.016524
+      },
+      {
+        "id": "1041830",
+        "name": "Lewes city",
+        "state": "DE",
+        "latitude": 38.778644,
+        "longitude": -75.143689
+      },
+      {
+        "id": "1077580",
+        "name": "Wilmington city",
+        "state": "DE",
+        "latitude": 39.735651,
+        "longitude": -75.532104
+      },
+      {
+        "id": "1202681",
+        "name": "Aventura city",
+        "state": "FL",
+        "latitude": 25.96016,
+        "longitude": -80.133011
+      },
+      {
+        "id": "1203975",
+        "name": "Bay Harbor Islands town",
+        "state": "FL",
+        "latitude": 25.887979,
+        "longitude": -80.133582
+      },
+      {
+        "id": "1207300",
+        "name": "Boca Raton city",
+        "state": "FL",
+        "latitude": 26.37269,
+        "longitude": -80.103711
+      },
+      {
+        "id": "1212875",
+        "name": "Clearwater city",
+        "state": "FL",
+        "latitude": 27.979419,
+        "longitude": -82.771256
+      },
+      {
+        "id": "1224000",
+        "name": "Fort Lauderdale city",
+        "state": "FL",
+        "latitude": 26.141227,
+        "longitude": -80.146731
+      },
+      {
+        "id": "1235000",
+        "name": "Jacksonville city",
+        "state": "FL",
+        "latitude": 30.336864,
+        "longitude": -81.661603
+      },
+      {
+        "id": "1245025",
+        "name": "Miami Beach city",
+        "state": "FL",
+        "latitude": 25.810596,
+        "longitude": -80.148852
+      },
+      {
+        "id": "1245000",
+        "name": "Miami city",
+        "state": "FL",
+        "latitude": 25.775163,
+        "longitude": -80.208615
+      },
+      {
+        "id": "1247625",
+        "name": "Naples city",
+        "state": "FL",
+        "latitude": 26.150485,
+        "longitude": -81.795299
+      },
+      {
+        "id": "1253000",
+        "name": "Orlando city",
+        "state": "FL",
+        "latitude": 28.472818,
+        "longitude": -81.320242
+      },
+      {
+        "id": "1254075",
+        "name": "Palm Beach Gardens city",
+        "state": "FL",
+        "latitude": 26.848788,
+        "longitude": -80.167124
+      },
+      {
+        "id": "1254025",
+        "name": "Palm Beach town",
+        "state": "FL",
+        "latitude": 26.694843,
+        "longitude": -80.041863
+      },
+      {
+        "id": "1267550",
+        "name": "South Miami city",
+        "state": "FL",
+        "latitude": 25.70855,
+        "longitude": -80.295105
+      },
+      {
+        "id": "1263000",
+        "name": "St. Petersburg city",
+        "state": "FL",
+        "latitude": 27.762727,
+        "longitude": -82.644131
+      },
+      {
+        "id": "1271000",
+        "name": "Tampa city",
+        "state": "FL",
+        "latitude": 27.970086,
+        "longitude": -82.479673
+      },
+      {
+        "id": "1276600",
+        "name": "West Palm Beach city",
+        "state": "FL",
+        "latitude": 26.745114,
+        "longitude": -80.127038
+      },
+      {
+        "id": "1304000",
+        "name": "Atlanta city",
+        "state": "GA",
+        "latitude": 33.762909,
+        "longitude": -84.422675
+      },
+      {
+        "id": "1933105",
+        "name": "Grinnell city",
+        "state": "IA",
+        "latitude": 41.735236,
+        "longitude": -92.724902
+      },
+      {
+        "id": "1608830",
+        "name": "Boise City city",
+        "state": "ID",
+        "latitude": 43.59805,
+        "longitude": -116.231596
+      },
+      {
+        "id": "1714000",
+        "name": "Chicago city",
+        "state": "IL",
+        "latitude": 41.837045,
+        "longitude": -87.684939
+      },
+      {
+        "id": "1720591",
+        "name": "Downers Grove village",
+        "state": "IL",
+        "latitude": 41.79503,
+        "longitude": -88.021055
+      },
+      {
+        "id": "1724582",
+        "name": "Evanston city",
+        "state": "IL",
+        "latitude": 42.046391,
+        "longitude": -87.694352
+      },
+      {
+        "id": "1729938",
+        "name": "Glenview village",
+        "state": "IL",
+        "latitude": 42.085162,
+        "longitude": -87.827388
+      },
+      {
+        "id": "1741105",
+        "name": "Lake Forest city",
+        "state": "IL",
+        "latitude": 42.23535,
+        "longitude": -87.857305
+      },
+      {
+        "id": "1749867",
+        "name": "Moline city",
+        "state": "IL",
+        "latitude": 41.482333,
+        "longitude": -90.493407
+      },
+      {
+        "id": "1753481",
+        "name": "Northbrook village",
+        "state": "IL",
+        "latitude": 42.128745,
+        "longitude": -87.835162
+      },
+      {
+        "id": "1782985",
+        "name": "Wood Dale city",
+        "state": "IL",
+        "latitude": 41.966405,
+        "longitude": -87.980953
+      },
+      {
+        "id": "1820728",
+        "name": "Elkhart city",
+        "state": "IN",
+        "latitude": 41.692081,
+        "longitude": -85.962567
+      },
+      {
+        "id": "1852020",
+        "name": "Nappanee city",
+        "state": "IN",
+        "latitude": 41.446068,
+        "longitude": -85.99675
+      },
+      {
+        "id": "2148000",
+        "name": "Louisville city",
+        "state": "KY",
+        "latitude": 38.224728,
+        "longitude": -85.740614
+      },
+      {
+        "id": "2501430",
+        "name": "Andover CDP",
+        "state": "MA",
+        "latitude": 42.655672,
+        "longitude": -71.142244
+      },
+      {
+        "id": "2507000",
+        "name": "Boston city",
+        "state": "MA",
+        "latitude": 42.338551,
+        "longitude": -71.018253
+      },
+      {
+        "id": "2509875",
+        "name": "Burlington CDP",
+        "state": "MA",
+        "latitude": 42.503227,
+        "longitude": -71.201713
+      },
+      {
+        "id": "2511000",
+        "name": "Cambridge city",
+        "state": "MA",
+        "latitude": 42.376043,
+        "longitude": -71.11868
+      },
+      {
+        "id": "2524960",
+        "name": "Framingham city",
+        "state": "MA",
+        "latitude": 42.307905,
+        "longitude": -71.436196
+      },
+      {
+        "id": "2537000",
+        "name": "Lowell city",
+        "state": "MA",
+        "latitude": 42.638995,
+        "longitude": -71.32102
+      },
+      {
+        "id": "2538715",
+        "name": "Marlborough city",
+        "state": "MA",
+        "latitude": 42.349617,
+        "longitude": -71.547214
+      },
+      {
+        "id": "2544140",
+        "name": "Needham CDP",
+        "state": "MA",
+        "latitude": 42.281593,
+        "longitude": -71.242414
+      },
+      {
+        "id": "2572600",
+        "name": "Waltham city",
+        "state": "MA",
+        "latitude": 42.388921,
+        "longitude": -71.242268
+      },
+      {
+        "id": "2573405",
+        "name": "Watertown city",
+        "state": "MA",
+        "latitude": 42.369451,
+        "longitude": -71.177925
+      },
+      {
+        "id": "2580195",
+        "name": "Wilmington CDP",
+        "state": "MA",
+        "latitude": 42.564647,
+        "longitude": -71.164516
+      },
+      {
+        "id": "2407125",
+        "name": "Bethesda CDP",
+        "state": "MD",
+        "latitude": 38.987292,
+        "longitude": -77.118612
+      },
+      {
+        "id": "2419125",
+        "name": "Columbia CDP",
+        "state": "MD",
+        "latitude": 39.201146,
+        "longitude": -76.85905
+      },
+      {
+        "id": "2424475",
+        "name": "Easton town",
+        "state": "MD",
+        "latitude": 38.776262,
+        "longitude": -76.070478
+      },
+      {
+        "id": "2463300",
+        "name": "Potomac CDP",
+        "state": "MD",
+        "latitude": 39.013332,
+        "longitude": -77.193579
+      },
+      {
+        "id": "2467675",
+        "name": "Rockville city",
+        "state": "MD",
+        "latitude": 39.083666,
+        "longitude": -77.155585
+      },
+      {
+        "id": "2472450",
+        "name": "Silver Spring CDP",
+        "state": "MD",
+        "latitude": 39.002441,
+        "longitude": -77.020791
+      },
+      {
+        "id": "2603000",
+        "name": "Ann Arbor city",
+        "state": "MI",
+        "latitude": 42.276147,
+        "longitude": -83.73086
+      },
+      {
+        "id": "2605920",
+        "name": "Battle Creek city",
+        "state": "MI",
+        "latitude": 42.299176,
+        "longitude": -85.229267
+      },
+      {
+        "id": "2622000",
+        "name": "Detroit city",
+        "state": "MI",
+        "latitude": 42.383037,
+        "longitude": -83.102237
+      },
+      {
+        "id": "2665440",
+        "name": "Pontiac city",
+        "state": "MI",
+        "latitude": 42.649228,
+        "longitude": -83.287363
+      },
+      {
+        "id": "2665560",
+        "name": "Portage city",
+        "state": "MI",
+        "latitude": 42.19705,
+        "longitude": -85.591395
+      },
+      {
+        "id": "2674900",
+        "name": "Southfield city",
+        "state": "MI",
+        "latitude": 42.47464,
+        "longitude": -83.259509
+      },
+      {
+        "id": "2743000",
+        "name": "Minneapolis city",
+        "state": "MN",
+        "latitude": 44.963324,
+        "longitude": -93.26832
+      },
+      {
+        "id": "2745430",
+        "name": "New Brighton city",
+        "state": "MN",
+        "latitude": 45.067226,
+        "longitude": -93.205779
+      },
+      {
+        "id": "2754214",
+        "name": "Richfield city",
+        "state": "MN",
+        "latitude": 44.874354,
+        "longitude": -93.282445
+      },
+      {
+        "id": "2757220",
+        "name": "St. Louis Park city",
+        "state": "MN",
+        "latitude": 44.948681,
+        "longitude": -93.365035
+      },
+      {
+        "id": "2758000",
+        "name": "St. Paul city",
+        "state": "MN",
+        "latitude": 44.948901,
+        "longitude": -93.104063
+      },
+      {
+        "id": "2914572",
+        "name": "Clayton city",
+        "state": "MO",
+        "latitude": 38.644403,
+        "longitude": -90.330212
+      },
+      {
+        "id": "3008950",
+        "name": "Bozeman city",
+        "state": "MT",
+        "latitude": 45.683155,
+        "longitude": -111.053782
+      },
+      {
+        "id": "3716400",
+        "name": "Davidson town",
+        "state": "NC",
+        "latitude": 35.480375,
+        "longitude": -80.82095
+      },
+      {
+        "id": "3719000",
+        "name": "Durham city",
+        "state": "NC",
+        "latitude": 35.977928,
+        "longitude": -78.898109
+      },
+      {
+        "id": "3744520",
+        "name": "Morrisville town",
+        "state": "NC",
+        "latitude": 35.836356,
+        "longitude": -78.839001
+      },
+      {
+        "id": "3755000",
+        "name": "Raleigh city",
+        "state": "NC",
+        "latitude": 35.831868,
+        "longitude": -78.641042
+      },
+      {
+        "id": "3137000",
+        "name": "Omaha city",
+        "state": "NE",
+        "latitude": 41.262705,
+        "longitude": -96.053475
+      },
+      {
+        "id": "3350260",
+        "name": "Nashua city",
+        "state": "NH",
+        "latitude": 42.749074,
+        "longitude": -71.490544
+      },
+      {
+        "id": "3362900",
+        "name": "Portsmouth city",
+        "state": "NH",
+        "latitude": 43.060594,
+        "longitude": -70.780349
+      },
+      {
+        "id": "3436000",
+        "name": "Jersey City city",
+        "state": "NJ",
+        "latitude": 40.711417,
+        "longitude": -74.06476
+      },
+      {
+        "id": "3451210",
+        "name": "New Brunswick city",
+        "state": "NJ",
+        "latitude": 40.486677,
+        "longitude": -74.444414
+      },
+      {
+        "id": "3456430",
+        "name": "Parsippany CDP",
+        "state": "NJ",
+        "latitude": 40.864056,
+        "longitude": -74.41237
+      },
+      {
+        "id": "3460900",
+        "name": "Princeton",
+        "state": "NJ",
+        "latitude": 40.358244,
+        "longitude": -74.666728
+      },
+      {
+        "id": "3462940",
+        "name": "Ridgefield Park village",
+        "state": "NJ",
+        "latitude": 40.854705,
+        "longitude": -74.019926
+      },
+      {
+        "id": "3471430",
+        "name": "Summit city",
+        "state": "NJ",
+        "latitude": 40.715622,
+        "longitude": -74.364684
+      },
+      {
+        "id": "3240000",
+        "name": "Las Vegas city",
+        "state": "NV",
+        "latitude": 36.233499,
+        "longitude": -115.264037
+      },
+      {
+        "id": "3260600",
+        "name": "Reno city",
+        "state": "NV",
+        "latitude": 39.549097,
+        "longitude": -119.849907
+      },
+      {
+        "id": "3618256",
+        "name": "Corning city",
+        "state": "NY",
+        "latitude": 42.148195,
+        "longitude": -77.056401
+      },
+      {
+        "id": "3641333",
+        "name": "Larchmont village",
+        "state": "NY",
+        "latitude": 40.925961,
+        "longitude": -73.75196
+      },
+      {
+        "id": "3651000",
+        "name": "New York city",
+        "state": "NY",
+        "latitude": 40.662712,
+        "longitude": -73.938677
+      },
+      {
+        "id": "3915000",
+        "name": "Cincinnati city",
+        "state": "OH",
+        "latitude": 39.140183,
+        "longitude": -84.505829
+      },
+      {
+        "id": "3916000",
+        "name": "Cleveland city",
+        "state": "OH",
+        "latitude": 41.478462,
+        "longitude": -81.679435
+      },
+      {
+        "id": "3918000",
+        "name": "Columbus city",
+        "state": "OH",
+        "latitude": 39.985531,
+        "longitude": -82.985594
+      },
+      {
+        "id": "3949056",
+        "name": "Mentor city",
+        "state": "OH",
+        "latitude": 41.690159,
+        "longitude": -81.33588
+      },
+      {
+        "id": "3953970",
+        "name": "New Albany city",
+        "state": "OH",
+        "latitude": 40.09,
+        "longitude": -82.776349
+      },
+      {
+        "id": "3983342",
+        "name": "Westerville city",
+        "state": "OH",
+        "latitude": 40.123435,
+        "longitude": -82.913324
+      },
+      {
+        "id": "4130550",
+        "name": "Grants Pass city",
+        "state": "OR",
+        "latitude": 42.432313,
+        "longitude": -123.331772
+      },
+      {
+        "id": "4205904",
+        "name": "Berwyn CDP",
+        "state": "PA",
+        "latitude": 40.038794,
+        "longitude": -75.442087
+      },
+      {
+        "id": "4211152",
+        "name": "Canonsburg borough",
+        "state": "PA",
+        "latitude": 40.264246,
+        "longitude": -80.186776
+      },
+      {
+        "id": "4216144",
+        "name": "Coraopolis borough",
+        "state": "PA",
+        "latitude": 40.514618,
+        "longitude": -80.161825
+      },
+      {
+        "id": "4226872",
+        "name": "Fort Washington CDP",
+        "state": "PA",
+        "latitude": 40.140762,
+        "longitude": -75.192575
+      },
+      {
+        "id": "4234144",
+        "name": "Hershey CDP",
+        "state": "PA",
+        "latitude": 40.28001,
+        "longitude": -76.644328
+      },
+      {
+        "id": "4257816",
+        "name": "Paoli CDP",
+        "state": "PA",
+        "latitude": 40.042016,
+        "longitude": -75.490294
+      },
+      {
+        "id": "4260000",
+        "name": "Philadelphia city",
+        "state": "PA",
+        "latitude": 40.009376,
+        "longitude": -75.133346
+      },
+      {
+        "id": "4261000",
+        "name": "Pittsburgh city",
+        "state": "PA",
+        "latitude": 40.439936,
+        "longitude": -79.975676
+      },
+      {
+        "id": "4268056",
+        "name": "Saxonburg borough",
+        "state": "PA",
+        "latitude": 40.750962,
+        "longitude": -79.814959
+      },
+      {
+        "id": "4282736",
+        "name": "West Conshohocken borough",
+        "state": "PA",
+        "latitude": 40.070314,
+        "longitude": -75.318777
+      },
+      {
+        "id": "4283928",
+        "name": "West Reading borough",
+        "state": "PA",
+        "latitude": 40.333761,
+        "longitude": -75.946886
+      },
+      {
+        "id": "4454640",
+        "name": "Pawtucket city",
+        "state": "RI",
+        "latitude": 41.874824,
+        "longitude": -71.373323
+      },
+      {
+        "id": "4459000",
+        "name": "Providence city",
+        "state": "RI",
+        "latitude": 41.823056,
+        "longitude": -71.418784
+      },
+      {
+        "id": "4659020",
+        "name": "Sioux Falls city",
+        "state": "SD",
+        "latitude": 43.540696,
+        "longitude": -96.731962
+      },
+      {
+        "id": "4708280",
+        "name": "Brentwood city",
+        "state": "TN",
+        "latitude": 35.993904,
+        "longitude": -86.770834
+      },
+      {
+        "id": "4728960",
+        "name": "Germantown city",
+        "state": "TN",
+        "latitude": 35.081957,
+        "longitude": -89.782584
+      },
+      {
+        "id": "4732640",
+        "name": "Harrogate city",
+        "state": "TN",
+        "latitude": 36.575228,
+        "longitude": -83.646164
+      },
+      {
+        "id": "4748000",
+        "name": "Memphis city",
+        "state": "TN",
+        "latitude": 35.109164,
+        "longitude": -89.968511
+      },
+      {
+        "id": "4805000",
+        "name": "Austin city",
+        "state": "TX",
+        "latitude": 30.298622,
+        "longitude": -97.754134
+      },
+      {
+        "id": "4813900",
+        "name": "Centerville city",
+        "state": "TX",
+        "latitude": 31.258315,
+        "longitude": -95.979399
+      },
+      {
+        "id": "4819000",
+        "name": "Dallas city",
+        "state": "TX",
+        "latitude": 32.793333,
+        "longitude": -96.766513
+      },
+      {
+        "id": "4821424",
+        "name": "Dripping Springs city",
+        "state": "TX",
+        "latitude": 30.195936,
+        "longitude": -98.093701
+      },
+      {
+        "id": "4827000",
+        "name": "Fort Worth city",
+        "state": "TX",
+        "latitude": 32.781954,
+        "longitude": -97.348573
+      },
+      {
+        "id": "4829432",
+        "name": "Giddings city",
+        "state": "TX",
+        "latitude": 30.183667,
+        "longitude": -96.928029
+      },
+      {
+        "id": "4835000",
+        "name": "Houston city",
+        "state": "TX",
+        "latitude": 29.785743,
+        "longitude": -95.388806
+      },
+      {
+        "id": "4837000",
+        "name": "Irving city",
+        "state": "TX",
+        "latitude": 32.857748,
+        "longitude": -96.970022
+      },
+      {
+        "id": "4848072",
+        "name": "Midland city",
+        "state": "TX",
+        "latitude": 32.024642,
+        "longitude": -102.113467
+      },
+      {
+        "id": "4863500",
+        "name": "Round Rock city",
+        "state": "TX",
+        "latitude": 30.526146,
+        "longitude": -97.663532
+      },
+      {
+        "id": "4869596",
+        "name": "Spring CDP",
+        "state": "TX",
+        "latitude": 30.062169,
+        "longitude": -95.383966
+      },
+      {
+        "id": "4870808",
+        "name": "Sugar Land city",
+        "state": "TX",
+        "latitude": 29.592764,
+        "longitude": -95.633801
+      },
+      {
+        "id": "4872656",
+        "name": "The Woodlands CDP",
+        "state": "TX",
+        "latitude": 30.172562,
+        "longitude": -95.509813
+      },
+      {
+        "id": "4877620",
+        "name": "Westlake town",
+        "state": "TX",
+        "latitude": 32.985461,
+        "longitude": -97.203788
+      },
+      {
+        "id": "4967000",
+        "name": "Salt Lake City city",
+        "state": "UT",
+        "latitude": 40.776928,
+        "longitude": -111.930991
+      },
+      {
+        "id": "5103000",
+        "name": "Arlington CDP",
+        "state": "VA",
+        "latitude": 38.878337,
+        "longitude": -77.100703
+      },
+      {
+        "id": "5127200",
+        "name": "Falls Church city",
+        "state": "VA",
+        "latitude": 38.884722,
+        "longitude": -77.175603
+      },
+      {
+        "id": "5131200",
+        "name": "Glen Allen CDP",
+        "state": "VA",
+        "latitude": 37.665873,
+        "longitude": -77.484349
+      },
+      {
+        "id": "5148376",
+        "name": "McLean CDP",
+        "state": "VA",
+        "latitude": 38.943545,
+        "longitude": -77.192913
+      },
+      {
+        "id": "5165392",
+        "name": "Radford city",
+        "state": "VA",
+        "latitude": 37.12012,
+        "longitude": -80.559149
+      },
+      {
+        "id": "5166672",
+        "name": "Reston CDP",
+        "state": "VA",
+        "latitude": 38.949762,
+        "longitude": -77.346244
+      },
+      {
+        "id": "5305210",
+        "name": "Bellevue city",
+        "state": "WA",
+        "latitude": 47.597837,
+        "longitude": -122.15648
+      },
+      {
+        "id": "5309480",
+        "name": "Camas city",
+        "state": "WA",
+        "latitude": 45.601809,
+        "longitude": -122.430381
+      },
+      {
+        "id": "5335940",
+        "name": "Kirkland city",
+        "state": "WA",
+        "latitude": 47.696658,
+        "longitude": -122.20417
+      },
+      {
+        "id": "5357535",
+        "name": "Redmond city",
+        "state": "WA",
+        "latitude": 47.677924,
+        "longitude": -122.115336
+      },
+      {
+        "id": "5363000",
+        "name": "Seattle city",
+        "state": "WA",
+        "latitude": 47.619335,
+        "longitude": -122.351538
+      },
+      {
+        "id": "5539225",
+        "name": "Kenosha city",
+        "state": "WI",
+        "latitude": 42.587526,
+        "longitude": -87.879996
+      },
+      {
+        "id": "5553000",
+        "name": "Milwaukee city",
+        "state": "WI",
+        "latitude": 43.063348,
+        "longitude": -87.966695
+      }
+    ],
+    "metros": [
+      {
+        "id": "10180",
+        "name": "Abilene, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.452022,
+        "longitude": -99.718743
+      },
+      {
+        "id": "10380",
+        "name": "Aguadilla, PR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 18.391555,
+        "longitude": -67.097202
+      },
+      {
+        "id": "10420",
+        "name": "Akron, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.146639,
+        "longitude": -81.35011
+      },
+      {
+        "id": "10580",
+        "name": "Albany-Schenectady-Troy, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.78792,
+        "longitude": -73.942348
+      },
+      {
+        "id": "10500",
+        "name": "Albany, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.644686,
+        "longitude": -84.110718
+      },
+      {
+        "id": "10540",
+        "name": "Albany, OR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.488898,
+        "longitude": -122.537208
+      },
+      {
+        "id": "10740",
+        "name": "Albuquerque, NM",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.123496,
+        "longitude": -106.458392
+      },
+      {
+        "id": "10780",
+        "name": "Alexandria, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.325348,
+        "longitude": -92.546803
+      },
+      {
+        "id": "10900",
+        "name": "Allentown-Bethlehem-Easton, PA-NJ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.789339,
+        "longitude": -75.398158
+      },
+      {
+        "id": "11020",
+        "name": "Altoona, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.498683,
+        "longitude": -78.309597
+      },
+      {
+        "id": "11100",
+        "name": "Amarillo, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.247999,
+        "longitude": -101.90867
+      },
+      {
+        "id": "11180",
+        "name": "Ames, IA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.036128,
+        "longitude": -93.698008
+      },
+      {
+        "id": "11200",
+        "name": "Amherst Town-Northampton, MA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.33946,
+        "longitude": -72.663692
+      },
+      {
+        "id": "11260",
+        "name": "Anchorage, AK",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 62.212784,
+        "longitude": -149.678222
+      },
+      {
+        "id": "11460",
+        "name": "Ann Arbor, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.252217,
+        "longitude": -83.843423
+      },
+      {
+        "id": "11500",
+        "name": "Anniston-Oxford, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.770516,
+        "longitude": -85.827909
+      },
+      {
+        "id": "11540",
+        "name": "Appleton, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.290603,
+        "longitude": -88.372326
+      },
+      {
+        "id": "11640",
+        "name": "Arecibo, PR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 18.439224,
+        "longitude": -66.759981
+      },
+      {
+        "id": "11700",
+        "name": "Asheville, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.61634,
+        "longitude": -82.570683
+      },
+      {
+        "id": "12020",
+        "name": "Athens-Clarke County, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.943984,
+        "longitude": -83.213897
+      },
+      {
+        "id": "12060",
+        "name": "Atlanta-Sandy Springs-Roswell, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.732402,
+        "longitude": -84.392848
+      },
+      {
+        "id": "12100",
+        "name": "Atlantic City-Hammonton, NJ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.286186,
+        "longitude": -74.738311
+      },
+      {
+        "id": "12220",
+        "name": "Auburn-Opelika, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.492206,
+        "longitude": -85.527127
+      },
+      {
+        "id": "12260",
+        "name": "Augusta-Richmond County, GA-SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.460371,
+        "longitude": -81.982833
+      },
+      {
+        "id": "12420",
+        "name": "Austin-Round Rock-San Marcos, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.249744,
+        "longitude": -97.649842
+      },
+      {
+        "id": "12540",
+        "name": "Bakersfield-Delano, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.346629,
+        "longitude": -118.729506
+      },
+      {
+        "id": "12580",
+        "name": "Baltimore-Columbia-Towson, MD",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.304361,
+        "longitude": -76.549501
+      },
+      {
+        "id": "12620",
+        "name": "Bangor, ME",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 45.409284,
+        "longitude": -68.666616
+      },
+      {
+        "id": "12700",
+        "name": "Barnstable Town, MA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.706123,
+        "longitude": -70.164823
+      },
+      {
+        "id": "12940",
+        "name": "Baton Rouge, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.515242,
+        "longitude": -91.126926
+      },
+      {
+        "id": "12980",
+        "name": "Battle Creek, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.24299,
+        "longitude": -85.012385
+      },
+      {
+        "id": "13020",
+        "name": "Bay City, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.699711,
+        "longitude": -83.978701
+      },
+      {
+        "id": "13140",
+        "name": "Beaumont-Port Arthur, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.075928,
+        "longitude": -94.202705
+      },
+      {
+        "id": "13220",
+        "name": "Beckley, WV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.905659,
+        "longitude": -81.163748
+      },
+      {
+        "id": "13380",
+        "name": "Bellingham, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 48.842653,
+        "longitude": -121.836432
+      },
+      {
+        "id": "13460",
+        "name": "Bend, OR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.153837,
+        "longitude": -120.887072
+      },
+      {
+        "id": "13740",
+        "name": "Billings, MT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 45.63714,
+        "longitude": -108.832361
+      },
+      {
+        "id": "13780",
+        "name": "Binghamton, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.163928,
+        "longitude": -76.022943
+      },
+      {
+        "id": "13820",
+        "name": "Birmingham, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.462372,
+        "longitude": -86.814338
+      },
+      {
+        "id": "13900",
+        "name": "Bismarck, ND",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.887031,
+        "longitude": -100.979592
+      },
+      {
+        "id": "13980",
+        "name": "Blacksburg-Christiansburg-Radford, VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.121364,
+        "longitude": -80.531517
+      },
+      {
+        "id": "14010",
+        "name": "Bloomington, IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.494559,
+        "longitude": -88.844539
+      },
+      {
+        "id": "14020",
+        "name": "Bloomington, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.241736,
+        "longitude": -86.671754
+      },
+      {
+        "id": "14260",
+        "name": "Boise City, ID",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.006648,
+        "longitude": -116.141909
+      },
+      {
+        "id": "14460",
+        "name": "Boston-Cambridge-Newton, MA-NH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.517606,
+        "longitude": -71.021993
+      },
+      {
+        "id": "14500",
+        "name": "Boulder, CO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.094971,
+        "longitude": -105.39771
+      },
+      {
+        "id": "14540",
+        "name": "Bowling Green, KY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.046804,
+        "longitude": -86.397398
+      },
+      {
+        "id": "14580",
+        "name": "Bozeman, MT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 45.518054,
+        "longitude": -111.163921
+      },
+      {
+        "id": "14740",
+        "name": "Bremerton-Silverdale-Port Orchard, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.639687,
+        "longitude": -122.649636
+      },
+      {
+        "id": "14860",
+        "name": "Bridgeport-Stamford-Danbury, CT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.252442,
+        "longitude": -73.393267
+      },
+      {
+        "id": "15180",
+        "name": "Brownsville-Harlingen, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 26.102923,
+        "longitude": -97.478958
+      },
+      {
+        "id": "15260",
+        "name": "Brunswick-St. Simons, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.301739,
+        "longitude": -81.588909
+      },
+      {
+        "id": "15380",
+        "name": "Buffalo-Cheektowaga, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.044371,
+        "longitude": -78.777335
+      },
+      {
+        "id": "15540",
+        "name": "Burlington-South Burlington, VT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.689115,
+        "longitude": -73.041175
+      },
+      {
+        "id": "15500",
+        "name": "Burlington, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.043954,
+        "longitude": -79.400573
+      },
+      {
+        "id": "15940",
+        "name": "Canton-Massillon, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.711051,
+        "longitude": -81.261468
+      },
+      {
+        "id": "15980",
+        "name": "Cape Coral-Fort Myers, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 26.563273,
+        "longitude": -81.984182
+      },
+      {
+        "id": "16020",
+        "name": "Cape Girardeau, MO-IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.325936,
+        "longitude": -89.762639
+      },
+      {
+        "id": "16180",
+        "name": "Carson City, NV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.15306,
+        "longitude": -119.747368
+      },
+      {
+        "id": "16220",
+        "name": "Casper, WY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.977645,
+        "longitude": -106.768219
+      },
+      {
+        "id": "16300",
+        "name": "Cedar Rapids, IA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.086289,
+        "longitude": -91.631095
+      },
+      {
+        "id": "16540",
+        "name": "Chambersburg, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.926772,
+        "longitude": -77.724521
+      },
+      {
+        "id": "16580",
+        "name": "Champaign-Urbana, IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.234489,
+        "longitude": -88.298623
+      },
+      {
+        "id": "16700",
+        "name": "Charleston-North Charleston, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.01754,
+        "longitude": -80.009947
+      },
+      {
+        "id": "16620",
+        "name": "Charleston, WV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.283213,
+        "longitude": -81.492557
+      },
+      {
+        "id": "16740",
+        "name": "Charlotte-Concord-Gastonia, NC-SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.166342,
+        "longitude": -80.797285
+      },
+      {
+        "id": "16820",
+        "name": "Charlottesville, VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.949084,
+        "longitude": -78.593206
+      },
+      {
+        "id": "16860",
+        "name": "Chattanooga, TN-GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.049361,
+        "longitude": -85.361158
+      },
+      {
+        "id": "16940",
+        "name": "Cheyenne, WY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.29283,
+        "longitude": -104.660395
+      },
+      {
+        "id": "16980",
+        "name": "Chicago-Naperville-Elgin, IL-IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.75878,
+        "longitude": -87.841887
+      },
+      {
+        "id": "17020",
+        "name": "Chico, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.665336,
+        "longitude": -121.603209
+      },
+      {
+        "id": "17140",
+        "name": "Cincinnati, OH-KY-IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.078595,
+        "longitude": -84.463535
+      },
+      {
+        "id": "17300",
+        "name": "Clarksville, TN-KY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.69571,
+        "longitude": -87.624307
+      },
+      {
+        "id": "17410",
+        "name": "Cleveland, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.667548,
+        "longitude": -81.43052
+      },
+      {
+        "id": "17420",
+        "name": "Cleveland, TN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.138117,
+        "longitude": -84.655079
+      },
+      {
+        "id": "17660",
+        "name": "Coeur d'Alene, ID",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.67596,
+        "longitude": -116.695861
+      },
+      {
+        "id": "17780",
+        "name": "College Station-Bryan, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.754392,
+        "longitude": -96.488537
+      },
+      {
+        "id": "17820",
+        "name": "Colorado Springs, CO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.845507,
+        "longitude": -104.638728
+      },
+      {
+        "id": "17860",
+        "name": "Columbia, MO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.986524,
+        "longitude": -92.585236
+      },
+      {
+        "id": "17900",
+        "name": "Columbia, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.077585,
+        "longitude": -81.037845
+      },
+      {
+        "id": "17980",
+        "name": "Columbus, GA-AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.419377,
+        "longitude": -84.843709
+      },
+      {
+        "id": "18020",
+        "name": "Columbus, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.205843,
+        "longitude": -85.897999
+      },
+      {
+        "id": "18140",
+        "name": "Columbus, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.968562,
+        "longitude": -82.835911
+      },
+      {
+        "id": "18580",
+        "name": "Corpus Christi, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 27.894817,
+        "longitude": -97.401668
+      },
+      {
+        "id": "18700",
+        "name": "Corvallis, OR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.493882,
+        "longitude": -123.424664
+      },
+      {
+        "id": "18880",
+        "name": "Crestview-Fort Walton Beach-Destin, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.594941,
+        "longitude": -86.358164
+      },
+      {
+        "id": "19100",
+        "name": "Dallas-Fort Worth-Arlington, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.849171,
+        "longitude": -96.970489
+      },
+      {
+        "id": "19140",
+        "name": "Dalton, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.796956,
+        "longitude": -84.856279
+      },
+      {
+        "id": "19300",
+        "name": "Daphne-Fairhope-Foley, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.659218,
+        "longitude": -87.746067
+      },
+      {
+        "id": "19340",
+        "name": "Davenport-Moline-Rock Island, IA-IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.39168,
+        "longitude": -90.460076
+      },
+      {
+        "id": "19430",
+        "name": "Dayton-Kettering-Beavercreek, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.829746,
+        "longitude": -84.140992
+      },
+      {
+        "id": "19460",
+        "name": "Decatur, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.489361,
+        "longitude": -87.097147
+      },
+      {
+        "id": "19500",
+        "name": "Decatur, IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.860237,
+        "longitude": -88.961529
+      },
+      {
+        "id": "19660",
+        "name": "Deltona-Daytona Beach-Ormond Beach, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 29.1789,
+        "longitude": -81.189023
+      },
+      {
+        "id": "19740",
+        "name": "Denver-Aurora-Centennial, CO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.434789,
+        "longitude": -104.901073
+      },
+      {
+        "id": "19780",
+        "name": "Des Moines-West Des Moines, IA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.57705,
+        "longitude": -93.759712
+      },
+      {
+        "id": "19820",
+        "name": "Detroit-Warren-Dearborn, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.721848,
+        "longitude": -83.200846
+      },
+      {
+        "id": "20020",
+        "name": "Dothan, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.245528,
+        "longitude": -85.46919
+      },
+      {
+        "id": "20100",
+        "name": "Dover, DE",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.097088,
+        "longitude": -75.502982
+      },
+      {
+        "id": "20220",
+        "name": "Dubuque, IA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.463481,
+        "longitude": -90.878771
+      },
+      {
+        "id": "20260",
+        "name": "Duluth, MN-WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.329703,
+        "longitude": -92.37627
+      },
+      {
+        "id": "20500",
+        "name": "Durham-Chapel Hill, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.995536,
+        "longitude": -79.09699
+      },
+      {
+        "id": "20580",
+        "name": "Eagle Pass, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 28.729787,
+        "longitude": -100.316678
+      },
+      {
+        "id": "20740",
+        "name": "Eau Claire, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.938672,
+        "longitude": -91.284322
+      },
+      {
+        "id": "20940",
+        "name": "El Centro, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.040814,
+        "longitude": -115.3554
+      },
+      {
+        "id": "21340",
+        "name": "El Paso, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.527394,
+        "longitude": -105.521333
+      },
+      {
+        "id": "21060",
+        "name": "Elizabethtown, KY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.651209,
+        "longitude": -85.887598
+      },
+      {
+        "id": "21140",
+        "name": "Elkhart-Goshen, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.600693,
+        "longitude": -85.863986
+      },
+      {
+        "id": "21300",
+        "name": "Elmira, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.148697,
+        "longitude": -76.752471
+      },
+      {
+        "id": "21420",
+        "name": "Enid, OK",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.378132,
+        "longitude": -97.788741
+      },
+      {
+        "id": "21500",
+        "name": "Erie, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.117952,
+        "longitude": -80.096386
+      },
+      {
+        "id": "21660",
+        "name": "Eugene-Springfield, OR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.928334,
+        "longitude": -122.897581
+      },
+      {
+        "id": "21780",
+        "name": "Evansville, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.049142,
+        "longitude": -87.584519
+      },
+      {
+        "id": "21820",
+        "name": "Fairbanks-College, AK",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 64.670454,
+        "longitude": -146.496061
+      },
+      {
+        "id": "22020",
+        "name": "Fargo, ND-MN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.914859,
+        "longitude": -96.960183
+      },
+      {
+        "id": "22140",
+        "name": "Farmington, NM",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.511624,
+        "longitude": -108.324578
+      },
+      {
+        "id": "22220",
+        "name": "Fayetteville-Springdale-Rogers, AR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.116394,
+        "longitude": -94.079545
+      },
+      {
+        "id": "22180",
+        "name": "Fayetteville, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.037956,
+        "longitude": -78.982209
+      },
+      {
+        "id": "22380",
+        "name": "Flagstaff, AZ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.829692,
+        "longitude": -111.773728
+      },
+      {
+        "id": "22420",
+        "name": "Flint, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.021077,
+        "longitude": -83.706372
+      },
+      {
+        "id": "22520",
+        "name": "Florence-Muscle Shoals, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.799254,
+        "longitude": -87.719388
+      },
+      {
+        "id": "22500",
+        "name": "Florence, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.153574,
+        "longitude": -79.806164
+      },
+      {
+        "id": "22540",
+        "name": "Fond du Lac, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.754722,
+        "longitude": -88.493284
+      },
+      {
+        "id": "22660",
+        "name": "Fort Collins-Loveland, CO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.658093,
+        "longitude": -105.486764
+      },
+      {
+        "id": "22900",
+        "name": "Fort Smith, AR-OK",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.429088,
+        "longitude": -94.448349
+      },
+      {
+        "id": "23060",
+        "name": "Fort Wayne, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.006999,
+        "longitude": -85.216424
+      },
+      {
+        "id": "23420",
+        "name": "Fresno, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.879404,
+        "longitude": -119.668488
+      },
+      {
+        "id": "23460",
+        "name": "Gadsden, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.047641,
+        "longitude": -86.034263
+      },
+      {
+        "id": "23540",
+        "name": "Gainesville, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 29.453355,
+        "longitude": -82.666257
+      },
+      {
+        "id": "23580",
+        "name": "Gainesville, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.317569,
+        "longitude": -83.8185
+      },
+      {
+        "id": "23900",
+        "name": "Gettysburg, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.869437,
+        "longitude": -77.21775
+      },
+      {
+        "id": "24020",
+        "name": "Glens Falls, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.44045,
+        "longitude": -73.636757
+      },
+      {
+        "id": "24140",
+        "name": "Goldsboro, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.35419,
+        "longitude": -78.00867
+      },
+      {
+        "id": "24220",
+        "name": "Grand Forks, ND-MN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.835929,
+        "longitude": -96.842681
+      },
+      {
+        "id": "24260",
+        "name": "Grand Island, NE",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.083926,
+        "longitude": -98.374218
+      },
+      {
+        "id": "24300",
+        "name": "Grand Junction, CO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.019524,
+        "longitude": -108.460571
+      },
+      {
+        "id": "24340",
+        "name": "Grand Rapids-Wyoming-Kentwood, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.979841,
+        "longitude": -85.715614
+      },
+      {
+        "id": "24420",
+        "name": "Grants Pass, OR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.386983,
+        "longitude": -123.57162
+      },
+      {
+        "id": "24500",
+        "name": "Great Falls, MT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.316575,
+        "longitude": -111.350262
+      },
+      {
+        "id": "24540",
+        "name": "Greeley, CO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.555961,
+        "longitude": -104.383666
+      },
+      {
+        "id": "24580",
+        "name": "Green Bay, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.474024,
+        "longitude": -87.99613
+      },
+      {
+        "id": "24660",
+        "name": "Greensboro-High Point, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.025204,
+        "longitude": -79.792633
+      },
+      {
+        "id": "24860",
+        "name": "Greenville-Anderson-Greer, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.683709,
+        "longitude": -82.413423
+      },
+      {
+        "id": "24780",
+        "name": "Greenville, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.59249,
+        "longitude": -77.372739
+      },
+      {
+        "id": "25020",
+        "name": "Guayama, PR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 17.979155,
+        "longitude": -66.069473
+      },
+      {
+        "id": "25060",
+        "name": "Gulfport-Biloxi, MS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.480153,
+        "longitude": -88.999297
+      },
+      {
+        "id": "25180",
+        "name": "Hagerstown-Martinsburg, MD-WV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.554433,
+        "longitude": -77.984594
+      },
+      {
+        "id": "25220",
+        "name": "Hammond, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.621348,
+        "longitude": -90.40649
+      },
+      {
+        "id": "25260",
+        "name": "Hanford-Corcoran, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.072478,
+        "longitude": -119.81553
+      },
+      {
+        "id": "25420",
+        "name": "Harrisburg-Carlisle, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.335915,
+        "longitude": -77.05049
+      },
+      {
+        "id": "25500",
+        "name": "Harrisonburg, VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.507612,
+        "longitude": -78.885329
+      },
+      {
+        "id": "25540",
+        "name": "Hartford-West Hartford-East Hartford, CT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.688038,
+        "longitude": -72.545112
+      },
+      {
+        "id": "25620",
+        "name": "Hattiesburg, MS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.188441,
+        "longitude": -89.232741
+      },
+      {
+        "id": "25740",
+        "name": "Helena, MT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.715752,
+        "longitude": -112.135155
+      },
+      {
+        "id": "25860",
+        "name": "Hickory-Lenoir-Morganton, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.814295,
+        "longitude": -81.456584
+      },
+      {
+        "id": "25940",
+        "name": "Hilton Head Island-Bluffton-Port Royal, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.386792,
+        "longitude": -80.830877
+      },
+      {
+        "id": "25980",
+        "name": "Hinesville, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.778788,
+        "longitude": -81.57648
+      },
+      {
+        "id": "26140",
+        "name": "Homosassa Springs, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 28.850293,
+        "longitude": -82.595551
+      },
+      {
+        "id": "26300",
+        "name": "Hot Springs, AR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.578852,
+        "longitude": -93.146932
+      },
+      {
+        "id": "26380",
+        "name": "Houma-Bayou Cane-Thibodaux, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 29.33413,
+        "longitude": -90.843674
+      },
+      {
+        "id": "26420",
+        "name": "Houston-Pasadena-The Woodlands, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 29.801005,
+        "longitude": -95.34262
+      },
+      {
+        "id": "26580",
+        "name": "Huntington-Ashland, WV-KY-OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.357487,
+        "longitude": -82.579994
+      },
+      {
+        "id": "26620",
+        "name": "Huntsville, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.783262,
+        "longitude": -86.734871
+      },
+      {
+        "id": "26820",
+        "name": "Idaho Falls, ID",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.620423,
+        "longitude": -112.420919
+      },
+      {
+        "id": "26900",
+        "name": "Indianapolis-Carmel-Greenwood, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.790533,
+        "longitude": -86.12426
+      },
+      {
+        "id": "26980",
+        "name": "Iowa City, IA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.517806,
+        "longitude": -91.64793
+      },
+      {
+        "id": "27060",
+        "name": "Ithaca, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.453006,
+        "longitude": -76.473483
+      },
+      {
+        "id": "27100",
+        "name": "Jackson, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.248474,
+        "longitude": -84.420868
+      },
+      {
+        "id": "27140",
+        "name": "Jackson, MS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.426311,
+        "longitude": -90.136422
+      },
+      {
+        "id": "27180",
+        "name": "Jackson, TN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.753215,
+        "longitude": -88.882692
+      },
+      {
+        "id": "27260",
+        "name": "Jacksonville, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.234138,
+        "longitude": -81.756058
+      },
+      {
+        "id": "27340",
+        "name": "Jacksonville, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.763109,
+        "longitude": -77.499469
+      },
+      {
+        "id": "27500",
+        "name": "Janesville-Beloit, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.66988,
+        "longitude": -89.075284
+      },
+      {
+        "id": "27620",
+        "name": "Jefferson City, MO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.636885,
+        "longitude": -92.088876
+      },
+      {
+        "id": "27740",
+        "name": "Johnson City, TN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.265822,
+        "longitude": -82.332693
+      },
+      {
+        "id": "27780",
+        "name": "Johnstown, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.510209,
+        "longitude": -78.710488
+      },
+      {
+        "id": "27860",
+        "name": "Jonesboro, AR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.696978,
+        "longitude": -90.650175
+      },
+      {
+        "id": "27900",
+        "name": "Joplin, MO-KS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.092135,
+        "longitude": -94.500651
+      },
+      {
+        "id": "27980",
+        "name": "Kahului-Wailuku, HI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 20.855931,
+        "longitude": -156.60155
+      },
+      {
+        "id": "28020",
+        "name": "Kalamazoo-Portage, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.246266,
+        "longitude": -85.532854
+      },
+      {
+        "id": "28100",
+        "name": "Kankakee, IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.13951,
+        "longitude": -87.861117
+      },
+      {
+        "id": "28140",
+        "name": "Kansas City, MO-KS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.931857,
+        "longitude": -94.443841
+      },
+      {
+        "id": "28420",
+        "name": "Kennewick-Richland, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.364155,
+        "longitude": -119.254927
+      },
+      {
+        "id": "28450",
+        "name": "Kenosha, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.587526,
+        "longitude": -87.879996
+      },
+      {
+        "id": "28660",
+        "name": "Killeen-Temple, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.20273,
+        "longitude": -97.789638
+      },
+      {
+        "id": "28700",
+        "name": "Kingsport-Bristol, TN-VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.604161,
+        "longitude": -82.440145
+      },
+      {
+        "id": "28740",
+        "name": "Kingston, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.947212,
+        "longitude": -74.265458
+      },
+      {
+        "id": "28880",
+        "name": "Kiryas Joel-Poughkeepsie-Newburgh, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.575274,
+        "longitude": -74.033873
+      },
+      {
+        "id": "28940",
+        "name": "Knoxville, TN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.044462,
+        "longitude": -84.136114
+      },
+      {
+        "id": "29020",
+        "name": "Kokomo, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.483537,
+        "longitude": -86.114118
+      },
+      {
+        "id": "29100",
+        "name": "La Crosse-Onalaska, WI-MN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.698264,
+        "longitude": -91.11014
+      },
+      {
+        "id": "29200",
+        "name": "Lafayette-West Lafayette, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.482153,
+        "longitude": -87.017112
+      },
+      {
+        "id": "29180",
+        "name": "Lafayette, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.012961,
+        "longitude": -92.136552
+      },
+      {
+        "id": "29340",
+        "name": "Lake Charles, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.038451,
+        "longitude": -93.190093
+      },
+      {
+        "id": "29420",
+        "name": "Lake Havasu City-Kingman, AZ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.717705,
+        "longitude": -113.749689
+      },
+      {
+        "id": "29460",
+        "name": "Lakeland-Winter Haven, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 27.954854,
+        "longitude": -81.694301
+      },
+      {
+        "id": "29540",
+        "name": "Lancaster, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.041992,
+        "longitude": -76.250198
+      },
+      {
+        "id": "29620",
+        "name": "Lansing-East Lansing, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.713659,
+        "longitude": -84.605372
+      },
+      {
+        "id": "29700",
+        "name": "Laredo, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 27.760799,
+        "longitude": -99.340752
+      },
+      {
+        "id": "29740",
+        "name": "Las Cruces, NM",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.349919,
+        "longitude": -106.834968
+      },
+      {
+        "id": "29820",
+        "name": "Las Vegas-Henderson-North Las Vegas, NV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.21413,
+        "longitude": -115.014398
+      },
+      {
+        "id": "29940",
+        "name": "Lawrence, KS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.896417,
+        "longitude": -95.290947
+      },
+      {
+        "id": "30020",
+        "name": "Lawton, OK",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.529113,
+        "longitude": -98.430902
+      },
+      {
+        "id": "30140",
+        "name": "Lebanon, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.371448,
+        "longitude": -76.464819
+      },
+      {
+        "id": "30340",
+        "name": "Lewiston-Auburn, ME",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.167681,
+        "longitude": -70.207435
+      },
+      {
+        "id": "30300",
+        "name": "Lewiston, ID-WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.251696,
+        "longitude": -116.925017
+      },
+      {
+        "id": "30500",
+        "name": "Lexington Park, MD",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.312696,
+        "longitude": -76.527935
+      },
+      {
+        "id": "30460",
+        "name": "Lexington-Fayette, KY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.102876,
+        "longitude": -84.438545
+      },
+      {
+        "id": "30620",
+        "name": "Lima, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.771627,
+        "longitude": -84.106103
+      },
+      {
+        "id": "30700",
+        "name": "Lincoln, NE",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.817429,
+        "longitude": -96.868801
+      },
+      {
+        "id": "30780",
+        "name": "Little Rock-North Little Rock-Conway, AR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.755773,
+        "longitude": -92.400589
+      },
+      {
+        "id": "30860",
+        "name": "Logan, UT-ID",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.88902,
+        "longitude": -111.787438
+      },
+      {
+        "id": "31020",
+        "name": "Longview-Kelso, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.196785,
+        "longitude": -122.67846
+      },
+      {
+        "id": "30980",
+        "name": "Longview, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.431646,
+        "longitude": -94.684833
+      },
+      {
+        "id": "31080",
+        "name": "Los Angeles-Long Beach-Anaheim, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.108703,
+        "longitude": -118.182753
+      },
+      {
+        "id": "31140",
+        "name": "Louisville/Jefferson County, KY-IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.224363,
+        "longitude": -85.701989
+      },
+      {
+        "id": "31180",
+        "name": "Lubbock, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.466436,
+        "longitude": -101.883348
+      },
+      {
+        "id": "31340",
+        "name": "Lynchburg, VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.364926,
+        "longitude": -79.216689
+      },
+      {
+        "id": "31420",
+        "name": "Macon-Bibb County, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.856216,
+        "longitude": -83.714305
+      },
+      {
+        "id": "31540",
+        "name": "Madison, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.083846,
+        "longitude": -89.597745
+      },
+      {
+        "id": "31700",
+        "name": "Manchester-Nashua, NH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.911532,
+        "longitude": -71.723055
+      },
+      {
+        "id": "31740",
+        "name": "Manhattan, KS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.268424,
+        "longitude": -96.562242
+      },
+      {
+        "id": "31860",
+        "name": "Mankato, MN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.15479,
+        "longitude": -94.147798
+      },
+      {
+        "id": "31900",
+        "name": "Mansfield, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.774159,
+        "longitude": -82.542781
+      },
+      {
+        "id": "32420",
+        "name": "Mayagüez, PR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 18.019226,
+        "longitude": -67.166638
+      },
+      {
+        "id": "32580",
+        "name": "McAllen-Edinburg-Mission, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 26.396384,
+        "longitude": -98.18099
+      },
+      {
+        "id": "32780",
+        "name": "Medford, OR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.411621,
+        "longitude": -122.675611
+      },
+      {
+        "id": "32820",
+        "name": "Memphis, TN-MS-AR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.010307,
+        "longitude": -89.820503
+      },
+      {
+        "id": "32900",
+        "name": "Merced, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.194806,
+        "longitude": -120.722802
+      },
+      {
+        "id": "33100",
+        "name": "Miami-Fort Lauderdale-West Palm Beach, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 26.101828,
+        "longitude": -80.478755
+      },
+      {
+        "id": "33140",
+        "name": "Michigan City-La Porte, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.549013,
+        "longitude": -86.744739
+      },
+      {
+        "id": "33220",
+        "name": "Midland, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.648203,
+        "longitude": -84.379414
+      },
+      {
+        "id": "33260",
+        "name": "Midland, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.092359,
+        "longitude": -101.994539
+      },
+      {
+        "id": "33340",
+        "name": "Milwaukee-Waukesha, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.912643,
+        "longitude": -87.862312
+      },
+      {
+        "id": "33460",
+        "name": "Minneapolis-St. Paul-Bloomington, MN-WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 45.096664,
+        "longitude": -93.275361
+      },
+      {
+        "id": "33500",
+        "name": "Minot, ND",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 48.320242,
+        "longitude": -101.19801
+      },
+      {
+        "id": "33540",
+        "name": "Missoula, MT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.069545,
+        "longitude": -114.262668
+      },
+      {
+        "id": "33660",
+        "name": "Mobile, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.684572,
+        "longitude": -88.196568
+      },
+      {
+        "id": "33700",
+        "name": "Modesto, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.562316,
+        "longitude": -121.002831
+      },
+      {
+        "id": "33740",
+        "name": "Monroe, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.67396,
+        "longitude": -92.058318
+      },
+      {
+        "id": "33780",
+        "name": "Monroe, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.916097,
+        "longitude": -83.487106
+      },
+      {
+        "id": "33860",
+        "name": "Montgomery, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.365631,
+        "longitude": -86.404585
+      },
+      {
+        "id": "34060",
+        "name": "Morgantown, WV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.525155,
+        "longitude": -79.801912
+      },
+      {
+        "id": "34100",
+        "name": "Morristown, TN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.115484,
+        "longitude": -83.376546
+      },
+      {
+        "id": "34580",
+        "name": "Mount Vernon-Anacortes, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 48.493292,
+        "longitude": -121.81577
+      },
+      {
+        "id": "34620",
+        "name": "Muncie, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.227543,
+        "longitude": -85.399262
+      },
+      {
+        "id": "34740",
+        "name": "Muskegon-Norton Shores, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.428739,
+        "longitude": -86.420908
+      },
+      {
+        "id": "34820",
+        "name": "Myrtle Beach-Conway-North Myrtle Beach, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.909269,
+        "longitude": -78.976675
+      },
+      {
+        "id": "34900",
+        "name": "Napa, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.5071,
+        "longitude": -122.325904
+      },
+      {
+        "id": "34940",
+        "name": "Naples-Marco Island, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 26.118786,
+        "longitude": -81.400955
+      },
+      {
+        "id": "34980",
+        "name": "Nashville-Davidson--Murfreesboro--Franklin, TN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.091577,
+        "longitude": -86.72298
+      },
+      {
+        "id": "35300",
+        "name": "New Haven, CT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.290167,
+        "longitude": -72.837024
+      },
+      {
+        "id": "35380",
+        "name": "New Orleans-Metairie, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 29.282447,
+        "longitude": -89.576068
+      },
+      {
+        "id": "35620",
+        "name": "New York-Newark-Jersey City, NY-NJ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.735425,
+        "longitude": -73.80773
+      },
+      {
+        "id": "35660",
+        "name": "Niles, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.791382,
+        "longitude": -86.742543
+      },
+      {
+        "id": "35840",
+        "name": "North Port-Bradenton-Sarasota, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 27.329055,
+        "longitude": -82.414533
+      },
+      {
+        "id": "35980",
+        "name": "Norwich-New London-Willimantic, CT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.484769,
+        "longitude": -72.101666
+      },
+      {
+        "id": "36100",
+        "name": "Ocala, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 29.202805,
+        "longitude": -82.0431
+      },
+      {
+        "id": "36220",
+        "name": "Odessa, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.865301,
+        "longitude": -102.542507
+      },
+      {
+        "id": "36260",
+        "name": "Ogden, UT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.124342,
+        "longitude": -111.866933
+      },
+      {
+        "id": "36420",
+        "name": "Oklahoma City, OK",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.430968,
+        "longitude": -97.506966
+      },
+      {
+        "id": "36500",
+        "name": "Olympia-Lacey-Tumwater, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.935822,
+        "longitude": -122.830152
+      },
+      {
+        "id": "36540",
+        "name": "Omaha, NE-IA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.290459,
+        "longitude": -95.99997
+      },
+      {
+        "id": "36740",
+        "name": "Orlando-Kissimmee-Sanford, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 28.434398,
+        "longitude": -81.35606
+      },
+      {
+        "id": "36780",
+        "name": "Oshkosh-Neenah, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.085707,
+        "longitude": -88.668149
+      },
+      {
+        "id": "36980",
+        "name": "Owensboro, KY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.664375,
+        "longitude": -87.147386
+      },
+      {
+        "id": "37100",
+        "name": "Oxnard-Thousand Oaks-Ventura, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.358748,
+        "longitude": -119.133145
+      },
+      {
+        "id": "37140",
+        "name": "Paducah, KY-IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.094234,
+        "longitude": -88.71705
+      },
+      {
+        "id": "37340",
+        "name": "Palm Bay-Melbourne-Titusville, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 28.298311,
+        "longitude": -80.700333
+      },
+      {
+        "id": "37460",
+        "name": "Panama City-Panama City Beach, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.273241,
+        "longitude": -85.642089
+      },
+      {
+        "id": "37620",
+        "name": "Parkersburg-Vienna, WV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.141531,
+        "longitude": -81.460402
+      },
+      {
+        "id": "37860",
+        "name": "Pensacola-Ferry Pass-Brent, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.608557,
+        "longitude": -87.158547
+      },
+      {
+        "id": "37900",
+        "name": "Peoria, IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.788069,
+        "longitude": -89.514639
+      },
+      {
+        "id": "37980",
+        "name": "Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.894958,
+        "longitude": -75.311982
+      },
+      {
+        "id": "38060",
+        "name": "Phoenix-Mesa-Chandler, AZ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.185765,
+        "longitude": -112.067862
+      },
+      {
+        "id": "38240",
+        "name": "Pinehurst-Southern Pines, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.308273,
+        "longitude": -79.492723
+      },
+      {
+        "id": "38300",
+        "name": "Pittsburgh, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.471332,
+        "longitude": -79.863986
+      },
+      {
+        "id": "38340",
+        "name": "Pittsfield, MA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.371493,
+        "longitude": -73.217928
+      },
+      {
+        "id": "38540",
+        "name": "Pocatello, ID",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.692921,
+        "longitude": -112.228982
+      },
+      {
+        "id": "38660",
+        "name": "Ponce, PR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 18.022864,
+        "longitude": -66.645703
+      },
+      {
+        "id": "38940",
+        "name": "Port St. Lucie, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 27.227944,
+        "longitude": -80.424961
+      },
+      {
+        "id": "38860",
+        "name": "Portland-South Portland, ME",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.651417,
+        "longitude": -70.418375
+      },
+      {
+        "id": "38900",
+        "name": "Portland-Vancouver-Hillsboro, OR-WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 45.600622,
+        "longitude": -122.484378
+      },
+      {
+        "id": "39150",
+        "name": "Prescott Valley-Prescott, AZ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.631071,
+        "longitude": -112.577225
+      },
+      {
+        "id": "39300",
+        "name": "Providence-Warwick, RI-MA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.70684,
+        "longitude": -71.286687
+      },
+      {
+        "id": "39340",
+        "name": "Provo-Orem-Lehi, UT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.872067,
+        "longitude": -112.359059
+      },
+      {
+        "id": "39380",
+        "name": "Pueblo, CO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.162765,
+        "longitude": -104.484668
+      },
+      {
+        "id": "39460",
+        "name": "Punta Gorda, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 26.906358,
+        "longitude": -82.00363
+      },
+      {
+        "id": "39540",
+        "name": "Racine-Mount Pleasant, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.780392,
+        "longitude": -87.771599
+      },
+      {
+        "id": "39580",
+        "name": "Raleigh-Cary, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.756746,
+        "longitude": -78.460441
+      },
+      {
+        "id": "39660",
+        "name": "Rapid City, SD",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.195108,
+        "longitude": -102.916612
+      },
+      {
+        "id": "39740",
+        "name": "Reading, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.413957,
+        "longitude": -75.92686
+      },
+      {
+        "id": "39820",
+        "name": "Redding, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.760514,
+        "longitude": -122.043556
+      },
+      {
+        "id": "39900",
+        "name": "Reno, NV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.251057,
+        "longitude": -119.555507
+      },
+      {
+        "id": "40060",
+        "name": "Richmond, VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.412237,
+        "longitude": -77.44372
+      },
+      {
+        "id": "40140",
+        "name": "Riverside-San Bernardino-Ontario, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.538459,
+        "longitude": -116.134544
+      },
+      {
+        "id": "40220",
+        "name": "Roanoke, VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.286226,
+        "longitude": -79.946935
+      },
+      {
+        "id": "40340",
+        "name": "Rochester, MN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.94981,
+        "longitude": -92.33066
+      },
+      {
+        "id": "40380",
+        "name": "Rochester, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.184718,
+        "longitude": -77.556558
+      },
+      {
+        "id": "40420",
+        "name": "Rockford, IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.331183,
+        "longitude": -89.042914
+      },
+      {
+        "id": "40580",
+        "name": "Rocky Mount, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.941045,
+        "longitude": -77.798549
+      },
+      {
+        "id": "40660",
+        "name": "Rome, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.26369,
+        "longitude": -85.213685
+      },
+      {
+        "id": "40900",
+        "name": "Sacramento-Roseville-Folsom, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.790272,
+        "longitude": -121.005643
+      },
+      {
+        "id": "40980",
+        "name": "Saginaw, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.328267,
+        "longitude": -84.05541
+      },
+      {
+        "id": "41420",
+        "name": "Salem, OR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.903385,
+        "longitude": -122.901757
+      },
+      {
+        "id": "41500",
+        "name": "Salinas, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.240104,
+        "longitude": -121.315578
+      },
+      {
+        "id": "41540",
+        "name": "Salisbury, MD",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.197279,
+        "longitude": -75.769252
+      },
+      {
+        "id": "41620",
+        "name": "Salt Lake City-Murray, UT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.572887,
+        "longitude": -112.953253
+      },
+      {
+        "id": "41660",
+        "name": "San Angelo, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.36531,
+        "longitude": -100.659418
+      },
+      {
+        "id": "41700",
+        "name": "San Antonio-New Braunfels, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 29.43306,
+        "longitude": -98.606973
+      },
+      {
+        "id": "41740",
+        "name": "San Diego-Chula Vista-Carlsbad, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.023604,
+        "longitude": -116.776117
+      },
+      {
+        "id": "41860",
+        "name": "San Francisco-Oakland-Fremont, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.773718,
+        "longitude": -122.274432
+      },
+      {
+        "id": "41940",
+        "name": "San Jose-Sunnyvale-Santa Clara, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.908472,
+        "longitude": -121.371372
+      },
+      {
+        "id": "41980",
+        "name": "San Juan-Bayamón-Caguas, PR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 18.294453,
+        "longitude": -66.036844
+      },
+      {
+        "id": "42020",
+        "name": "San Luis Obispo-Paso Robles, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.388189,
+        "longitude": -120.448897
+      },
+      {
+        "id": "41780",
+        "name": "Sandusky, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.519606,
+        "longitude": -82.794568
+      },
+      {
+        "id": "42100",
+        "name": "Santa Cruz-Watsonville, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.012347,
+        "longitude": -122.007789
+      },
+      {
+        "id": "42140",
+        "name": "Santa Fe, NM",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 35.514531,
+        "longitude": -105.963972
+      },
+      {
+        "id": "42200",
+        "name": "Santa Maria-Santa Barbara, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.536677,
+        "longitude": -120.038364
+      },
+      {
+        "id": "42220",
+        "name": "Santa Rosa-Petaluma, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.525182,
+        "longitude": -122.92611
+      },
+      {
+        "id": "42340",
+        "name": "Savannah, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.109256,
+        "longitude": -81.273287
+      },
+      {
+        "id": "42540",
+        "name": "Scranton--Wilkes-Barre, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.322881,
+        "longitude": -75.898188
+      },
+      {
+        "id": "42660",
+        "name": "Seattle-Tacoma-Bellevue, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.490552,
+        "longitude": -121.833977
+      },
+      {
+        "id": "42680",
+        "name": "Sebastian-Vero Beach-West Vero Corridor, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 27.700528,
+        "longitude": -80.574789
+      },
+      {
+        "id": "42700",
+        "name": "Sebring, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 27.34108,
+        "longitude": -81.342353
+      },
+      {
+        "id": "43100",
+        "name": "Sheboygan, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.738713,
+        "longitude": -87.731531
+      },
+      {
+        "id": "43300",
+        "name": "Sherman-Denison, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.624548,
+        "longitude": -96.675777
+      },
+      {
+        "id": "43340",
+        "name": "Shreveport-Bossier City, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.437682,
+        "longitude": -93.744884
+      },
+      {
+        "id": "43420",
+        "name": "Sierra Vista-Douglas, AZ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.840129,
+        "longitude": -109.775163
+      },
+      {
+        "id": "43580",
+        "name": "Sioux City, IA-NE-SD",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.508009,
+        "longitude": -96.311335
+      },
+      {
+        "id": "43620",
+        "name": "Sioux Falls, SD-MN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.525658,
+        "longitude": -96.875416
+      },
+      {
+        "id": "43640",
+        "name": "Slidell-Mandeville-Covington, LA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.410022,
+        "longitude": -89.951962
+      },
+      {
+        "id": "43780",
+        "name": "South Bend-Mishawaka, IN-MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.774981,
+        "longitude": -86.123014
+      },
+      {
+        "id": "43900",
+        "name": "Spartanburg, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.83462,
+        "longitude": -81.842401
+      },
+      {
+        "id": "44060",
+        "name": "Spokane-Spokane Valley, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 48.091618,
+        "longitude": -117.663472
+      },
+      {
+        "id": "44100",
+        "name": "Springfield, IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.828621,
+        "longitude": -89.696067
+      },
+      {
+        "id": "44140",
+        "name": "Springfield, MA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.136198,
+        "longitude": -72.635647
+      },
+      {
+        "id": "44180",
+        "name": "Springfield, MO",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.36087,
+        "longitude": -93.180262
+      },
+      {
+        "id": "44220",
+        "name": "Springfield, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.917032,
+        "longitude": -83.783676
+      },
+      {
+        "id": "41060",
+        "name": "St. Cloud, MN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 45.593031,
+        "longitude": -94.488363
+      },
+      {
+        "id": "41100",
+        "name": "St. George, UT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.262531,
+        "longitude": -113.4878
+      },
+      {
+        "id": "41140",
+        "name": "St. Joseph, MO-KS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.834843,
+        "longitude": -94.783754
+      },
+      {
+        "id": "41180",
+        "name": "St. Louis, MO-IL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.740211,
+        "longitude": -90.345825
+      },
+      {
+        "id": "44300",
+        "name": "State College, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.909322,
+        "longitude": -77.847667
+      },
+      {
+        "id": "44420",
+        "name": "Staunton-Stuarts Draft, VA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.160958,
+        "longitude": -79.127632
+      },
+      {
+        "id": "44700",
+        "name": "Stockton-Lodi, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.934982,
+        "longitude": -121.272244
+      },
+      {
+        "id": "44940",
+        "name": "Sumter, SC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.91614,
+        "longitude": -80.382376
+      },
+      {
+        "id": "45060",
+        "name": "Syracuse, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.006516,
+        "longitude": -76.196134
+      },
+      {
+        "id": "45220",
+        "name": "Tallahassee, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.346366,
+        "longitude": -84.267001
+      },
+      {
+        "id": "45300",
+        "name": "Tampa-St. Petersburg-Clearwater, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 28.120541,
+        "longitude": -82.525188
+      },
+      {
+        "id": "45460",
+        "name": "Terre Haute, IN",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.392389,
+        "longitude": -87.347096
+      },
+      {
+        "id": "45500",
+        "name": "Texarkana, TX-AR",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.478373,
+        "longitude": -94.207162
+      },
+      {
+        "id": "45780",
+        "name": "Toledo, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.544357,
+        "longitude": -83.690777
+      },
+      {
+        "id": "45820",
+        "name": "Topeka, KS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.041389,
+        "longitude": -95.802639
+      },
+      {
+        "id": "45900",
+        "name": "Traverse City, MI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.952324,
+        "longitude": -85.90832
+      },
+      {
+        "id": "45940",
+        "name": "Trenton-Princeton, NJ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.282503,
+        "longitude": -74.703724
+      },
+      {
+        "id": "46060",
+        "name": "Tucson, AZ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.128038,
+        "longitude": -111.783657
+      },
+      {
+        "id": "46140",
+        "name": "Tulsa, OK",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.254442,
+        "longitude": -96.177298
+      },
+      {
+        "id": "46220",
+        "name": "Tuscaloosa, AL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.097877,
+        "longitude": -87.799147
+      },
+      {
+        "id": "46300",
+        "name": "Twin Falls, ID",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.440397,
+        "longitude": -114.568729
+      },
+      {
+        "id": "46340",
+        "name": "Tyler, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.375105,
+        "longitude": -95.268939
+      },
+      {
+        "id": "46520",
+        "name": "Urban Honolulu, HI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 21.461365,
+        "longitude": -158.201974
+      },
+      {
+        "id": "46540",
+        "name": "Utica-Rome, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.33228,
+        "longitude": -75.173189
+      },
+      {
+        "id": "46660",
+        "name": "Valdosta, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 30.827158,
+        "longitude": -83.243555
+      },
+      {
+        "id": "46700",
+        "name": "Vallejo, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.267226,
+        "longitude": -121.939594
+      },
+      {
+        "id": "47020",
+        "name": "Victoria, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 28.731455,
+        "longitude": -97.196993
+      },
+      {
+        "id": "47220",
+        "name": "Vineland, NJ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.328434,
+        "longitude": -75.121628
+      },
+      {
+        "id": "47260",
+        "name": "Virginia Beach-Chesapeake-Norfolk, VA-NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.837289,
+        "longitude": -76.391849
+      },
+      {
+        "id": "47300",
+        "name": "Visalia, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.228834,
+        "longitude": -118.781055
+      },
+      {
+        "id": "47380",
+        "name": "Waco, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 31.5921,
+        "longitude": -97.286018
+      },
+      {
+        "id": "47460",
+        "name": "Walla Walla, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.254606,
+        "longitude": -118.48037
+      },
+      {
+        "id": "47580",
+        "name": "Warner Robins, GA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.492806,
+        "longitude": -83.711084
+      },
+      {
+        "id": "47900",
+        "name": "Washington-Arlington-Alexandria, DC-VA-MD-WV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 38.829787,
+        "longitude": -77.495684
+      },
+      {
+        "id": "47930",
+        "name": "Waterbury-Shelton, CT",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.518931,
+        "longitude": -73.087906
+      },
+      {
+        "id": "47940",
+        "name": "Waterloo-Cedar Falls, IA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.536796,
+        "longitude": -92.471608
+      },
+      {
+        "id": "48060",
+        "name": "Watertown-Fort Drum, NY",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 43.996389,
+        "longitude": -76.052968
+      },
+      {
+        "id": "48140",
+        "name": "Wausau, WI",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 44.898036,
+        "longitude": -89.757823
+      },
+      {
+        "id": "48260",
+        "name": "Weirton-Steubenville, WV-OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 40.388914,
+        "longitude": -80.701966
+      },
+      {
+        "id": "48300",
+        "name": "Wenatchee-East Wenatchee, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 47.76611,
+        "longitude": -120.270197
+      },
+      {
+        "id": "48540",
+        "name": "Wheeling, WV-OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.977687,
+        "longitude": -80.854826
+      },
+      {
+        "id": "48660",
+        "name": "Wichita Falls, TX",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 33.775682,
+        "longitude": -98.500319
+      },
+      {
+        "id": "48620",
+        "name": "Wichita, KS",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 37.637896,
+        "longitude": -97.246287
+      },
+      {
+        "id": "48680",
+        "name": "Wildwood-The Villages, FL",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 28.713277,
+        "longitude": -82.069555
+      },
+      {
+        "id": "48700",
+        "name": "Williamsport, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.343882,
+        "longitude": -77.055262
+      },
+      {
+        "id": "48900",
+        "name": "Wilmington, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 34.253691,
+        "longitude": -78.041674
+      },
+      {
+        "id": "49020",
+        "name": "Winchester, VA-WV",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.272974,
+        "longitude": -78.471828
+      },
+      {
+        "id": "49180",
+        "name": "Winston-Salem, NC",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 36.078852,
+        "longitude": -80.345064
+      },
+      {
+        "id": "49340",
+        "name": "Worcester, MA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 42.311693,
+        "longitude": -71.940282
+      },
+      {
+        "id": "49420",
+        "name": "Yakima, WA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 46.456558,
+        "longitude": -120.740145
+      },
+      {
+        "id": "49620",
+        "name": "York-Hanover, PA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.921751,
+        "longitude": -76.728889
+      },
+      {
+        "id": "49660",
+        "name": "Youngstown-Warren, OH",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 41.195092,
+        "longitude": -80.76508
+      },
+      {
+        "id": "49700",
+        "name": "Yuba City, CA",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 39.160969,
+        "longitude": -121.511833
+      },
+      {
+        "id": "49740",
+        "name": "Yuma, AZ",
+        "type": "Metropolitan Statistical Area",
+        "latitude": 32.773942,
+        "longitude": -113.910905
+      }
+    ]
+  },
+  "completedExits": {
+    "updatedAt": "2026-07-28T17:53:44.352Z",
+    "records": [
+      {
+        "id": "sec-8k-0001104659-26-082926",
+        "accession": "0001104659-26-082926",
+        "filedAt": "2026-07-14",
+        "completedAt": "2026-07-13",
+        "filer": "Esperion Therapeutics, Inc.",
+        "filerCik": "1434868",
+        "filerRole": "seller_or_target",
+        "transactionType": "merger",
+        "subjectBusiness": "Esperion Therapeutics, Inc.",
+        "buyer": "Essence Parent Inc.",
+        "sellerOrTarget": "Esperion Therapeutics, Inc.",
+        "consideration": {
+          "currency": "USD",
+          "cashAmount": null,
+          "totalAmount": null,
+          "cashPerShare": 3.16,
+          "contingentAmount": 100000000,
+          "classification": "partially_disclosed",
+          "summary": "$3.16 cash per share plus one contingent value right; CVRs can participate in up to $100 million of aggregate milestone payments."
+        },
+        "ownerAttributions": [
+          {
+            "name": "John Craig Thompson",
+            "kind": "person",
+            "relationship": "Director",
+            "attributedShares": 79873,
+            "cashPerShare": 3.16,
+            "attributedCash": 252398.68,
+            "amountClassification": "calculated",
+            "sourceType": "Form 4",
+            "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1434868/000162828026048006/xslF345X06/wk-form4_1783973085.xml",
+            "location": {
+              "city": "Ann Arbor",
+              "state": "MI",
+              "country": "United States",
+              "display": "Ann Arbor, MI"
+            },
+            "note": "Calculated from 79,873 shares disposed at the disclosed $3.16 cash-per-share merger consideration. Excludes the separately reported option cash-out and any future CVR value."
+          }
+        ],
+        "location": {
+          "city": "Ann Arbor",
+          "state": "MI",
+          "country": "United States",
+          "display": "Ann Arbor, MI",
+          "basis": "public_business_address",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1434868/000162828026048006/xslF345X06/wk-form4_1783973085.xml"
+        },
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1434868/000110465926082926/tm2620034d3_8k.htm",
+        "status": "completed",
+        "note": "The 8-K confirms the merger closed. The named-person amount is a filing-based gross calculation, not net proceeds or current cash."
+      },
+      {
+        "id": "sec-8k-0001193125-26-280337",
+        "accession": "0001193125-26-280337",
+        "filedAt": "2026-06-24",
+        "completedAt": "2026-06-24",
+        "filer": "Centessa Pharmaceuticals plc",
+        "filerCik": "1847903",
+        "filerRole": "seller_or_target",
+        "transactionType": "acquisition",
+        "subjectBusiness": "Centessa Pharmaceuticals plc",
+        "buyer": "Eli Lilly and Company",
+        "sellerOrTarget": "Centessa Pharmaceuticals plc",
+        "consideration": {
+          "currency": "USD",
+          "cashAmount": null,
+          "totalAmount": null,
+          "cashPerShare": 38,
+          "contingentAmount": null,
+          "classification": "partially_disclosed",
+          "summary": "$38 cash per share plus one non-transferable CVR with up to $9 per share in contingent milestone payments."
+        },
+        "ownerAttributions": [
+          {
+            "name": "Mario Alberto Accardi",
+            "kind": "person",
+            "relationship": "Chief Executive Officer and Director",
+            "attributedShares": 243282,
+            "cashPerShare": 38,
+            "attributedCash": 9244716,
+            "amountClassification": "calculated",
+            "sourceType": "Form 4",
+            "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1847903/000147083126000616/xslF345X06/wk-form4_1782332177.xml",
+            "location": {
+              "city": "Altrincham",
+              "state": "",
+              "country": "United Kingdom",
+              "display": "Altrincham, United Kingdom"
+            },
+            "note": "Calculated from 243,282 shares disposed at $38 cash per share. Includes 81,806 RSU shares; excludes separately reported option cash-outs and CVR value."
+          },
+          {
+            "name": "Karen M. Anderson",
+            "kind": "person",
+            "relationship": "Chief People Officer",
+            "attributedShares": 62085,
+            "cashPerShare": 38,
+            "attributedCash": 2359230,
+            "amountClassification": "calculated",
+            "sourceType": "Form 4",
+            "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1762176/000147083126000619/xslF345X06/wk-form4_1782332204.xml",
+            "location": {
+              "city": "Altrincham",
+              "state": "",
+              "country": "United Kingdom",
+              "display": "Altrincham, United Kingdom"
+            },
+            "note": "Calculated from 62,085 shares disposed at $38 cash per share. Includes 58,050 RSU shares; excludes separately reported option cash-outs and CVR value."
+          }
+        ],
+        "location": {
+          "city": "Altrincham",
+          "state": "",
+          "country": "United Kingdom",
+          "display": "Altrincham, United Kingdom",
+          "basis": "company_headquarters",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1847903/000119312526280337/d150381d8k.htm"
+        },
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1847903/000119312526280337/d150381d8k.htm",
+        "status": "completed",
+        "note": "The 8-K confirms the acquisition closed. Attributed amounts are filing-based gross calculations, not net proceeds or current cash."
+      },
+      {
+        "id": "sec-8k-0001622536-26-000048",
+        "accession": "0001622536-26-000048",
+        "filedAt": "2026-06-17",
+        "completedAt": "2026-06-15",
+        "filer": "Talen Energy Corporation",
+        "filerCik": "1622536",
+        "filerRole": "acquirer",
+        "transactionType": "acquisition",
+        "subjectBusiness": "Lawrenceburg Power Plant, Waterford Energy Center, and Darby Generating Station",
+        "buyer": "Talen Energy Corporation",
+        "sellerOrTarget": "Affiliates of Energy Capital Partners",
+        "consideration": {
+          "currency": "USD",
+          "cashAmount": 2550000000,
+          "totalAmount": 3450000000,
+          "cashPerShare": null,
+          "contingentAmount": null,
+          "classification": "observed",
+          "summary": "$3.45 billion purchase price, including approximately $2.55 billion cash and 2,399,998 Talen shares."
+        },
+        "ownerAttributions": [
+          {
+            "name": "Affiliates of Energy Capital Partners",
+            "kind": "entity",
+            "relationship": "Seller group",
+            "attributedShares": null,
+            "cashPerShare": null,
+            "attributedCash": null,
+            "amountClassification": "not_disclosed",
+            "sourceType": "8-K seller disclosure",
+            "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1622536/000162253626000048/tln-20260615.htm",
+            "location": {
+              "city": "Summit",
+              "state": "NJ",
+              "country": "United States",
+              "display": "Summit, NJ"
+            },
+            "note": "The 8-K names ECP affiliates as counterparties but does not allocate the cash consideration among specific seller entities or individuals."
+          }
+        ],
+        "location": {
+          "city": "Summit",
+          "state": "NJ",
+          "country": "United States",
+          "display": "Summit, NJ",
+          "basis": "public_business_address",
+          "sourceUrl": "https://www.ecpgp.com/about/contact"
+        },
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1622536/000162253626000048/tln-20260615.htm",
+        "status": "completed",
+        "note": "Completed consideration is observed, but no amount is attributed to an individual because the filing does not provide that allocation."
+      },
+      {
+        "id": "sec-8k-0001193125-26-251442",
+        "accession": "0001193125-26-251442",
+        "filedAt": "2026-06-01",
+        "completedAt": "2026-06-01",
+        "filer": "Repay Holdings Corporation",
+        "filerCik": "1720592",
+        "filerRole": "acquirer",
+        "transactionType": "acquisition",
+        "subjectBusiness": "KUBRA",
+        "buyer": "Repay Holdings Corporation",
+        "sellerOrTarget": "Hearst KUBRA Holdings, Inc.",
+        "consideration": {
+          "currency": "USD",
+          "cashAmount": 372000000,
+          "totalAmount": 372000000,
+          "cashPerShare": null,
+          "contingentAmount": null,
+          "classification": "observed",
+          "summary": "Approximately $372 million aggregate cash purchase price, subject to customary post-closing adjustments."
+        },
+        "ownerAttributions": [
+          {
+            "name": "Hearst KUBRA Holdings, Inc.",
+            "kind": "entity",
+            "relationship": "Seller",
+            "attributedShares": null,
+            "cashPerShare": null,
+            "attributedCash": 372000000,
+            "amountClassification": "observed",
+            "sourceType": "8-K seller disclosure",
+            "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1720592/000119312526251442/rpay-20260601.htm",
+            "location": {
+              "city": "",
+              "state": "",
+              "country": "",
+              "display": "Location not established"
+            },
+            "note": "The filing states the aggregate cash purchase price and names the seller entity. It does not attribute proceeds to any individual beneficial owner."
+          }
+        ],
+        "location": {
+          "city": "Mississauga",
+          "state": "ON",
+          "country": "Canada",
+          "display": "Mississauga, Ontario, Canada",
+          "basis": "public_business_address",
+          "sourceUrl": "https://www.kubra.com/about-us/FAQs"
+        },
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1720592/000119312526251442/rpay-20260601.htm",
+        "status": "completed",
+        "note": "The 8-K confirms the acquisition closed and identifies the seller entity. No individual receipt is inferred."
+      },
+      {
+        "id": "sec-8k-0001193125-26-210245",
+        "accession": "0001193125-26-210245",
+        "filedAt": "2026-05-07",
+        "completedAt": "2026-05-05",
+        "filer": "VSE Corporation",
+        "filerCik": "102752",
+        "filerRole": "acquirer",
+        "transactionType": "acquisition",
+        "subjectBusiness": "Precision Aviation Group",
+        "buyer": "VSE Corporation",
+        "sellerOrTarget": "GenNx360 PAG Buyer, LLC",
+        "consideration": {
+          "currency": "USD",
+          "cashAmount": 1750000000,
+          "totalAmount": 2025000000,
+          "cashPerShare": null,
+          "contingentAmount": 125000000,
+          "classification": "observed",
+          "summary": "$2.025 billion up-front consideration: $1.75 billion cash and approximately $275 million of rollover shares, plus up to $125 million contingent consideration."
+        },
+        "ownerAttributions": [
+          {
+            "name": "GenNx360 PAG Buyer, LLC",
+            "kind": "entity",
+            "relationship": "Seller",
+            "attributedShares": null,
+            "cashPerShare": null,
+            "attributedCash": 1750000000,
+            "amountClassification": "observed",
+            "sourceType": "8-K seller disclosure",
+            "sourceUrl": "https://www.sec.gov/Archives/edgar/data/102752/000119312526210245/d115996d8k.htm",
+            "location": {
+              "city": "",
+              "state": "",
+              "country": "",
+              "display": "Location not established"
+            },
+            "note": "The filing states that Cash Purchaser paid the $1.75 billion cash consideration to this seller entity. It does not allocate proceeds to an individual."
+          }
+        ],
+        "location": {
+          "city": "Atlanta",
+          "state": "GA",
+          "country": "United States",
+          "display": "Atlanta, GA",
+          "basis": "company_headquarters",
+          "sourceUrl": "https://www.precisionaviationgroup.com/Contact/"
+        },
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/102752/000119312526210245/d115996d8k.htm",
+        "status": "completed",
+        "note": "The 8-K confirms the acquisition closed and identifies the seller entity. No individual receipt is inferred."
       }
     ]
   }

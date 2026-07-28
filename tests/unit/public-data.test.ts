@@ -6,6 +6,7 @@ import {
   parseSecAtom,
   type SecFiling,
 } from "../../lib/public-data";
+import { parseCompletedExit8K } from "../../lib/completed-exits";
 
 const fixture = (name: string) =>
   readFileSync(new URL(`../../fixtures/sec/${name}`, import.meta.url), "utf8");
@@ -104,5 +105,40 @@ describe("official public-data parsing", () => {
       status: "proposed",
       grossAmount: 7_437_500,
     });
+  });
+
+  it("recognizes completed Item 2.01 evidence and disclosed consideration", () => {
+    const record = parseCompletedExit8K(
+      `<html><body>
+        <h2>Item 2.01 Completion of Acquisition or Disposition of Assets.</h2>
+        <p>On July 21, 2026, the Company completed the acquisition of Example Target, Inc., pursuant to the Purchase Agreement.</p>
+        <p>The aggregate purchase price was $425 million, including $375 million in cash and up to $50 million in contingent consideration.</p>
+        <h2>Item 7.01 Regulation FD Disclosure.</h2>
+      </body></html>`,
+      filing("Form 8-K"),
+      "https://www.sec.gov/Archives/example-8k.htm",
+    );
+
+    expect(record).toMatchObject({
+      status: "completed",
+      completedAt: "2026-07-21",
+      subjectBusiness: "Example Target, Inc",
+      consideration: {
+        cashAmount: 375_000_000,
+        totalAmount: 425_000_000,
+        contingentAmount: 50_000_000,
+      },
+      ownerAttributions: [],
+    });
+  });
+
+  it("does not classify an agreement-only Item 1.01 filing as completed", () => {
+    expect(
+      parseCompletedExit8K(
+        `<h2>Item 1.01 Entry into a Material Definitive Agreement.</h2>
+         <p>The Company agreed to acquire Example Target.</p>`,
+        filing("Form 8-K"),
+      ),
+    ).toBeNull();
   });
 });

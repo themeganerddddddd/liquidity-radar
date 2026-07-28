@@ -39,6 +39,26 @@ describe("real people profiles", () => {
     expect(person).not.toHaveProperty("radarScore");
   });
 
+  it("adds a named completed-exit recipient only from linked SEC ownership evidence", () => {
+    const people = buildRealPeople(snapshotJson as PublicDataSnapshot);
+    const mario = people.find(
+      (person) => person.name === "Mario Alberto Accardi",
+    );
+
+    expect(mario).toBeDefined();
+    expect(mario?.grossCompletedExitCash).toBe(9_244_716);
+    expect(mario?.exitAttributions[0]).toMatchObject({
+      owner: {
+        sourceType: "Form 4",
+        amountClassification: "calculated",
+      },
+      exit: {
+        status: "completed",
+        accession: "0001193125-26-280337",
+      },
+    });
+  });
+
   it("estimates a range from completed sales and excludes proposed sales", () => {
     const base: PublicLiquidityEvent = {
       id: "sale",

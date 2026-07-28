@@ -1,5 +1,13 @@
 export type PublicSourceStatus = {
-  id: "sec" | "adv" | "irs" | "census" | "bea" | "ftc";
+  id:
+    | "sec"
+    | "sec_exits"
+    | "adv"
+    | "irs"
+    | "census"
+    | "census_geo"
+    | "bea"
+    | "ftc";
   name: string;
   publisher: string;
   freshness: string;
@@ -101,6 +109,61 @@ export type PublicExitSignal = {
   note: string;
 };
 
+export type PublicOwnerAttribution = {
+  name: string;
+  kind: "person" | "entity";
+  relationship: string;
+  attributedShares: number | null;
+  cashPerShare: number | null;
+  attributedCash: number | null;
+  amountClassification: "observed" | "calculated" | "not_disclosed";
+  sourceType: "Form 4" | "Schedule 13D/G" | "8-K seller disclosure";
+  sourceUrl: string;
+  location: {
+    city: string;
+    state: string;
+    country: string;
+    display: string;
+  };
+  note: string;
+};
+
+export type PublicCompletedExit = {
+  id: string;
+  accession: string;
+  filedAt: string;
+  completedAt: string;
+  filer: string;
+  filerCik: string;
+  filerRole: "acquirer" | "seller_or_target" | "other";
+  transactionType: "acquisition" | "disposition" | "merger";
+  subjectBusiness: string;
+  buyer: string;
+  sellerOrTarget: string;
+  consideration: {
+    currency: "USD";
+    cashAmount: number | null;
+    totalAmount: number | null;
+    cashPerShare: number | null;
+    contingentAmount: number | null;
+    classification: "observed" | "partially_disclosed" | "not_disclosed";
+    summary: string;
+  };
+  ownerAttributions: PublicOwnerAttribution[];
+  location: {
+    city: string;
+    state: string;
+    country: string;
+    display: string;
+    basis:
+      "company_headquarters" | "public_business_address" | "not_established";
+    sourceUrl: string;
+  };
+  sourceUrl: string;
+  status: "completed";
+  note: string;
+};
+
 export type PublicBusinessProfile = {
   name: string;
   industry: string;
@@ -167,6 +230,28 @@ export type PublicDataSnapshot = {
   exitSignals?: {
     updatedAt: string;
     records: PublicExitSignal[];
+  };
+  completedExits?: {
+    updatedAt: string;
+    records: PublicCompletedExit[];
+  };
+  geography?: {
+    updatedAt: string;
+    sourceUrl: string;
+    places: Array<{
+      id: string;
+      name: string;
+      state: string;
+      latitude: number;
+      longitude: number;
+    }>;
+    metros: Array<{
+      id: string;
+      name: string;
+      type: "Metropolitan Statistical Area" | "Micropolitan Statistical Area";
+      latitude: number;
+      longitude: number;
+    }>;
   };
   advisers: {
     period: string;
