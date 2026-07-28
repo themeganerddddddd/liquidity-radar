@@ -14,26 +14,27 @@ async function loginAt(page: import("@playwright/test").Page, path = "/") {
   }
 }
 
-test("map marker opens a region, relevant person, and region-relative affinity", async ({
+test("state map opens a region, relevant person, and region-relative affinity", async ({
   page,
 }) => {
   await loginAt(page, "/map?metric=controlled&period=90d");
   await expect(
     page.getByLabel(
-      "Interactive United States map of regional capital metrics",
+      "Fixed United States state map of regional capital metrics",
     ),
   ).toBeVisible();
   await expect(
-    page.getByText(
-      "OpenStreetMap supplies recognizable state, road, city, and regional context without a proprietary token.",
-    ),
+    page.getByText(/official 2025 U\.S\. Census state boundaries/),
   ).toBeVisible();
-  const marker = page.getByRole("button", {
-    name: /Montgomery County, Maryland, Estimated remaining/,
+  const maryland = page.getByRole("button", {
+    name: "MD $3.8B",
+    exact: true,
   });
-  await expect(marker).toBeVisible({ timeout: 15_000 });
-  await marker.click();
-  await page.getByRole("button", { name: "View region" }).click();
+  await expect(maryland).toBeVisible({ timeout: 15_000 });
+  await maryland.click();
+  await page
+    .getByRole("button", { name: /Montgomery County, Maryland Open region/ })
+    .click();
   await expect(page).toHaveURL(
     /\/regions\/montgomery-county-md\?.*metric=controlled.*period=90d/,
   );

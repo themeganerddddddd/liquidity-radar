@@ -3871,8 +3871,6 @@ export function RadarApp() {
           period={mapState.period}
           industry={mapState.industry}
           selectedRegion={mapState.region}
-          center={mapState.center}
-          zoom={mapState.zoom}
           onMetricChange={(metric) => {
             const next = serializeMapState({ ...mapState, metric });
             next.set("affinityRegion", activeRegion.slug);
@@ -3885,11 +3883,6 @@ export function RadarApp() {
           }}
           onIndustryChange={(industry) => {
             const next = serializeMapState({ ...mapState, industry });
-            next.set("affinityRegion", activeRegion.slug);
-            applyLocation("/map", next, true);
-          }}
-          onViewportChange={(center, zoom) => {
-            const next = serializeMapState({ ...mapState, center, zoom });
             next.set("affinityRegion", activeRegion.slug);
             applyLocation("/map", next, true);
           }}
