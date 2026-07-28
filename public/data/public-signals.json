@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-28T19:46:58.094Z",
+  "generatedAt": "2026-07-28T20:08:54.093Z",
   "sources": [
     {
       "id": "sec",
@@ -69,14 +69,14 @@
       "name": "U.S. place and metro reference points",
       "publisher": "U.S. Census Bureau",
       "freshness": "2025 Gazetteer",
-      "recordCount": 594,
+      "recordCount": 603,
       "sourceUrl": "https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2025.html",
       "methodology": "Representative Census Gazetteer coordinates for public SEC care-of cities and metropolitan statistical areas. Radius results measure straight-line distance between public place and metro reference points; they do not imply a residence."
     }
   ],
   "sec": {
     "mode": "snapshot",
-    "updatedAt": "2026-07-28T19:46:58.094Z",
+    "updatedAt": "2026-07-28T20:08:54.093Z",
     "filings": [
       {
         "accession": "0001959173-26-005406",
@@ -85,7 +85,13 @@
         "updatedAt": "2026-07-28T12:43:45-04:00",
         "issuer": "DEVON ENERGY CORP/DE (0001090012) (Subject)",
         "reportingParty": "Cashion Tana K",
-        "url": "https://www.sec.gov/Archives/edgar/data/1788635/000195917326005406/0001959173-26-005406-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1788635/000195917326005406/0001959173-26-005406-index.htm",
+        "location": {
+          "city": "OKLAHOMA CITY",
+          "state": "OK",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005405",
@@ -94,7 +100,13 @@
         "updatedAt": "2026-07-28T12:41:45-04:00",
         "issuer": "TransUnion (0001552033) (Subject)",
         "reportingParty": "Abdelsadek Mohamed",
-        "url": "https://www.sec.gov/Archives/edgar/data/2058648/000195917326005405/0001959173-26-005405-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2058648/000195917326005405/0001959173-26-005405-index.htm",
+        "location": {
+          "city": "CHICAGO",
+          "state": "IL",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005404",
@@ -103,7 +115,13 @@
         "updatedAt": "2026-07-28T12:33:06-04:00",
         "issuer": "NUCOR CORP (0000073309) (Subject)",
         "reportingParty": "Needham Daniel R.",
-        "url": "https://www.sec.gov/Archives/edgar/data/1843254/000195917326005404/0001959173-26-005404-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1843254/000195917326005404/0001959173-26-005404-index.htm",
+        "location": {
+          "city": "CHARLOTTE",
+          "state": "NC",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001331451-26-000135",
@@ -136,7 +154,13 @@
         "updatedAt": "2026-07-28T12:30:45-04:00",
         "issuer": "FIRST COMMUNITY CORP /SC/ (0000932781) (Subject)",
         "reportingParty": "Deutsch Fred Joseph",
-        "url": "https://www.sec.gov/Archives/edgar/data/2105824/000194984626000450/0001949846-26-000450-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2105824/000194984626000450/0001949846-26-000450-index.htm",
+        "location": {
+          "city": "LEXINGTON",
+          "state": "SC",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001949846-26-000449",
@@ -145,7 +169,13 @@
         "updatedAt": "2026-07-28T12:29:28-04:00",
         "issuer": "SCHWAB CHARLES CORP (0000316709) (Subject)",
         "reportingParty": "Schwab-Pomerantz Carolyn",
-        "url": "https://www.sec.gov/Archives/edgar/data/1950787/000194984626000449/0001949846-26-000449-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1950787/000194984626000449/0001949846-26-000449-index.htm",
+        "location": {
+          "city": "WESTLAKE",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0000939057-26-000143",
@@ -196,7 +226,13 @@
         "updatedAt": "2026-07-28T12:06:38-04:00",
         "issuer": "WESBANCO INC (0000203596) (Subject)",
         "reportingParty": "Pattishall-Krupinski Jan",
-        "url": "https://www.sec.gov/Archives/edgar/data/2046681/000195917326005403/0001959173-26-005403-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2046681/000195917326005403/0001959173-26-005403-index.htm",
+        "location": {
+          "city": "WHEELING",
+          "state": "WV",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005402",
@@ -205,7 +241,13 @@
         "updatedAt": "2026-07-28T11:57:46-04:00",
         "issuer": "THERMO FISHER SCIENTIFIC INC. (0000097745) (Subject)",
         "reportingParty": "Pettiti Gianluca",
-        "url": "https://www.sec.gov/Archives/edgar/data/1844600/000195917326005402/0001959173-26-005402-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1844600/000195917326005402/0001959173-26-005402-index.htm",
+        "location": {
+          "city": "GUILFORD",
+          "state": "CT",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005401",
@@ -214,7 +256,13 @@
         "updatedAt": "2026-07-28T11:57:45-04:00",
         "issuer": "COMMERCE BANCSHARES INC /MO/ (0000022356) (Subject)",
         "reportingParty": "Brooks Derrick",
-        "url": "https://www.sec.gov/Archives/edgar/data/1837554/000195917326005401/0001959173-26-005401-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1837554/000195917326005401/0001959173-26-005401-index.htm",
+        "location": {
+          "city": "KANSAS CITY",
+          "state": "MO",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005400",
@@ -223,7 +271,13 @@
         "updatedAt": "2026-07-28T11:51:33-04:00",
         "issuer": "United Airlines Holdings, Inc. (0000100517) (Subject)",
         "reportingParty": "Hart Brett J",
-        "url": "https://www.sec.gov/Archives/edgar/data/1466338/000195917326005400/0001959173-26-005400-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1466338/000195917326005400/0001959173-26-005400-index.htm",
+        "location": {
+          "city": "CHICAGO",
+          "state": "IL",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001213900-26-082095",
@@ -232,7 +286,13 @@
         "updatedAt": "2026-07-28T11:48:57-04:00",
         "issuer": "Ads-Tec Energy Public Ltd Co (0001879248) (Subject)",
         "reportingParty": "Lauk Kurt J",
-        "url": "https://www.sec.gov/Archives/edgar/data/1879248/000121390026082095/0001213900-26-082095-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1879248/000121390026082095/0001213900-26-082095-index.htm",
+        "location": {
+          "city": "70173 STUTTGART",
+          "state": "",
+          "country": "Germany"
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001213900-26-082094",
@@ -241,7 +301,13 @@
         "updatedAt": "2026-07-28T11:48:29-04:00",
         "issuer": "Ads-Tec Energy Public Ltd Co (0001879248) (Subject)",
         "reportingParty": "Fabritius Andreas",
-        "url": "https://www.sec.gov/Archives/edgar/data/2050006/000121390026082094/0001213900-26-082094-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2050006/000121390026082094/0001213900-26-082094-index.htm",
+        "location": {
+          "city": "FRANKFURT",
+          "state": "2M",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001213900-26-082092",
@@ -250,7 +316,13 @@
         "updatedAt": "2026-07-28T11:47:41-04:00",
         "issuer": "Ads-Tec Energy Public Ltd Co (0001879248) (Subject)",
         "reportingParty": "Epple Alwin",
-        "url": "https://www.sec.gov/Archives/edgar/data/2050001/000121390026082092/0001213900-26-082092-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2050001/000121390026082092/0001213900-26-082092-index.htm",
+        "location": {
+          "city": "STUTTGART",
+          "state": "2M",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001949846-26-000448",
@@ -259,7 +331,13 @@
         "updatedAt": "2026-07-28T11:38:05-04:00",
         "issuer": "SCHWAB CHARLES CORP (0000316709) (Subject)",
         "reportingParty": "Schwab Charles R.",
-        "url": "https://www.sec.gov/Archives/edgar/data/923738/000194984626000448/0001949846-26-000448-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/923738/000194984626000448/0001949846-26-000448-index.htm",
+        "location": {
+          "city": "WESTLAKE",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001437749-26-024597",
@@ -286,7 +364,13 @@
         "updatedAt": "2026-07-28T11:25:47-04:00",
         "issuer": "Chubb Ltd (0000896159) (Subject)",
         "reportingParty": "Wayland Joseph F",
-        "url": "https://www.sec.gov/Archives/edgar/data/1582738/000195917326005399/0001959173-26-005399-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1582738/000195917326005399/0001959173-26-005399-index.htm",
+        "location": {
+          "city": "HAMILTON",
+          "state": "",
+          "country": "Bermuda"
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001493152-26-034956",
@@ -313,7 +397,13 @@
         "updatedAt": "2026-07-28T11:12:02-04:00",
         "issuer": "RICHARDSON ELECTRONICS, LTD. (0000355948) (Subject)",
         "reportingParty": "Halverson Kenneth",
-        "url": "https://www.sec.gov/Archives/edgar/data/1588888/000195917326005398/0001959173-26-005398-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1588888/000195917326005398/0001959173-26-005398-index.htm",
+        "location": {
+          "city": "LAFOX",
+          "state": "IL",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001193125-26-319422",
@@ -331,7 +421,13 @@
         "updatedAt": "2026-07-28T11:01:25-04:00",
         "issuer": "SCHWAB CHARLES CORP (0000316709) (Subject)",
         "reportingParty": "Woolway Paul V",
-        "url": "https://www.sec.gov/Archives/edgar/data/2031313/000194984626000447/0001949846-26-000447-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2031313/000194984626000447/0001949846-26-000447-index.htm",
+        "location": {
+          "city": "WESTLAKE",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005397",
@@ -340,7 +436,13 @@
         "updatedAt": "2026-07-28T11:00:57-04:00",
         "issuer": "BOYD GAMING CORP (0000906553) (Subject)",
         "reportingParty": "Hirsberg Josh",
-        "url": "https://www.sec.gov/Archives/edgar/data/1421390/000195917326005397/0001959173-26-005397-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1421390/000195917326005397/0001959173-26-005397-index.htm",
+        "location": {
+          "city": "LAS VEGAS",
+          "state": "NV",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005396",
@@ -349,7 +451,13 @@
         "updatedAt": "2026-07-28T11:00:44-04:00",
         "issuer": "Medpace Holdings, Inc. (0001668397) (Subject)",
         "reportingParty": "GEIGER JESSE J",
-        "url": "https://www.sec.gov/Archives/edgar/data/1677399/000195917326005396/0001959173-26-005396-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1677399/000195917326005396/0001959173-26-005396-index.htm",
+        "location": {
+          "city": "CINCINNATI",
+          "state": "OH",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001949846-26-000446",
@@ -360,11 +468,11 @@
         "reportingParty": "Deutsch Fred Joseph",
         "url": "https://www.sec.gov/Archives/edgar/data/2105824/000194984626000446/0001949846-26-000446-index.htm",
         "location": {
-          "city": "Westlake",
-          "state": "TX",
+          "city": "LEXINGTON",
+          "state": "SC",
           "country": ""
         },
-        "locationBasis": "broker_business_address"
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001949846-26-000445",
@@ -373,7 +481,13 @@
         "updatedAt": "2026-07-28T10:50:02-04:00",
         "issuer": "SCHWAB CHARLES CORP (0000316709) (Subject)",
         "reportingParty": "Howard Dennis",
-        "url": "https://www.sec.gov/Archives/edgar/data/1825454/000194984626000445/0001949846-26-000445-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1825454/000194984626000445/0001949846-26-000445-index.htm",
+        "location": {
+          "city": "AUSTIN",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005395",
@@ -382,7 +496,13 @@
         "updatedAt": "2026-07-28T10:47:03-04:00",
         "issuer": "Energy Recovery, Inc. (0001421517) (Subject)",
         "reportingParty": "Yeung William",
-        "url": "https://www.sec.gov/Archives/edgar/data/1677876/000195917326005395/0001959173-26-005395-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1677876/000195917326005395/0001959173-26-005395-index.htm",
+        "location": {
+          "city": "SAN LEANDRO",
+          "state": "CA",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005394",
@@ -391,7 +511,13 @@
         "updatedAt": "2026-07-28T10:43:10-04:00",
         "issuer": "MARSH & MCLENNAN COMPANIES, INC. (0000062709) (Subject)",
         "reportingParty": "South Martin",
-        "url": "https://www.sec.gov/Archives/edgar/data/1901227/000195917326005394/0001959173-26-005394-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1901227/000195917326005394/0001959173-26-005394-index.htm",
+        "location": {
+          "city": "NEW YORK",
+          "state": "NY",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005393",
@@ -400,7 +526,13 @@
         "updatedAt": "2026-07-28T10:33:36-04:00",
         "issuer": "RICHARDSON ELECTRONICS, LTD. (0000355948) (Subject)",
         "reportingParty": "Ben Robert J",
-        "url": "https://www.sec.gov/Archives/edgar/data/1512170/000195917326005393/0001959173-26-005393-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1512170/000195917326005393/0001959173-26-005393-index.htm",
+        "location": {
+          "city": "LAFOX",
+          "state": "IL",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001949846-26-000444",
@@ -409,7 +541,13 @@
         "updatedAt": "2026-07-28T10:32:08-04:00",
         "issuer": "SCHWAB CHARLES CORP (0000316709) (Subject)",
         "reportingParty": "Bettinger Walter W",
-        "url": "https://www.sec.gov/Archives/edgar/data/1296479/000194984626000444/0001949846-26-000444-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1296479/000194984626000444/0001949846-26-000444-index.htm",
+        "location": {
+          "city": "WESTLAKE",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005392",
@@ -418,7 +556,13 @@
         "updatedAt": "2026-07-28T10:31:13-04:00",
         "issuer": "ATI INC (0001018963) (Subject)",
         "reportingParty": "Fields Kimberly A",
-        "url": "https://www.sec.gov/Archives/edgar/data/1773072/000195917326005392/0001959173-26-005392-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1773072/000195917326005392/0001959173-26-005392-index.htm",
+        "location": {
+          "city": "DALLAS",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005391",
@@ -427,7 +571,13 @@
         "updatedAt": "2026-07-28T10:20:54-04:00",
         "issuer": "PROGRESSIVE CORP/OH/ (0000080661) (Subject)",
         "reportingParty": "Quigg Andrew J",
-        "url": "https://www.sec.gov/Archives/edgar/data/1744203/000195917326005391/0001959173-26-005391-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1744203/000195917326005391/0001959173-26-005391-index.htm",
+        "location": {
+          "city": "MAYFIELD VILLAGE",
+          "state": "OH",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001949846-26-000443",
@@ -436,7 +586,13 @@
         "updatedAt": "2026-07-28T10:16:47-04:00",
         "issuer": "PACKAGING CORP OF AMERICA (0000075677) (Subject)",
         "reportingParty": "Hassfurther Thomas A",
-        "url": "https://www.sec.gov/Archives/edgar/data/1318252/000194984626000443/0001949846-26-000443-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1318252/000194984626000443/0001949846-26-000443-index.htm",
+        "location": {
+          "city": "LAKE FOREST",
+          "state": "IL",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001949846-26-000442",
@@ -445,7 +601,13 @@
         "updatedAt": "2026-07-28T10:06:46-04:00",
         "issuer": "Live Oak Bancshares, Inc. (0001462120) (Subject)",
         "reportingParty": "Moroz Mark Michael",
-        "url": "https://www.sec.gov/Archives/edgar/data/2066890/000194984626000442/0001949846-26-000442-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2066890/000194984626000442/0001949846-26-000442-index.htm",
+        "location": {
+          "city": "WILMINGTON",
+          "state": "NC",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001493152-26-034950",
@@ -463,7 +625,13 @@
         "updatedAt": "2026-07-28T09:56:34-04:00",
         "issuer": "Energy Recovery, Inc. (0001421517) (Subject)",
         "reportingParty": "Clemente Rodney",
-        "url": "https://www.sec.gov/Archives/edgar/data/1668422/000195917326005390/0001959173-26-005390-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1668422/000195917326005390/0001959173-26-005390-index.htm",
+        "location": {
+          "city": "SAN LEANDRO",
+          "state": "CA",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001959173-26-005389",
@@ -472,7 +640,13 @@
         "updatedAt": "2026-07-28T09:55:40-04:00",
         "issuer": "BREAD FINANCIAL HOLDINGS, INC. (0001101215) (Subject)",
         "reportingParty": "Lakhwara Praniti",
-        "url": "https://www.sec.gov/Archives/edgar/data/2026080/000195917326005389/0001959173-26-005389-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2026080/000195917326005389/0001959173-26-005389-index.htm",
+        "location": {
+          "city": "PLANO",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001005817-26-000105",
@@ -490,7 +664,13 @@
         "updatedAt": "2026-07-28T09:46:22-04:00",
         "issuer": "QUEST DIAGNOSTICS INC (0001022079) (Subject)",
         "reportingParty": "DELANEY MARK E",
-        "url": "https://www.sec.gov/Archives/edgar/data/1955265/000195917326005388/0001959173-26-005388-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1955265/000195917326005388/0001959173-26-005388-index.htm",
+        "location": {
+          "city": "SECAUCUS",
+          "state": "NJ",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001683168-26-005793",
@@ -526,7 +706,13 @@
         "updatedAt": "2026-07-28T09:41:01-04:00",
         "issuer": "RICHARDSON ELECTRONICS, LTD. (0000355948) (Subject)",
         "reportingParty": "Diddell Wendy",
-        "url": "https://www.sec.gov/Archives/edgar/data/1291981/000195917326005387/0001959173-26-005387-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1291981/000195917326005387/0001959173-26-005387-index.htm",
+        "location": {
+          "city": "LAFOX",
+          "state": "IL",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001104659-26-087359",
@@ -652,7 +838,13 @@
         "updatedAt": "2026-07-28T08:49:10-04:00",
         "issuer": "SOUTH PLAINS FINANCIAL, INC. (0001163668) (Subject)",
         "reportingParty": "Stein James D.",
-        "url": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000021/0001973097-26-000021-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000021/0001973097-26-000021-index.htm",
+        "location": {
+          "city": "LUBBOCK",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001104659-26-087330",
@@ -715,7 +907,13 @@
         "updatedAt": "2026-07-28T08:33:10-04:00",
         "issuer": "SOUTH PLAINS FINANCIAL, INC. (0001163668) (Subject)",
         "reportingParty": "Stein James D.",
-        "url": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000020/0001973097-26-000020-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000020/0001973097-26-000020-index.htm",
+        "location": {
+          "city": "LUBBOCK",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001640334-26-001243",
@@ -1300,7 +1498,13 @@
         "updatedAt": "2026-07-27T20:12:16-04:00",
         "issuer": "AMERIPRISE FINANCIAL INC (0000820027) (Subject)",
         "reportingParty": "Williams William Jerryl",
-        "url": "https://www.sec.gov/Archives/edgar/data/1724756/000172475626000009/0001724756-26-000009-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1724756/000172475626000009/0001724756-26-000009-index.htm",
+        "location": {
+          "city": "MINNEAPOLIS",
+          "state": "MN",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001968582-26-000739",
@@ -1309,7 +1513,13 @@
         "updatedAt": "2026-07-27T18:04:53-04:00",
         "issuer": "American Airlines Group Inc. (0000006201) (Subject)",
         "reportingParty": "Johnson Stephen L",
-        "url": "https://www.sec.gov/Archives/edgar/data/1458560/000196858226000739/0001968582-26-000739-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1458560/000196858226000739/0001968582-26-000739-index.htm",
+        "location": {
+          "city": "TEMPE",
+          "state": "AZ",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001042873-26-000005",
@@ -1318,7 +1528,13 @@
         "updatedAt": "2026-07-27T17:50:54-04:00",
         "issuer": "BANCFIRST CORP /OK/ (0000760498) (Subject)",
         "reportingParty": "RAINBOLT DAVID E",
-        "url": "https://www.sec.gov/Archives/edgar/data/1042873/000104287326000005/0001042873-26-000005-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1042873/000104287326000005/0001042873-26-000005-index.htm",
+        "location": {
+          "city": "OKLAHOMA CITY",
+          "state": "OK",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001969223-26-000804",
@@ -1327,7 +1543,13 @@
         "updatedAt": "2026-07-27T16:59:39-04:00",
         "issuer": "Allegion plc (0001579241) (Subject)",
         "reportingParty": "Eckersley Timothy P",
-        "url": "https://www.sec.gov/Archives/edgar/data/1589039/000196922326000804/0001969223-26-000804-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1589039/000196922326000804/0001969223-26-000804-index.htm",
+        "location": {
+          "city": "CARMEL",
+          "state": "IN",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001969223-26-000803",
@@ -1336,7 +1558,13 @@
         "updatedAt": "2026-07-27T16:52:26-04:00",
         "issuer": "Medpace Holdings, Inc. (0001668397) (Subject)",
         "reportingParty": "Troendle August J.",
-        "url": "https://www.sec.gov/Archives/edgar/data/1668397/000196922326000803/0001969223-26-000803-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1668397/000196922326000803/0001969223-26-000803-index.htm",
+        "location": {
+          "city": "CINCINNATI",
+          "state": "OH",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001628280-26-049832",
@@ -1345,7 +1573,13 @@
         "updatedAt": "2026-07-27T16:40:05-04:00",
         "issuer": "WEX Inc. (0001309108) (Subject)",
         "reportingParty": "Drew Ann Elena",
-        "url": "https://www.sec.gov/Archives/edgar/data/1834871/000162828026049832/0001628280-26-049832-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1834871/000162828026049832/0001628280-26-049832-index.htm",
+        "location": {
+          "city": "PORTLAND",
+          "state": "ME",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001974078-26-000275",
@@ -1354,7 +1588,13 @@
         "updatedAt": "2026-07-27T16:39:24-04:00",
         "issuer": "RAYMOND JAMES FINANCIAL INC (0000720005) (Subject)",
         "reportingParty": "Raney Steven M",
-        "url": "https://www.sec.gov/Archives/edgar/data/1422342/000197407826000275/0001974078-26-000275-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1422342/000197407826000275/0001974078-26-000275-index.htm",
+        "location": {
+          "city": "ST. PETERSBURG",
+          "state": "FL",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001628280-26-049830",
@@ -1363,7 +1603,13 @@
         "updatedAt": "2026-07-27T16:39:10-04:00",
         "issuer": "WEX Inc. (0001309108) (Subject)",
         "reportingParty": "Kimball Jennifer",
-        "url": "https://www.sec.gov/Archives/edgar/data/1903739/000162828026049830/0001628280-26-049830-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1903739/000162828026049830/0001628280-26-049830-index.htm",
+        "location": {
+          "city": "PORTLAND",
+          "state": "ME",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001628280-26-049826",
@@ -1372,7 +1618,13 @@
         "updatedAt": "2026-07-27T16:34:28-04:00",
         "issuer": "Cactus, Inc. (0001699136) (Subject)",
         "reportingParty": "Bender Investment Co",
-        "url": "https://www.sec.gov/Archives/edgar/data/1992549/000162828026049826/0001628280-26-049826-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1992549/000162828026049826/0001628280-26-049826-index.htm",
+        "location": {
+          "city": "HOUSTON",
+          "state": "TX",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0000764900-26-000029",
@@ -1381,7 +1633,13 @@
         "updatedAt": "2026-07-27T16:28:37-04:00",
         "issuer": "PARK AEROSPACE CORP (0000076267) (Subject)",
         "reportingParty": "Petropoulos Constantine",
-        "url": "https://www.sec.gov/Archives/edgar/data/1622588/000076490026000029/0000764900-26-000029-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1622588/000076490026000029/0000764900-26-000029-index.htm",
+        "location": {
+          "city": "MELVILLE",
+          "state": "NY",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001764370-26-000005",
@@ -1390,7 +1648,13 @@
         "updatedAt": "2026-07-27T16:26:01-04:00",
         "issuer": "STIFEL FINANCIAL CORP (0000720672) (Subject)",
         "reportingParty": "Brown Maryam S.",
-        "url": "https://www.sec.gov/Archives/edgar/data/1764370/000176437026000005/0001764370-26-000005-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1764370/000176437026000005/0001764370-26-000005-index.htm",
+        "location": {
+          "city": "LOS ANGELES",
+          "state": "CA",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001950047-26-007330",
@@ -1399,7 +1663,13 @@
         "updatedAt": "2026-07-27T16:23:14-04:00",
         "issuer": "Samsara Inc. (0001642896) (Subject)",
         "reportingParty": "Eltoukhy Adam",
-        "url": "https://www.sec.gov/Archives/edgar/data/1895101/000195004726007330/0001950047-26-007330-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/1895101/000195004726007330/0001950047-26-007330-index.htm",
+        "location": {
+          "city": "SAN FRANCISCO",
+          "state": "CA",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001950047-26-007329",
@@ -1408,7 +1678,13 @@
         "updatedAt": "2026-07-27T16:21:42-04:00",
         "issuer": "CoreWeave, Inc. (0001769628) (Subject)",
         "reportingParty": "McBee Brannin",
-        "url": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
+        "location": {
+          "city": "LIVINGSTON",
+          "state": "NJ",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001950047-26-007328",
@@ -1419,11 +1695,11 @@
         "reportingParty": "McBee Brannin",
         "url": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007328/0001950047-26-007328-index.htm",
         "location": {
-          "city": "Livingston",
+          "city": "LIVINGSTON",
           "state": "NJ",
           "country": ""
         },
-        "locationBasis": "seller_reported_address"
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001950047-26-007327",
@@ -1432,7 +1708,13 @@
         "updatedAt": "2026-07-27T16:21:11-04:00",
         "issuer": "CoreWeave, Inc. (0001769628) (Subject)",
         "reportingParty": "McBee Brannin",
-        "url": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007327/0001950047-26-007327-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007327/0001950047-26-007327-index.htm",
+        "location": {
+          "city": "LIVINGSTON",
+          "state": "NJ",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001950047-26-007326",
@@ -1441,7 +1723,13 @@
         "updatedAt": "2026-07-27T16:20:56-04:00",
         "issuer": "CoreWeave, Inc. (0001769628) (Subject)",
         "reportingParty": "McBee Brannin",
-        "url": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007326/0001950047-26-007326-index.htm"
+        "url": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007326/0001950047-26-007326-index.htm",
+        "location": {
+          "city": "LIVINGSTON",
+          "state": "NJ",
+          "country": ""
+        },
+        "locationBasis": "reporting_owner_address"
       },
       {
         "accession": "0001104659-26-086886",
@@ -1455,7 +1743,7 @@
     ]
   },
   "liquidity": {
-    "updatedAt": "2026-07-28T19:43:19.791Z",
+    "updatedAt": "2026-07-28T20:07:40.958Z",
     "events": [
       {
         "id": "0001949846-26-000442-proposed-0",
@@ -1481,11 +1769,11 @@
         "sharesOwnedAfter": null,
         "broker": "Charles Schwab Corp.",
         "location": {
-          "city": "Westlake",
-          "state": "TX",
+          "city": "WILMINGTON",
+          "state": "NC",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2066890/000194984626000442/0001949846-26-000442-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1513,11 +1801,11 @@
         "sharesOwnedAfter": null,
         "broker": "Charles Schwab & Co., Inc.",
         "location": {
-          "city": "Westlake",
-          "state": "TX",
+          "city": "LAKE FOREST",
+          "state": "IL",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318252/000194984626000443/0001949846-26-000443-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1545,11 +1833,11 @@
         "sharesOwnedAfter": null,
         "broker": "THE CHARLES SCHWAB CORPORATION",
         "location": {
-          "city": "Westlake",
+          "city": "WESTLAKE",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1296479/000194984626000444/0001949846-26-000444-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1577,11 +1865,11 @@
         "sharesOwnedAfter": null,
         "broker": "THE CHARLES SCHWAB CORPORATION",
         "location": {
-          "city": "Westlake",
+          "city": "AUSTIN",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1825454/000194984626000445/0001949846-26-000445-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1609,11 +1897,11 @@
         "sharesOwnedAfter": null,
         "broker": "THE CHARLES SCHWAB CORPORATION",
         "location": {
-          "city": "Westlake",
+          "city": "WESTLAKE",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2031313/000194984626000447/0001949846-26-000447-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1641,11 +1929,11 @@
         "sharesOwnedAfter": null,
         "broker": "THE CHARLES SCHWAB CORPORATION",
         "location": {
-          "city": "Westlake",
+          "city": "WESTLAKE",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/923738/000194984626000448/0001949846-26-000448-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1673,11 +1961,11 @@
         "sharesOwnedAfter": null,
         "broker": "THE CHARLES SCHWAB CORPORATION",
         "location": {
-          "city": "Westlake",
+          "city": "WESTLAKE",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1950787/000194984626000449/0001949846-26-000449-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1705,11 +1993,11 @@
         "sharesOwnedAfter": null,
         "broker": "Charles Schwab Corporation",
         "location": {
-          "city": "Westlake",
-          "state": "TX",
+          "city": "LEXINGTON",
+          "state": "SC",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2105824/000194984626000450/0001949846-26-000450-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1737,11 +2025,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Boston",
-          "state": "MA",
+          "city": "LAFOX",
+          "state": "IL",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1291981/000195917326005387/0001959173-26-005387-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1769,11 +2057,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "SECAUCUS",
+          "state": "NJ",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1955265/000195917326005388/0001959173-26-005388-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1801,11 +2089,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "PLANO",
+          "state": "TX",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2026080/000195917326005389/0001959173-26-005389-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1833,11 +2121,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "SAN LEANDRO",
+          "state": "CA",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1668422/000195917326005390/0001959173-26-005390-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1865,11 +2153,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "MAYFIELD VILLAGE",
+          "state": "OH",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1744203/000195917326005391/0001959173-26-005391-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1897,11 +2185,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Dallas",
+          "city": "DALLAS",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1773072/000195917326005392/0001959173-26-005392-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1929,11 +2217,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Service LLC",
         "location": {
-          "city": "Boston",
-          "state": "MA",
+          "city": "LAFOX",
+          "state": "IL",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1512170/000195917326005393/0001959173-26-005393-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1961,11 +2249,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "NEW YORK",
+          "state": "NY",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1901227/000195917326005394/0001959173-26-005394-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -1993,11 +2281,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "SAN LEANDRO",
+          "state": "CA",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1677876/000195917326005395/0001959173-26-005395-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2025,11 +2313,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Cincinnati",
+          "city": "CINCINNATI",
           "state": "OH",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1677399/000195917326005396/0001959173-26-005396-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2057,11 +2345,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Boston",
-          "state": "MA",
+          "city": "LAS VEGAS",
+          "state": "NV",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1421390/000195917326005397/0001959173-26-005397-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2089,11 +2377,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Boston",
-          "state": "MA",
+          "city": "LAFOX",
+          "state": "IL",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1588888/000195917326005398/0001959173-26-005398-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2121,11 +2409,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
-          "country": ""
+          "city": "HAMILTON",
+          "state": "",
+          "country": "Bermuda"
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1582738/000195917326005399/0001959173-26-005399-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2153,11 +2441,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "CHICAGO",
+          "state": "IL",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1466338/000195917326005400/0001959173-26-005400-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2185,11 +2473,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "KANSAS CITY",
+          "state": "MO",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1837554/000195917326005401/0001959173-26-005401-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2217,11 +2505,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Wheeling",
+          "city": "WHEELING",
           "state": "WV",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2046681/000195917326005403/0001959173-26-005403-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2249,11 +2537,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Charlotte",
+          "city": "CHARLOTTE",
           "state": "NC",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1843254/000195917326005404/0001959173-26-005404-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2281,11 +2569,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Smithfield",
-          "state": "RI",
+          "city": "CHICAGO",
+          "state": "IL",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058648/000195917326005405/0001959173-26-005405-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2313,11 +2601,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Oklahoma City",
+          "city": "OKLAHOMA CITY",
           "state": "OK",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1788635/000195917326005406/0001959173-26-005406-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2345,11 +2633,11 @@
         "sharesOwnedAfter": null,
         "broker": "Edward Jones",
         "location": {
-          "city": "Columbus",
+          "city": "LUBBOCK",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000020/0001973097-26-000020-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2377,11 +2665,11 @@
         "sharesOwnedAfter": null,
         "broker": "Global Shares Financial Services Inc.",
         "location": {
-          "city": "Jersey City",
-          "state": "NJ",
+          "city": "STUTTGART",
+          "state": "2M",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2050001/000121390026082092/0001213900-26-082092-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2409,11 +2697,11 @@
         "sharesOwnedAfter": null,
         "broker": "Global Shares Financial Services Inc.",
         "location": {
-          "city": "Jersey City",
-          "state": "NJ",
+          "city": "FRANKFURT",
+          "state": "2M",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2050006/000121390026082094/0001213900-26-082094-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2441,11 +2729,11 @@
         "sharesOwnedAfter": null,
         "broker": "Global Shares Financial Services Inc.",
         "location": {
-          "city": "Jersey City",
-          "state": "NJ",
-          "country": ""
+          "city": "70173 STUTTGART",
+          "state": "",
+          "country": "Germany"
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1879248/000121390026082095/0001213900-26-082095-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2473,11 +2761,11 @@
         "sharesOwnedAfter": null,
         "broker": "Fidelity Brokerage Services LLC",
         "location": {
-          "city": "Waltham",
-          "state": "MA",
+          "city": "GUILFORD",
+          "state": "CT",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1844600/000195917326005402/0001959173-26-005402-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2505,11 +2793,11 @@
         "sharesOwnedAfter": null,
         "broker": "Needham and Company LLC",
         "location": {
-          "city": "New York",
+          "city": "MELVILLE",
           "state": "NY",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1622588/000076490026000029/0000764900-26-000029-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2537,11 +2825,11 @@
         "sharesOwnedAfter": null,
         "broker": "BancFirst Trust",
         "location": {
-          "city": "Oklahoma City",
+          "city": "OKLAHOMA CITY",
           "state": "OK",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1042873/000104287326000005/0001042873-26-000005-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2569,11 +2857,11 @@
         "sharesOwnedAfter": null,
         "broker": "Merrill Lynch",
         "location": {
-          "city": "Houston",
+          "city": "HOUSTON",
           "state": "TX",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1992549/000162828026049826/0001628280-26-049826-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2601,11 +2889,11 @@
         "sharesOwnedAfter": null,
         "broker": "Merrill Lynch",
         "location": {
-          "city": "Washington",
-          "state": "DC",
+          "city": "PORTLAND",
+          "state": "ME",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1903739/000162828026049830/0001628280-26-049830-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2633,11 +2921,11 @@
         "sharesOwnedAfter": null,
         "broker": "Merrill Lynch",
         "location": {
-          "city": "Washington",
-          "state": "DC",
+          "city": "PORTLAND",
+          "state": "ME",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1834871/000162828026049832/0001628280-26-049832-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2665,11 +2953,11 @@
         "sharesOwnedAfter": null,
         "broker": "American Enterprise Investment Services, Inc.",
         "location": {
-          "city": "Minneapolis",
+          "city": "MINNEAPOLIS",
           "state": "MN",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1724756/000172475626000009/0001724756-26-000009-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2697,11 +2985,11 @@
         "sharesOwnedAfter": null,
         "broker": "Morgan Stanley Smith Barney LLC Executive Financial Services",
         "location": {
-          "city": "Livingston",
+          "city": "LIVINGSTON",
           "state": "NJ",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007326/0001950047-26-007326-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2733,7 +3021,7 @@
           "state": "CA",
           "country": ""
         },
-        "locationBasis": "seller_reported_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1895101/000195004726007330/0001950047-26-007330-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2761,11 +3049,11 @@
         "sharesOwnedAfter": null,
         "broker": "J.P. Morgan Securities LLC",
         "location": {
-          "city": "New York",
-          "state": "NY",
+          "city": "TEMPE",
+          "state": "AZ",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1458560/000196858226000739/0001968582-26-000739-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2793,11 +3081,11 @@
         "sharesOwnedAfter": null,
         "broker": "UBS Financial Services Inc",
         "location": {
-          "city": "Weehawken",
-          "state": "NJ",
+          "city": "CINCINNATI",
+          "state": "OH",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1668397/000196922326000803/0001969223-26-000803-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2825,11 +3113,11 @@
         "sharesOwnedAfter": null,
         "broker": "UBS Financial Services Inc",
         "location": {
-          "city": "Weehawken",
-          "state": "NJ",
+          "city": "CARMEL",
+          "state": "IN",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1589039/000196922326000804/0001969223-26-000804-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2857,11 +3145,11 @@
         "sharesOwnedAfter": null,
         "broker": "Raymond James & Associates, Inc.",
         "location": {
-          "city": "St. Petersburg",
+          "city": "ST. PETERSBURG",
           "state": "FL",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1422342/000197407826000275/0001974078-26-000275-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -2889,11 +3177,11 @@
         "sharesOwnedAfter": null,
         "broker": "Stifel Nicolaus",
         "location": {
-          "city": "St. Louis",
-          "state": "MO",
+          "city": "LOS ANGELES",
+          "state": "CA",
           "country": ""
         },
-        "locationBasis": "broker_business_address",
+        "locationBasis": "reporting_owner_address",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1764370/000176437026000005/0001764370-26-000005-index.htm",
         "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
       },
@@ -51481,18 +51769,18 @@
       "filingCount": 5413
     },
     "chunkUrls": [
-      "/data/liquidity-01.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-02.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-03.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-04.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-05.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-06.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-07.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-08.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-09.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-10.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-11.json?v=2026-07-28T19%3A46%3A58.094Z",
-      "/data/liquidity-12.json?v=2026-07-28T19%3A46%3A58.094Z"
+      "/data/liquidity-01.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-02.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-03.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-04.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-05.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-06.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-07.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-08.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-09.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-10.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-11.json?v=2026-07-28T20%3A08%3A54.093Z",
+      "/data/liquidity-12.json?v=2026-07-28T20%3A08%3A54.093Z"
     ]
   },
   "exitSignals": {
@@ -53921,7 +54209,7 @@
     ]
   },
   "geography": {
-    "updatedAt": "2026-07-28T19:47:58.834Z",
+    "updatedAt": "2026-07-28T20:08:37.552Z",
     "sourceUrl": "https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2025.html",
     "places": [
       {
@@ -54231,6 +54519,13 @@
         "state": "CA",
         "latitude": 37.296011,
         "longitude": -121.814552
+      },
+      {
+        "id": "0668084",
+        "name": "San Leandro city",
+        "state": "CA",
+        "latitude": 37.703368,
+        "longitude": -122.163036
       },
       {
         "id": "0668252",
@@ -54569,6 +54864,13 @@
         "longitude": -87.980953
       },
       {
+        "id": "1810342",
+        "name": "Carmel city",
+        "state": "IN",
+        "latitude": 39.965479,
+        "longitude": -86.148369
+      },
+      {
         "id": "1820728",
         "name": "Elkhart city",
         "state": "IN",
@@ -54709,6 +55011,13 @@
         "longitude": -77.020791
       },
       {
+        "id": "2360545",
+        "name": "Portland city",
+        "state": "ME",
+        "latitude": 43.633157,
+        "longitude": -70.185305
+      },
+      {
         "id": "2603000",
         "name": "Ann Arbor city",
         "state": "MI",
@@ -54793,11 +55102,11 @@
         "longitude": -90.330212
       },
       {
-        "id": "2965000",
-        "name": "St. Louis city",
+        "id": "2938000",
+        "name": "Kansas City city",
         "state": "MO",
-        "latitude": 38.635699,
-        "longitude": -90.244582
+        "latitude": 39.125155,
+        "longitude": -94.550313
       },
       {
         "id": "3008950",
@@ -54840,6 +55149,13 @@
         "state": "NC",
         "latitude": 35.831868,
         "longitude": -78.641042
+      },
+      {
+        "id": "3774440",
+        "name": "Wilmington city",
+        "state": "NC",
+        "latitude": 34.209225,
+        "longitude": -77.885767
       },
       {
         "id": "3137000",
@@ -54898,6 +55214,13 @@
         "longitude": -74.019926
       },
       {
+        "id": "3466570",
+        "name": "Secaucus town",
+        "state": "NJ",
+        "latitude": 40.781958,
+        "longitude": -74.067649
+      },
+      {
         "id": "3471430",
         "name": "Summit city",
         "state": "NJ",
@@ -54933,6 +55256,13 @@
         "longitude": -73.75196
       },
       {
+        "id": "3646514",
+        "name": "Melville CDP",
+        "state": "NY",
+        "latitude": 40.782357,
+        "longitude": -73.408824
+      },
+      {
         "id": "3651000",
         "name": "New York city",
         "state": "NY",
@@ -54959,6 +55289,13 @@
         "state": "OH",
         "latitude": 39.985531,
         "longitude": -82.985594
+      },
+      {
+        "id": "3948468",
+        "name": "Mayfield village",
+        "state": "OH",
+        "latitude": 41.547248,
+        "longitude": -81.434345
       },
       {
         "id": "3949056",
@@ -55087,6 +55424,13 @@
         "longitude": -71.418784
       },
       {
+        "id": "4541335",
+        "name": "Lexington town",
+        "state": "SC",
+        "latitude": 33.992877,
+        "longitude": -81.221797
+      },
+      {
         "id": "4659020",
         "name": "Sioux Falls city",
         "state": "SD",
@@ -55136,13 +55480,6 @@
         "longitude": -95.979399
       },
       {
-        "id": "4816168",
-        "name": "Columbus city",
-        "state": "TX",
-        "latitude": 29.702778,
-        "longitude": -96.557057
-      },
-      {
         "id": "4819000",
         "name": "Dallas city",
         "state": "TX",
@@ -55185,11 +55522,25 @@
         "longitude": -96.970022
       },
       {
+        "id": "4845000",
+        "name": "Lubbock city",
+        "state": "TX",
+        "latitude": 33.561901,
+        "longitude": -101.888883
+      },
+      {
         "id": "4848072",
         "name": "Midland city",
         "state": "TX",
         "latitude": 32.024642,
         "longitude": -102.113467
+      },
+      {
+        "id": "4858016",
+        "name": "Plano city",
+        "state": "TX",
+        "latitude": 33.050769,
+        "longitude": -96.747944
       },
       {
         "id": "4863500",
@@ -58087,7 +58438,7 @@
     ]
   },
   "completedExits": {
-    "updatedAt": "2026-07-28T19:47:58.835Z",
+    "updatedAt": "2026-07-28T20:08:37.553Z",
     "records": [
       {
         "id": "sec-8k-0001104659-26-082926",

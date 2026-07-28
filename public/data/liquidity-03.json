@@ -24,11 +24,11 @@
       "sharesOwnedAfter": null,
       "broker": "Morgan Stanley Smith Barney LLC Executive Financial Services",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007327/0001950047-26-007327-index.htm",
       "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
     },
@@ -56,11 +56,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -92,7 +92,7 @@
         "state": "CA",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1895101/000195004726007330/0001950047-26-007330-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -2805,11 +2805,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Wheeling",
+        "city": "WHEELING",
         "state": "WV",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2046681/000195917326005403/0001959173-26-005403-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -41938,11 +41938,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Oklahoma City",
+        "city": "OKLAHOMA CITY",
         "state": "OK",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1042873/000104287326000005/0001042873-26-000005-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },

@@ -24,11 +24,11 @@
       "sharesOwnedAfter": null,
       "broker": "Morgan Stanley Smith Barney LLC Executive Financial Services",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Proposed sale value reported on Form 144. This is not proof that the sale was completed."
     },
@@ -56,11 +56,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -88,11 +88,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -2808,11 +2808,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },

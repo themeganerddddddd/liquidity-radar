@@ -529,6 +529,28 @@ function hasFilingLocation(location: {
   return Boolean(location.city || location.state || location.country);
 }
 
+export function parseSecSubmissionLocation(submission: unknown) {
+  const addresses =
+    submission && typeof submission === "object" && "addresses" in submission
+      ? (submission.addresses as {
+          mailing?: Record<string, unknown>;
+          business?: Record<string, unknown>;
+        })
+      : undefined;
+  for (const address of [addresses?.mailing, addresses?.business]) {
+    if (!address) continue;
+    const text = (key: string) =>
+      typeof address[key] === "string" ? address[key].trim() : "";
+    const location = {
+      city: text("city"),
+      state: text("foreignStateTerritory") || text("stateOrCountry"),
+      country: text("country") || text("countryCode"),
+    };
+    if (hasFilingLocation(location)) return location;
+  }
+  return null;
+}
+
 export function parseForm4Liquidity(
   xml: string,
   filing: SecFiling,
@@ -700,14 +722,11 @@ export function parseForm144Liquidity(
       );
       const brokerXml =
         tagBlocks(security, "brokerOrMarketmakerDetails")[0] ?? "";
-      const brokerLocation = filingLocation(brokerXml);
       const [location, locationBasis] = hasFilingLocation(sellerLocation)
         ? [sellerLocation, "seller_reported_address" as const]
-        : hasFilingLocation(brokerLocation)
-          ? [brokerLocation, "broker_business_address" as const]
-          : hasFilingLocation(issuerLocation)
-            ? [issuerLocation, "issuer_business_address" as const]
-            : [{ city: "", state: "", country: "" }, undefined];
+        : hasFilingLocation(issuerLocation)
+          ? [issuerLocation, "issuer_business_address" as const]
+          : [{ city: "", state: "", country: "" }, undefined];
       const transactionDate =
         dateValue(tagValue(security, "approxSaleDate")) || filing.filedAt;
       if (shares <= 0 || grossAmount <= 0) return;
@@ -858,6 +877,22 @@ async function filingXml(
   return xmlResponse.ok ? xmlResponse.text() : "";
 }
 
+async function secReportingPartyLocation(
+  cik: string,
+  userAgent: string,
+  signal?: AbortSignal,
+) {
+  const normalizedCik = cik.replace(/\D/g, "").padStart(10, "0");
+  if (!normalizedCik || normalizedCik === "0000000000") return null;
+  const response = await fetchSecDocument(
+    `https://data.sec.gov/submissions/CIK${normalizedCik}.json`,
+    userAgent,
+    signal,
+  );
+  if (!response.ok) return null;
+  return parseSecSubmissionLocation(await response.json());
+}
+
 export function parseSecFilingLocation(xml: string, filing: SecFiling) {
   if (filing.form === "Form 4") {
     const ownerXml = tagBlocks(xml, "reportingOwner")[0] ?? "";
@@ -879,15 +914,6 @@ export function parseSecFilingLocation(xml: string, filing: SecFiling) {
         locationBasis: "seller_reported_address" as const,
       };
     }
-    const brokerLocation = filingLocation(
-      tagBlocks(xml, "brokerOrMarketmakerDetails")[0] ?? "",
-    );
-    if (hasFilingLocation(brokerLocation)) {
-      return {
-        location: brokerLocation,
-        locationBasis: "broker_business_address" as const,
-      };
-    }
     const issuerLocation = filingLocation(
       tagBlocks(xml, "issuerAddress")[0] ?? "",
     );
@@ -907,10 +933,33 @@ export async function enrichSecFilingLocations(
   signal?: AbortSignal,
 ) {
   const enriched: SecFiling[] = [];
+  const reportingPartyLocations = new Map<
+    string,
+    Awaited<ReturnType<typeof secReportingPartyLocation>>
+  >();
   for (const filing of filings) {
     try {
       const xml = await filingXml(filing, userAgent, signal);
-      const result = xml ? parseSecFilingLocation(xml, filing) : null;
+      let result = xml ? parseSecFilingLocation(xml, filing) : null;
+      if (xml && filing.form === "Form 144") {
+        const cik = tagValue(xml, "cik");
+        let reportingLocation = reportingPartyLocations.get(cik);
+        if (reportingLocation === undefined) {
+          await delay(110);
+          reportingLocation = await secReportingPartyLocation(
+            cik,
+            userAgent,
+            signal,
+          );
+          reportingPartyLocations.set(cik, reportingLocation);
+        }
+        if (reportingLocation) {
+          result = {
+            location: reportingLocation,
+            locationBasis: "reporting_owner_address" as const,
+          };
+        }
+      }
       enriched.push(result ? { ...filing, ...result } : filing);
     } catch {
       enriched.push(filing);
@@ -936,6 +985,10 @@ export async function fetchSecLiquidityEvidence(
   ];
   const events: PublicLiquidityEvent[] = [];
   const latestHoldings = new Map<string, PublicHoldingPosition>();
+  const reportingPartyLocations = new Map<
+    string,
+    Awaited<ReturnType<typeof secReportingPartyLocation>>
+  >();
 
   for (const filing of relevant) {
     try {
@@ -945,6 +998,26 @@ export async function fetchSecLiquidityEvidence(
         filing.form === "Form 4"
           ? parseForm4Liquidity(xml, filing)
           : parseForm144Liquidity(xml, filing);
+      if (filing.form === "Form 144") {
+        const cik =
+          evidence.events[0]?.reportingPartyCik ?? tagValue(xml, "cik");
+        let reportingLocation = reportingPartyLocations.get(cik);
+        if (reportingLocation === undefined) {
+          await delay(110);
+          reportingLocation = await secReportingPartyLocation(
+            cik,
+            userAgent,
+            signal,
+          );
+          reportingPartyLocations.set(cik, reportingLocation);
+        }
+        if (reportingLocation) {
+          for (const event of evidence.events) {
+            event.location = reportingLocation;
+            event.locationBasis = "reporting_owner_address";
+          }
+        }
+      }
       events.push(...evidence.events);
       for (const holding of evidence.holdings) {
         const key = [
@@ -985,6 +1058,14 @@ function liquidityIdentity(value: {
         .trim()}`;
 }
 
+function locationEvidenceRank(event: PublicLiquidityEvent) {
+  if (event.locationBasis === "reporting_owner_address") return 4;
+  if (event.locationBasis === "seller_reported_address") return 3;
+  if (event.locationBasis === "issuer_business_address") return 2;
+  if (event.locationBasis === "broker_business_address") return 1;
+  return 0;
+}
+
 export function mergePublicLiquidityEvidence(
   ...collections: PublicLiquidityEvidence[]
 ): PublicLiquidityEvidence {
@@ -1003,6 +1084,7 @@ export function mergePublicLiquidityEvidence(
       if (
         !current ||
         (current.form === "Form 144" && event.form === "Form 4") ||
+        locationEvidenceRank(event) > locationEvidenceRank(current) ||
         (!current.location.city &&
           !current.location.state &&
           !current.location.country &&

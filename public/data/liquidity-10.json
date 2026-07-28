@@ -24,11 +24,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -56,11 +56,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -88,11 +88,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -2811,7 +2811,7 @@
         "state": "CA",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1895101/000195004726007330/0001950047-26-007330-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -6200,11 +6200,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -15033,11 +15033,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -32218,11 +32218,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Westlake",
+        "city": "WESTLAKE",
         "state": "TX",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/923738/000194984626000448/0001949846-26-000448-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -37262,11 +37262,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Westlake",
+        "city": "WESTLAKE",
         "state": "TX",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/923738/000194984626000448/0001949846-26-000448-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -39579,11 +39579,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Westlake",
+        "city": "WESTLAKE",
         "state": "TX",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/923738/000194984626000448/0001949846-26-000448-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -40652,11 +40652,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Westlake",
+        "city": "WESTLAKE",
         "state": "TX",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/923738/000194984626000448/0001949846-26-000448-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
