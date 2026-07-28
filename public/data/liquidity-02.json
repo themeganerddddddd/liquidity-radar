@@ -24,11 +24,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Westlake",
+        "city": "WESTLAKE",
         "state": "TX",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1296479/000194984626000444/0001949846-26-000444-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -56,11 +56,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -88,11 +88,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Livingston",
+        "city": "LIVINGSTON",
         "state": "NJ",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2058103/000195004726007329/0001950047-26-007329-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -34853,11 +34853,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Columbus",
+        "city": "LUBBOCK",
         "state": "TX",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000021/0001973097-26-000021-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -35562,11 +35562,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Columbus",
+        "city": "LUBBOCK",
         "state": "TX",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/2124082/000197309726000021/0001973097-26-000021-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },
@@ -35980,11 +35980,11 @@
       "sharesOwnedAfter": null,
       "broker": "",
       "location": {
-        "city": "Oklahoma City",
+        "city": "OKLAHOMA CITY",
         "state": "OK",
         "country": ""
       },
-      "locationBasis": "seller_reported_address",
+      "locationBasis": "reporting_owner_address",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1042873/000104287326000005/0001042873-26-000005-index.htm",
       "note": "Completed prior-three-month sale disclosed on Form 144."
     },

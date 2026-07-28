@@ -462,6 +462,24 @@ const liquidity = selectLiquidityProfileCoverage(
   ),
   1500,
 );
+const eventLocationByAccession = new Map(
+  liquidity.events
+    .filter(
+      (event) =>
+        event.location.city || event.location.state || event.location.country,
+    )
+    .map((event) => [
+      event.accession,
+      {
+        location: event.location,
+        locationBasis: event.locationBasis,
+      },
+    ]),
+);
+const secFilingsWithEventLocations = secFilings.map((filing) => {
+  const reportedLocation = eventLocationByAccession.get(filing.accession);
+  return reportedLocation ? { ...filing, ...reportedLocation } : filing;
+});
 const locatedAccessions = new Set(
   liquidity.events
     .filter(
@@ -470,7 +488,7 @@ const locatedAccessions = new Set(
     )
     .map((event) => event.accession),
 );
-const filingsNeedingLocations = secFilings.filter(
+const filingsNeedingLocations = secFilingsWithEventLocations.filter(
   (filing) =>
     (filing.form === "Form 4" || filing.form === "Form 144") &&
     !locatedAccessions.has(filing.accession),
@@ -484,7 +502,7 @@ const enrichedLocationByAccession = new Map(
     .filter((filing) => filing.location)
     .map((filing) => [filing.accession, filing]),
 );
-const locatedSecFilings = secFilings.map(
+const locatedSecFilings = secFilingsWithEventLocations.map(
   (filing) => enrichedLocationByAccession.get(filing.accession) ?? filing,
 );
 const completedExitRecords = mergeCompletedExits(

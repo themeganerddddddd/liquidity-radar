@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import {
   parseForm144Liquidity,
   parseForm4Liquidity,
+  parseSecSubmissionLocation,
   parseSecFilingLocation,
   parseSecAtom,
   type SecFiling,
@@ -113,6 +114,63 @@ describe("official public-data parsing", () => {
       grossAmount: 7_437_500,
       location: { city: "Austin", state: "TX", country: "" },
       locationBasis: "seller_reported_address",
+    });
+  });
+
+  it("uses structured SEC reporting-party addresses and never a broker address as a person location", () => {
+    expect(
+      parseSecSubmissionLocation({
+        addresses: {
+          mailing: {
+            city: "CHICAGO",
+            stateOrCountry: "IL",
+            country: null,
+          },
+          business: {
+            city: null,
+            stateOrCountry: null,
+            country: null,
+          },
+        },
+      }),
+    ).toEqual({ city: "CHICAGO", state: "IL", country: "" });
+
+    const form144WithoutSellerAddress = `<edgarSubmission xmlns:com="http://www.sec.gov/edgar/common">
+      <formData>
+        <issuerInfo>
+          <issuerName>TransUnion</issuerName>
+          <issuerAddress>
+            <com:city>CHICAGO</com:city>
+            <com:stateOrCountry>IL</com:stateOrCountry>
+          </issuerAddress>
+          <nameOfPersonForWhoseAccountTheSecuritiesAreToBeSold>Abdelsadek Mohamed</nameOfPersonForWhoseAccountTheSecuritiesAreToBeSold>
+        </issuerInfo>
+        <securitiesInformation>
+          <brokerOrMarketmakerDetails>
+            <name>Fidelity Brokerage Services LLC</name>
+            <address>
+              <com:city>Smithfield</com:city>
+              <com:stateOrCountry>RI</com:stateOrCountry>
+            </address>
+          </brokerOrMarketmakerDetails>
+          <noOfUnitsSold>23495</noOfUnitsSold>
+          <aggregateMarketValue>1997075</aggregateMarketValue>
+        </securitiesInformation>
+      </formData>
+    </edgarSubmission>`;
+    expect(
+      parseForm144Liquidity(form144WithoutSellerAddress, filing("Form 144"))
+        .events[0],
+    ).toMatchObject({
+      location: { city: "CHICAGO", state: "IL", country: "" },
+      locationBasis: "issuer_business_address",
+      broker: "Fidelity Brokerage Services LLC",
+    });
+    expect(
+      parseSecFilingLocation(form144WithoutSellerAddress, filing("Form 144")),
+    ).toMatchObject({
+      location: { city: "CHICAGO", state: "IL", country: "" },
+      locationBasis: "issuer_business_address",
     });
   });
 

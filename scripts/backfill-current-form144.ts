@@ -33,6 +33,20 @@ const liquidity = mergePublicLiquidityEvidence(
   snapshot.liquidity,
   currentEvidence,
 );
+const locationByAccession = new Map(
+  currentEvidence.events
+    .filter(
+      (event) =>
+        event.location.city || event.location.state || event.location.country,
+    )
+    .map((event) => [
+      event.accession,
+      {
+        location: event.location,
+        locationBasis: event.locationBasis,
+      },
+    ]),
+);
 const generatedAt = new Date().toISOString();
 const sources = snapshot.sources.map((source) =>
   source.id === "sec"
@@ -45,7 +59,14 @@ await writeChunkedPublicSnapshot(
     ...snapshot,
     generatedAt,
     sources,
-    sec: { ...snapshot.sec, updatedAt: generatedAt },
+    sec: {
+      ...snapshot.sec,
+      updatedAt: generatedAt,
+      filings: snapshot.sec.filings.map((filing) => {
+        const reportedLocation = locationByAccession.get(filing.accession);
+        return reportedLocation ? { ...filing, ...reportedLocation } : filing;
+      }),
+    },
     liquidity,
   },
   output,
