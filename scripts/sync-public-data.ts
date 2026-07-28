@@ -2,6 +2,7 @@ import path from "node:path";
 import { parse } from "csv-parse/sync";
 import { strFromU8, unzipSync } from "fflate";
 import {
+  enrichSecFilingLocations,
   fetchCurrentSecFilings,
   fetchSecLiquidityEvidence,
   mergePublicLiquidityEvidence,
@@ -461,6 +462,31 @@ const liquidity = selectLiquidityProfileCoverage(
   ),
   1500,
 );
+const locatedAccessions = new Set(
+  liquidity.events
+    .filter(
+      (event) =>
+        event.location.city || event.location.state || event.location.country,
+    )
+    .map((event) => event.accession),
+);
+const filingsNeedingLocations = secFilings.filter(
+  (filing) =>
+    (filing.form === "Form 4" || filing.form === "Form 144") &&
+    !locatedAccessions.has(filing.accession),
+);
+const enrichedLocationFilings = await enrichSecFilingLocations(
+  filingsNeedingLocations,
+  SEC_USER_AGENT,
+);
+const enrichedLocationByAccession = new Map(
+  enrichedLocationFilings
+    .filter((filing) => filing.location)
+    .map((filing) => [filing.accession, filing]),
+);
+const locatedSecFilings = secFilings.map(
+  (filing) => enrichedLocationByAccession.get(filing.accession) ?? filing,
+);
 const completedExitRecords = mergeCompletedExits(
   verifiedCompletedExits,
   previousSnapshot?.completedExits?.records ?? [],
@@ -579,7 +605,7 @@ const snapshot: PublicDataSnapshot = {
   sec: {
     mode: "snapshot",
     updatedAt: generatedAt,
-    filings: secFilings,
+    filings: locatedSecFilings,
   },
   liquidity,
   exitSignals,

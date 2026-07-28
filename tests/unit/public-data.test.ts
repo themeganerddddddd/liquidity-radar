@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import {
   parseForm144Liquidity,
   parseForm4Liquidity,
+  parseSecFilingLocation,
   parseSecAtom,
   type SecFiling,
 } from "../../lib/public-data";
@@ -91,6 +92,12 @@ describe("official public-data parsing", () => {
       amountClassification: "calculated",
     });
     expect(award.events).toHaveLength(0);
+    expect(
+      parseSecFilingLocation(fixture("form4-sale.xml"), filing("Form 4")),
+    ).toMatchObject({
+      location: { city: "AUSTIN", state: "TX", country: "" },
+      locationBasis: "reporting_owner_address",
+    });
   });
 
   it("keeps Form 144 values proposed rather than completed", () => {
@@ -104,6 +111,8 @@ describe("official public-data parsing", () => {
       eventType: "proposed_public_share_sale",
       status: "proposed",
       grossAmount: 7_437_500,
+      location: { city: "Austin", state: "TX", country: "" },
+      locationBasis: "seller_reported_address",
     });
   });
 

@@ -4,6 +4,7 @@
   <issuer><issuerCik>0001900011</issuerCik><issuerName>Northstar BioSystems</issuerName></issuer>
   <reportingOwner>
     <reportingOwnerId><rptOwnerCik>0001900099</rptOwnerCik><rptOwnerName>VOSS AMARA</rptOwnerName></reportingOwnerId>
+    <reportingOwnerAddress><rptOwnerCity>AUSTIN</rptOwnerCity><rptOwnerState>TX</rptOwnerState></reportingOwnerAddress>
     <reportingOwnerRelationship><isDirector>1</isDirector><isOfficer>1</isOfficer></reportingOwnerRelationship>
   </reportingOwner>
   <nonDerivativeTable>
@@ -20,4 +21,3 @@
     </nonDerivativeTransaction>
   </nonDerivativeTable>
 </ownershipDocument>
-

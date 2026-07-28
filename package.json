@@ -30,6 +30,7 @@
     "data:chunk-public": "tsx scripts/chunk-public-data.ts",
     "data:enrich-geography": "tsx scripts/enrich-geography.ts",
     "data:backfill-current-form144": "tsx scripts/backfill-current-form144.ts",
+    "data:backfill-filing-locations": "tsx scripts/backfill-current-filing-locations.ts",
     "data:correct-valuations": "tsx scripts/correct-public-valuations.ts",
     "data:audit-valuations": "tsx scripts/audit-public-valuations.ts",
     "ingest:sec": "tsx scripts/jobs.ts sec",

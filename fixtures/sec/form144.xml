@@ -1,12 +1,18 @@
 <?xml version="1.0"?>
-<submission>
+<submission xmlns:com="http://www.sec.gov/edgar/common">
   <formData>
     <issuerName>Mercury Robotics</issuerName>
     <nameOfPersonForWhoseAccountTheSecuritiesAreToBeSold>Julian Mercer</nameOfPersonForWhoseAccountTheSecuritiesAreToBeSold>
+    <sellerDetails>
+      <name>Julian Mercer</name>
+      <address>
+        <com:city>Austin</com:city>
+        <com:stateOrCountry>TX</com:stateOrCountry>
+      </address>
+    </sellerDetails>
     <brokerName>Fictional Securities LLC</brokerName>
     <approxSaleDate>2026-07-23</approxSaleDate>
     <noOfUnitsSold>85000</noOfUnitsSold>
     <aggregateMarketValue>7437500</aggregateMarketValue>
   </formData>
 </submission>
-

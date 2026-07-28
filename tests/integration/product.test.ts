@@ -119,5 +119,19 @@ describe("official public-record contracts", () => {
     expect(
       form144Profiles.every((person) => person.proposedSaleValue > 0),
     ).toBe(true);
+    expect(
+      form144Profiles.every(
+        (person) =>
+          person.locationDetails.display !== "Location not established",
+      ),
+    ).toBe(true);
+    expect(
+      buildRealPeople(hydrated)
+        .filter((person) => person.kind === "Person")
+        .every(
+          (person) =>
+            person.locationDetails.display !== "Location not established",
+        ),
+    ).toBe(true);
   });
 });

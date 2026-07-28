@@ -52,6 +52,10 @@ export type RealPersonRecord = {
   relationship: string;
   location: string;
   locationDetails: NormalizedPublicLocation;
+  locationBasis:
+    | PublicLiquidityEvent["locationBasis"]
+    | "completed_exit_public_address"
+    | undefined;
   coordinates: Coordinates | null;
   lastLiquidityDate: string;
   lastFiledAt: string;
@@ -327,10 +331,19 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
       const latestEvidence = [...liquidityEvents].sort((left, right) =>
         right.transactionDate.localeCompare(left.transactionDate),
       )[0];
+      const locationEvent = liquidityEvents.find(
+        (event) =>
+          event.location.city || event.location.state || event.location.country,
+      );
+      const locationFiling = ordered.find(
+        (filing) =>
+          filing.location?.city ||
+          filing.location?.state ||
+          filing.location?.country,
+      );
       const latestLocation =
-        liquidityEvents.find(
-          (event) => event.location.city || event.location.state,
-        )?.location ??
+        locationEvent?.location ??
+        locationFiling?.location ??
         exitAttributions.find(
           (attribution) =>
             attribution.owner.location.city || attribution.owner.location.state,
@@ -388,6 +401,14 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
               ? 24
               : 15;
       const normalizedLocation = normalizePublicLocation(latestLocation);
+      const locationBasis: RealPersonRecord["locationBasis"] =
+        locationEvent?.locationBasis ??
+        locationFiling?.locationBasis ??
+        (latestExitAttribution?.owner.location.display &&
+        latestExitAttribution.owner.location.display !==
+          "Location not established"
+          ? "completed_exit_public_address"
+          : undefined);
       return {
         id: `${recordId(name)}-${key.length}`,
         name,
@@ -416,6 +437,7 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
           "SEC reporting party",
         location: normalizedLocation.display,
         locationDetails: normalizedLocation,
+        locationBasis,
         coordinates: findPlaceCoordinates(
           data.geography,
           normalizedLocation.city,
@@ -463,6 +485,22 @@ function compactCurrency(value: number) {
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(value);
+}
+
+function locationBasisLabel(
+  basis: RealPersonRecord["locationBasis"],
+  hasLocation: boolean,
+) {
+  if (!hasLocation) return "No public city-level address established";
+  if (basis === "seller_reported_address")
+    return "SEC-reported seller address; may be business or care-of";
+  if (basis === "broker_business_address")
+    return "SEC-reported broker business address";
+  if (basis === "issuer_business_address")
+    return "SEC-reported issuer business address";
+  if (basis === "completed_exit_public_address")
+    return "Public address linked to completed-exit evidence";
+  return "SEC-reported reporting-owner address; may be business or care-of";
 }
 
 function moneyRange(range: LiquidityRange) {
@@ -926,7 +964,12 @@ export function RealPeopleDirectory({
             </span>
             <span>
               <strong>{person.location}</strong>
-              <small>SEC-reported; may be a business or care-of address</small>
+              <small>
+                {locationBasisLabel(
+                  person.locationBasis,
+                  Boolean(person.locationDetails.country),
+                )}
+              </small>
             </span>
             <span>
               <strong>
@@ -1010,6 +1053,11 @@ function eventRange(event: PublicLiquidityEvent) {
     median: event.grossAmount * netRetention.median,
     high: event.grossAmount * netRetention.high,
   };
+}
+
+function eventLocation(event: PublicLiquidityEvent) {
+  const normalized = normalizePublicLocation(event.location);
+  return normalized.country ? normalized.display : "";
 }
 
 export function RealPersonProfile({
@@ -1215,6 +1263,9 @@ export function RealPersonProfile({
                       <strong>{eventLabel(event)}</strong>
                       <small>
                         {displayDate(event.transactionDate)} · {event.issuer}
+                        {eventLocation(event)
+                          ? ` · ${eventLocation(event)}`
+                          : ""}
                       </small>
                     </span>
                     <span>
@@ -1448,7 +1499,15 @@ export function RealPersonProfile({
               </div>
               <div>
                 <dt>SEC-reported location</dt>
-                <dd>{person.location}</dd>
+                <dd>
+                  {person.location}
+                  <small>
+                    {locationBasisLabel(
+                      person.locationBasis,
+                      Boolean(person.locationDetails.country),
+                    )}
+                  </small>
+                </dd>
               </div>
               <div>
                 <dt>Reporting-owner CIK</dt>
