@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.13.0"
+    "node": "22.x"
   },
   "scripts": {
     "setup": "tsx scripts/setup.ts",
     "dev": "vinext dev",
-    "build": "vinext build",
-    "start": "vinext start",
+    "dev:vercel": "next dev",
+    "build": "next build",
+    "build:sites": "vinext build",
+    "start": "next start",
+    "start:sites": "vinext start",
     "worker": "tsx worker/runner.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "format": "prettier --write \"{app,db,lib,scripts,tests,worker}/**/*.{ts,tsx,mjs,css,json}\"",

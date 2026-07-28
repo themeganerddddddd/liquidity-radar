@@ -19,23 +19,22 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s · Liquidity Radar",
     },
     description:
-      "Evidence-linked private-capital intelligence. See where liquidity is created and where it may move next.",
+      "Official SEC, IRS, Census, and BEA public records in one state-level explorer.",
     icons: {
       icon: "/favicon.svg",
       shortcut: "/favicon.svg",
     },
     openGraph: {
-      title: "Liquidity Radar — Private capital, mapped.",
+      title: "Liquidity Radar — Official public capital signals",
       description:
-        "See where liquidity is created, who may control it, and where known capital is deployed.",
+        "Explore attributable public capital and economic signals by state.",
       type: "website",
       images: [{ url: `${origin}/og.png`, width: 1728, height: 912 }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Liquidity Radar — Private capital, mapped.",
-      description:
-        "Evidence-linked intelligence for deployable private capital.",
+      title: "Liquidity Radar — Official public capital signals",
+      description: "Official public records from SEC, IRS, Census, and BEA.",
       images: [`${origin}/og.png`],
     },
   };

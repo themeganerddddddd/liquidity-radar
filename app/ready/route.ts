@@ -1,21 +1,13 @@
-import { env } from "cloudflare:workers";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-  try {
-    await env.DB.prepare("SELECT 1 AS ready").first();
-    return NextResponse.json({
-      status: "ready",
-      dependencies: {
-        database: "ready",
-        object_storage: env.BUCKET ? "ready" : "unavailable",
-      },
-      timestamp: new Date().toISOString(),
-    });
-  } catch {
-    return NextResponse.json(
-      { status: "not_ready", dependencies: { database: "unavailable" } },
-      { status: 503 },
-    );
-  }
+export function GET() {
+  return NextResponse.json({
+    status: "ready",
+    dependencies: {
+      official_snapshot: "ready",
+      sec_live_feed: process.env.SEC_USER_AGENT ? "configured" : "snapshot",
+      account_database: "not_configured",
+    },
+    timestamp: new Date().toISOString(),
+  });
 }

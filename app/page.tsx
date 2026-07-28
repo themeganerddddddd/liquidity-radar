@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { RadarApp } from "./RadarApp";
+import { RealRadarApp } from "./RealRadarApp";
 
 export const metadata: Metadata = {
-  title: "Liquidity Radar — Private capital, mapped.",
+  title: "Liquidity Radar — Official public capital signals",
   description:
-    "Evidence-linked private-capital intelligence for liquidity creation, deployable-capital estimates, regional flows, and opportunity matching.",
+    "Explore attributable SEC, IRS, Census, and BEA public records by state.",
 };
 
 export default function Home() {
-  return <RadarApp />;
+  return <RealRadarApp />;
 }

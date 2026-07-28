@@ -10,7 +10,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
     : {
-        command: "node node_modules/vinext/dist/cli.js dev",
+        command: "npm run dev:vercel",
         url: "http://localhost:3000",
         timeout: 120_000,
         reuseExistingServer: true,
