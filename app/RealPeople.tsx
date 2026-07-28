@@ -10,8 +10,12 @@ import type {
   SecFiling,
 } from "../lib/public-data";
 import {
+  normalizePublicLocation,
+  type NormalizedPublicLocation,
+} from "../lib/public-locations";
+import {
+  distanceMiles,
   findPlaceCoordinates,
-  isWithinTerritory,
   type Coordinates,
 } from "../lib/territories";
 
@@ -46,6 +50,7 @@ export type RealPersonRecord = {
   confidence: number;
   relationship: string;
   location: string;
+  locationDetails: NormalizedPublicLocation;
   coordinates: Coordinates | null;
   lastLiquidityDate: string;
   lastFiledAt: string;
@@ -360,6 +365,7 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
             : holdings.length
               ? 24
               : 15;
+      const normalizedLocation = normalizePublicLocation(latestLocation);
       return {
         id: `${recordId(name)}-${key.length}`,
         name,
@@ -385,11 +391,12 @@ export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
           latestEvidence?.relationship ||
           latestExitAttribution?.owner.relationship ||
           "SEC reporting party",
-        location: reportedLocation(latestLocation),
+        location: normalizedLocation.display,
+        locationDetails: normalizedLocation,
         coordinates: findPlaceCoordinates(
           data.geography,
-          latestLocation?.city ?? "",
-          latestLocation?.state ?? "",
+          normalizedLocation.city,
+          normalizedLocation.stateCode,
         ),
         lastLiquidityDate,
         lastFiledAt:
@@ -439,40 +446,45 @@ function moneyRange(range: LiquidityRange) {
   return `${compactCurrency(range.low)}–${compactCurrency(range.high)}`;
 }
 
-const edgarCountryNames: Record<string, string> = {
-  F4: "China",
-  K3: "Hong Kong",
-  X0: "United Kingdom",
-  Z4: "Canada",
-};
+type DirectorySortKey =
+  "name" | "issuer" | "location" | "gross" | "liquidity" | "recent";
+type DirectorySortDirection = "asc" | "desc";
 
-function readableLocationPart(value: string) {
-  if (!value || value !== value.toLocaleUpperCase()) return value;
-  return value
-    .toLocaleLowerCase()
-    .replace(/(^|[\s-])\p{L}/gu, (letter) => letter.toLocaleUpperCase());
+function defaultSortDirection(key: DirectorySortKey): DirectorySortDirection {
+  return key === "name" || key === "issuer" || key === "location"
+    ? "asc"
+    : "desc";
 }
 
-function reportedLocation(location?: {
-  city: string;
-  state: string;
-  country: string;
-}) {
-  if (!location) return "Location not established";
-  const city = readableLocationPart(location.city);
-  const description =
-    edgarCountryNames[location.country] ??
-    readableLocationPart(location.country);
-  if (description) return [city, description].filter(Boolean).join(", ");
-  const state = edgarCountryNames[location.state] ?? location.state;
-  return [city, state].filter(Boolean).join(", ") || "Location not established";
+function grossCompletedCapital(person: RealPersonRecord) {
+  return person.grossCompletedSales + person.grossCompletedExitCash;
 }
 
-function locationRegion(value: string) {
-  if (value === "Location not established") return value;
-  const parts = value.split(",").map((part) => part.trim());
-  const state = parts.find((part) => /^[A-Z]{2}$/.test(part));
-  return state ?? parts.at(-1) ?? value;
+export function compareDirectoryPeople(
+  left: RealPersonRecord,
+  right: RealPersonRecord,
+  key: DirectorySortKey,
+  direction: DirectorySortDirection,
+) {
+  let comparison = 0;
+  if (key === "name") {
+    comparison = nameSort(left.name).localeCompare(nameSort(right.name));
+  } else if (key === "issuer") {
+    comparison = (left.issuers[0] ?? "").localeCompare(right.issuers[0] ?? "");
+  } else if (key === "location") {
+    comparison = left.location.localeCompare(right.location);
+  } else if (key === "gross") {
+    comparison = grossCompletedCapital(left) - grossCompletedCapital(right);
+  } else if (key === "liquidity") {
+    comparison =
+      left.estimatedRemainingLiquidity.median -
+      right.estimatedRemainingLiquidity.median;
+  } else {
+    comparison = left.lastLiquidityDate.localeCompare(right.lastLiquidityDate);
+  }
+
+  const directed = direction === "asc" ? comparison : -comparison;
+  return directed || nameSort(left.name).localeCompare(nameSort(right.name));
 }
 
 export function RealPeopleDirectory({
@@ -490,22 +502,117 @@ export function RealPeopleDirectory({
 }) {
   const [evidence, setEvidence] = useState("All liquidity evidence");
   const [kind, setKind] = useState("People only");
-  const [location, setLocation] = useState("All locations");
-  const [metroId, setMetroId] = useState("");
-  const [radiusMiles, setRadiusMiles] = useState(50);
-  const [sort, setSort] = useState("Estimated liquidity");
+  const [country, setCountry] = useState("All countries");
+  const [state, setState] = useState("All states / provinces");
+  const [city, setCity] = useState("All cities");
+  const [radiusMiles, setRadiusMiles] = useState(0);
+  const [sortKey, setSortKey] = useState<DirectorySortKey>("liquidity");
+  const [sortDirection, setSortDirection] =
+    useState<DirectorySortDirection>("desc");
   const [visibleCount, setVisibleCount] = useState(50);
-  const locationOptions = useMemo(
+  const countryOptions = useMemo(
     () =>
       [
         ...new Set(
           people
-            .map((person) => locationRegion(person.location))
-            .filter((value) => value !== "Location not established"),
+            .map((person) => person.locationDetails.country)
+            .filter(Boolean),
         ),
       ].sort(),
     [people],
   );
+  const stateOptions = useMemo(
+    () =>
+      [
+        ...new Set(
+          people
+            .filter(
+              (person) =>
+                country === "All countries" ||
+                person.locationDetails.country === country,
+            )
+            .map((person) => person.locationDetails.state)
+            .filter(Boolean),
+        ),
+      ].sort(),
+    [country, people],
+  );
+  const countryHasStates = stateOptions.length > 0;
+  const cityOptions = useMemo(
+    () =>
+      [
+        ...new Set(
+          people
+            .filter(
+              (person) =>
+                country !== "All countries" &&
+                person.locationDetails.country === country,
+            )
+            .filter(
+              (person) =>
+                state === "All states / provinces" ||
+                person.locationDetails.state === state,
+            )
+            .map((person) => person.locationDetails.city)
+            .filter(Boolean),
+        ),
+      ].sort(),
+    [country, people, state],
+  );
+  const selectedCityLocation = people.find(
+    (person) =>
+      person.locationDetails.country === country &&
+      (state === "All states / provinces" ||
+        person.locationDetails.state === state) &&
+      person.locationDetails.city === city,
+  );
+  const selectedCityCoordinates =
+    selectedCityLocation?.coordinates ??
+    findPlaceCoordinates(
+      geography,
+      city,
+      selectedCityLocation?.locationDetails.stateCode ?? "",
+    );
+
+  const activateSort = (key: DirectorySortKey) => {
+    setVisibleCount(50);
+    if (sortKey === key) {
+      setSortDirection((current) => (current === "desc" ? "asc" : "desc"));
+      return;
+    }
+    setSortKey(key);
+    setSortDirection(defaultSortDirection(key));
+  };
+
+  const sortHeading = (key: DirectorySortKey, label: string) => {
+    const active = sortKey === key;
+    const arrow = active ? (sortDirection === "desc" ? "↓" : "↑") : "↕";
+    const order =
+      sortDirection === "desc" ? "highest to lowest" : "lowest to highest";
+    return (
+      <span
+        role="columnheader"
+        aria-sort={
+          active
+            ? sortDirection === "desc"
+              ? "descending"
+              : "ascending"
+            : "none"
+        }
+      >
+        <button
+          type="button"
+          onClick={() => activateSort(key)}
+          aria-label={`Sort by ${label}${active ? `, currently ${order}` : ""}`}
+        >
+          {label}
+          <i className={active ? "active" : ""} aria-hidden="true">
+            {arrow}
+          </i>
+        </button>
+      </span>
+    );
+  };
 
   const filtered = useMemo(
     () =>
@@ -537,21 +644,32 @@ export function RealPeopleDirectory({
               ? person.kind === "Person"
               : person.kind === "Entity",
         )
-        .filter((person) =>
-          location === "All locations"
-            ? true
-            : locationRegion(person.location) === location,
-        )
-        .filter((person) =>
-          metroId
-            ? isWithinTerritory(
-                person.coordinates,
-                geography,
-                metroId,
+        .filter((person) => {
+          if (country === "Location not established") {
+            return !person.locationDetails.country;
+          }
+          if (
+            country !== "All countries" &&
+            person.locationDetails.country !== country
+          ) {
+            return false;
+          }
+          if (
+            state !== "All states / provinces" &&
+            person.locationDetails.state !== state
+          ) {
+            return false;
+          }
+          if (city === "All cities") return true;
+          if (radiusMiles > 0 && selectedCityCoordinates) {
+            return Boolean(
+              person.coordinates &&
+              distanceMiles(person.coordinates, selectedCityCoordinates) <=
                 radiusMiles,
-              )
-            : true,
-        )
+            );
+          }
+          return person.locationDetails.city === city;
+        })
         .filter((person) => {
           if (evidence === "Completed sales")
             return (
@@ -563,35 +681,21 @@ export function RealPeopleDirectory({
             return person.holdings.length > 0;
           return true;
         })
-        .sort((left, right) => {
-          if (sort === "Estimated liquidity")
-            return (
-              right.estimatedRemainingLiquidity.median -
-              left.estimatedRemainingLiquidity.median
-            );
-          if (sort === "Gross proceeds")
-            return (
-              right.grossCompletedSales +
-              right.grossCompletedExitCash -
-              left.grossCompletedSales -
-              left.grossCompletedExitCash
-            );
-          if (sort === "Most recent")
-            return right.lastLiquidityDate.localeCompare(
-              left.lastLiquidityDate,
-            );
-          return nameSort(left.name).localeCompare(nameSort(right.name));
-        }),
+        .sort((left, right) =>
+          compareDirectoryPeople(left, right, sortKey, sortDirection),
+        ),
     [
+      city,
+      country,
       evidence,
-      geography,
       kind,
-      location,
-      metroId,
       people,
       query,
       radiusMiles,
-      sort,
+      selectedCityCoordinates,
+      sortDirection,
+      sortKey,
+      state,
     ],
   );
   const visible = filtered.slice(0, visibleCount);
@@ -613,51 +717,82 @@ export function RealPeopleDirectory({
           />
         </label>
         <label>
-          <span>Reported state / country</span>
+          <span>Country</span>
           <select
-            value={location}
+            value={country}
             onChange={(event) => {
               setVisibleCount(50);
-              setLocation(event.target.value);
+              setCountry(event.target.value);
+              setState("All states / provinces");
+              setCity("All cities");
+              setRadiusMiles(0);
             }}
-            aria-label="Filter by reported state or country"
+            aria-label="Filter by country"
           >
-            <option>All locations</option>
-            {locationOptions.map((option) => (
+            <option>All countries</option>
+            {countryOptions.map((option) => (
               <option key={option}>{option}</option>
             ))}
             <option>Location not established</option>
           </select>
         </label>
         <label>
-          <span>Metro center</span>
+          <span>State / province</span>
           <select
-            value={metroId}
+            value={state}
             onChange={(event) => {
               setVisibleCount(50);
-              setMetroId(event.target.value);
+              setState(event.target.value);
+              setCity("All cities");
+              setRadiusMiles(0);
             }}
-            aria-label="Filter by metropolitan area"
+            disabled={
+              country === "All countries" ||
+              country === "Location not established" ||
+              !countryHasStates
+            }
+            aria-label="Filter by state or province"
           >
-            <option value="">All metros</option>
-            {(geography?.metros ?? []).map((metro) => (
-              <option value={metro.id} key={metro.id}>
-                {metro.name}
-              </option>
+            <option>All states / provinces</option>
+            {stateOptions.map((option) => (
+              <option key={option}>{option}</option>
             ))}
           </select>
         </label>
         <label>
-          <span>Radius</span>
+          <span>City</span>
+          <select
+            value={city}
+            onChange={(event) => {
+              setVisibleCount(50);
+              setCity(event.target.value);
+              setRadiusMiles(0);
+            }}
+            disabled={
+              country === "All countries" ||
+              country === "Location not established" ||
+              (countryHasStates && state === "All states / provinces")
+            }
+            aria-label="Filter by city"
+          >
+            <option>All cities</option>
+            {cityOptions.map((option) => (
+              <option key={option}>{option}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span>City radius</span>
           <select
             value={radiusMiles}
             onChange={(event) => {
               setVisibleCount(50);
               setRadiusMiles(Number(event.target.value));
             }}
-            disabled={!metroId}
-            aria-label="Metro radius in miles"
+            disabled={city === "All cities" || !selectedCityCoordinates}
+            aria-label="City search radius in miles"
           >
+            <option value={0}>Exact city</option>
             {[25, 50, 100, 150, 250].map((miles) => (
               <option value={miles} key={miles}>
                 {miles} miles
@@ -699,25 +834,29 @@ export function RealPeopleDirectory({
         <label>
           <span>Sort by</span>
           <select
-            value={sort}
+            value={sortKey}
             onChange={(event) => {
               setVisibleCount(50);
-              setSort(event.target.value);
+              const key = event.target.value as DirectorySortKey;
+              setSortKey(key);
+              setSortDirection(defaultSortDirection(key));
             }}
             aria-label="Sort people"
           >
-            <option>Estimated liquidity</option>
-            <option>Gross proceeds</option>
-            <option>Most recent</option>
-            <option>Name</option>
+            <option value="liquidity">Estimated liquidity</option>
+            <option value="gross">Gross proceeds</option>
+            <option value="recent">Most recent</option>
+            <option value="name">Name</option>
+            <option value="issuer">Linked issuer</option>
+            <option value="location">Location</option>
           </select>
         </label>
         <div className="real-people-result-count">
           <strong>{filtered.length}</strong>
           <span>
             attributable result{filtered.length === 1 ? "" : "s"}
-            {metroId
-              ? ` · Census place-to-metro distance within ${radiusMiles} miles`
+            {city !== "All cities" && radiusMiles > 0
+              ? ` · within ${radiusMiles} miles of ${city}`
               : ""}
           </span>
         </div>
@@ -727,13 +866,13 @@ export function RealPeopleDirectory({
         className="real-people-directory"
         aria-label="SEC reporting-party directory"
       >
-        <div className="real-people-row heading">
-          <span>Reporting party</span>
-          <span>Linked issuer</span>
-          <span>Reported location</span>
-          <span>Completed gross proceeds</span>
-          <span>Estimated remaining liquidity</span>
-          <span>Latest evidence</span>
+        <div className="real-people-row heading" role="row">
+          {sortHeading("name", "Reporting party")}
+          {sortHeading("issuer", "Linked issuer")}
+          {sortHeading("location", "Reported location")}
+          {sortHeading("gross", "Completed gross proceeds")}
+          {sortHeading("liquidity", "Estimated remaining liquidity")}
+          {sortHeading("recent", "Latest evidence")}
         </div>
         {visible.map((person) => (
           <button
@@ -876,95 +1015,100 @@ export function RealPersonProfile({
         ← People directory
       </button>
 
-      <section className="real-person-profile-hero">
-        <div className="real-person-profile-identity">
-          <span>{person.initials || "SEC"}</span>
-          <div>
-            <p className="eyebrow">Evidence-linked liquidity profile</p>
+      <div className="real-profile-top-stack">
+        <section className="real-person-profile-hero">
+          <div className="real-person-profile-identity">
+            <span>{person.initials || "SEC"}</span>
             <div>
-              <h1>{person.name}</h1>
-              <b>{person.confidence}% confidence</b>
+              <p className="eyebrow">Evidence-linked liquidity profile</p>
+              <div>
+                <h1>{person.name}</h1>
+                <b>{person.confidence}% confidence</b>
+              </div>
+              <p>
+                {person.relationship} at {person.issuers.join(", ")} · Reported
+                location: {person.location}. Latest liquidity evidence{" "}
+                {displayDate(person.lastLiquidityDate)}.
+              </p>
             </div>
-            <p>
-              {person.relationship} at {person.issuers.join(", ")} · Reported
-              location: {person.location}. Latest liquidity evidence{" "}
-              {displayDate(person.lastLiquidityDate)}.
-            </p>
           </div>
-        </div>
-        <div className="real-person-profile-summary">
-          <span>Estimated remaining liquidity</span>
-          <strong>
-            {person.estimatedNetProceeds.high > 0
-              ? moneyRange(person.estimatedRemainingLiquidity)
-              : person.grossCompletedExitCash > 0
-                ? "Entity receipt not modeled"
-                : "Not yet estimated"}
-          </strong>
-          <small>
-            Median {compactCurrency(person.estimatedRemainingLiquidity.median)}{" "}
-            · calculated from attributed completed events
-          </small>
-          {latestSource && (
-            <a href={latestSource} target="_blank" rel="noreferrer">
-              Open latest supporting record ↗
-            </a>
-          )}
-        </div>
-      </section>
+          <div className="real-person-profile-summary">
+            <span>Estimated remaining liquidity</span>
+            <strong>
+              {person.estimatedNetProceeds.high > 0
+                ? moneyRange(person.estimatedRemainingLiquidity)
+                : person.grossCompletedExitCash > 0
+                  ? "Entity receipt not modeled"
+                  : "Not yet estimated"}
+            </strong>
+            <small>
+              Median{" "}
+              {compactCurrency(person.estimatedRemainingLiquidity.median)} ·
+              calculated from attributed completed events
+            </small>
+            {latestSource && (
+              <a href={latestSource} target="_blank" rel="noreferrer">
+                Open latest supporting record ↗
+              </a>
+            )}
+          </div>
+        </section>
 
-      <div className="real-profile-disclosure">
-        <strong>Estimate, not bank balance</strong>
-        <p>
-          Gross proceeds are observed or calculated from SEC records. Completed
-          business-exit amounts are included only when an ownership filing or
-          explicit seller disclosure supports attribution. Estimated net and
-          remaining liquidity apply visible tax, fee, completed-purchase, and
-          time-based unobserved-deployment assumptions. Actual cash on hand can
-          differ materially.
-        </p>
+        <div className="real-profile-disclosure">
+          <strong>Estimate, not bank balance</strong>
+          <p>
+            Gross proceeds are observed or calculated from SEC records.
+            Completed business-exit amounts are included only when an ownership
+            filing or explicit seller disclosure supports attribution. Estimated
+            net and remaining liquidity apply visible tax, fee,
+            completed-purchase, and time-based unobserved-deployment
+            assumptions. Actual cash on hand can differ materially.
+          </p>
+        </div>
+
+        <section className="real-profile-kpis" aria-label="Liquidity summary">
+          <article>
+            <span>Completed gross proceeds</span>
+            <strong>{compactCurrency(completedCapital)}</strong>
+            <small>
+              {
+                person.liquidityEvents.filter(
+                  (event) => event.eventType === "completed_public_share_sale",
+                ).length
+              }{" "}
+              securities sale events · {person.exitAttributions.length}{" "}
+              completed exit attribution
+              {person.exitAttributions.length === 1 ? "" : "s"}
+            </small>
+          </article>
+          <article>
+            <span>Estimated net proceeds</span>
+            <strong>
+              {person.estimatedNetProceeds.high > 0
+                ? moneyRange(person.estimatedNetProceeds)
+                : "Not modeled"}
+            </strong>
+            <small>After modeled tax and transaction-cost ranges</small>
+          </article>
+          <article>
+            <span>Known public purchases</span>
+            <strong>{compactCurrency(person.grossPurchases)}</strong>
+            <small>Subtracted as documented cash deployment</small>
+          </article>
+          <article>
+            <span>Estimated remaining liquidity</span>
+            <strong>
+              {person.estimatedNetProceeds.high > 0
+                ? moneyRange(person.estimatedRemainingLiquidity)
+                : "Not modeled"}
+            </strong>
+            <small>
+              Median{" "}
+              {compactCurrency(person.estimatedRemainingLiquidity.median)}
+            </small>
+          </article>
+        </section>
       </div>
-
-      <section className="real-profile-kpis" aria-label="Liquidity summary">
-        <article>
-          <span>Completed gross proceeds</span>
-          <strong>{compactCurrency(completedCapital)}</strong>
-          <small>
-            {
-              person.liquidityEvents.filter(
-                (event) => event.eventType === "completed_public_share_sale",
-              ).length
-            }{" "}
-            securities sale events · {person.exitAttributions.length} completed
-            exit attribution{person.exitAttributions.length === 1 ? "" : "s"}
-          </small>
-        </article>
-        <article>
-          <span>Estimated net proceeds</span>
-          <strong>
-            {person.estimatedNetProceeds.high > 0
-              ? moneyRange(person.estimatedNetProceeds)
-              : "Not modeled"}
-          </strong>
-          <small>After modeled tax and transaction-cost ranges</small>
-        </article>
-        <article>
-          <span>Known public purchases</span>
-          <strong>{compactCurrency(person.grossPurchases)}</strong>
-          <small>Subtracted as documented cash deployment</small>
-        </article>
-        <article>
-          <span>Estimated remaining liquidity</span>
-          <strong>
-            {person.estimatedNetProceeds.high > 0
-              ? moneyRange(person.estimatedRemainingLiquidity)
-              : "Not modeled"}
-          </strong>
-          <small>
-            Median {compactCurrency(person.estimatedRemainingLiquidity.median)}
-          </small>
-        </article>
-      </section>
 
       <section className="real-profile-layout">
         <div className="real-profile-primary">

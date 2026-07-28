@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 import snapshotJson from "../../public/data/public-signals.json";
-import { buildRealPeople, estimateLiquidity } from "../../app/RealPeople";
+import {
+  buildRealPeople,
+  compareDirectoryPeople,
+  estimateLiquidity,
+} from "../../app/RealPeople";
 import type {
   PublicDataSnapshot,
   PublicLiquidityEvent,
 } from "../../lib/public-data";
+import {
+  formatMetroLocation,
+  normalizePublicLocation,
+} from "../../lib/public-locations";
 
 describe("real people profiles", () => {
   it("builds profiles only from attributable SEC reporting-party names", () => {
@@ -107,5 +115,48 @@ describe("real people profiles", () => {
     expect(estimate.estimatedRemainingLiquidity).toEqual(
       estimate.estimatedNetProceeds,
     );
+  });
+
+  it("standardizes public locations in country, full state, city order", () => {
+    expect(
+      normalizePublicLocation({
+        country: "",
+        state: "TX",
+        city: "HOUSTON",
+      }),
+    ).toMatchObject({
+      country: "United States",
+      state: "Texas",
+      city: "Houston",
+      stateCode: "TX",
+      display: "United States · Texas · Houston",
+    });
+    expect(
+      normalizePublicLocation({
+        country: "ONTARIO, CANADA",
+        state: "A6",
+        city: "TORONTO",
+      }).display,
+    ).toBe("Canada · Ontario · Toronto");
+    expect(formatMetroLocation("Austin-Round Rock-San Marcos, TX")).toBe(
+      "United States · Texas · Austin-Round Rock-San Marcos (city/metro area)",
+    );
+  });
+
+  it("ranks completed gross proceeds in both directions", () => {
+    const people = buildRealPeople(snapshotJson as PublicDataSnapshot);
+    const gross = (person: (typeof people)[number]) =>
+      person.grossCompletedSales + person.grossCompletedExitCash;
+    const descending = [...people].sort((left, right) =>
+      compareDirectoryPeople(left, right, "gross", "desc"),
+    );
+    const ascending = [...people].sort((left, right) =>
+      compareDirectoryPeople(left, right, "gross", "asc"),
+    );
+
+    expect(gross(descending[0])).toBeGreaterThanOrEqual(
+      gross(descending.at(-1)!),
+    );
+    expect(gross(ascending[0])).toBeLessThanOrEqual(gross(ascending.at(-1)!));
   });
 });

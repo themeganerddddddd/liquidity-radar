@@ -5,6 +5,7 @@ import type {
   PublicCompletedExit,
   PublicDataSnapshot,
 } from "../lib/public-data";
+import { formatMetroLocation } from "../lib/public-locations";
 import {
   findPlaceCoordinates,
   isWithinTerritory,
@@ -163,7 +164,9 @@ export function TerritoriesView({
             id: `${territory.id}:person:${person.id}`,
             type: "Capital-directory match" as const,
             title: person.name,
-            detail: `${territory.name} · ${metro?.name ?? "Saved metro"} · ${person.location}`,
+            detail: `${territory.name} · ${
+              metro ? formatMetroLocation(metro.name) : "Saved city/metro area"
+            } · ${person.location}`,
             amount: person.estimatedRemainingLiquidity.median,
             date: person.lastLiquidityDate,
             sourceUrl: "",
@@ -185,11 +188,11 @@ export function TerritoriesView({
       <section className="real-territory-builder">
         <div className="real-territory-copy">
           <p className="eyebrow">Territory builder</p>
-          <h2>Save a metro-radius capital search.</h2>
+          <h2>Save a city/metro-radius capital search.</h2>
           <p>
-            Radius matching uses Census place and metro reference points for
-            public SEC care-of cities. It is a business-development territory,
-            not a residence search.
+            Radius matching uses Census city and metro reference points for
+            public SEC care-of locations. It is a business-development
+            territory, not a residence search.
           </p>
         </div>
         <div className="real-territory-form">
@@ -198,20 +201,24 @@ export function TerritoriesView({
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder={selectedMetro?.name || "e.g. Northeast founders"}
+              placeholder={
+                selectedMetro
+                  ? formatMetroLocation(selectedMetro.name)
+                  : "e.g. Northeast founders"
+              }
             />
           </label>
           <label>
-            <span>Metro center</span>
+            <span>City / metro center</span>
             <select
               value={metroId}
               onChange={(event) => setMetroId(event.target.value)}
-              aria-label="Territory metro center"
+              aria-label="Territory city or metro center"
             >
-              <option value="">Select a metro</option>
+              <option value="">Select a city / metro area</option>
               {metros.map((metro) => (
                 <option value={metro.id} key={metro.id}>
-                  {metro.name}
+                  {formatMetroLocation(metro.name)}
                 </option>
               ))}
             </select>
@@ -266,7 +273,9 @@ export function TerritoriesView({
                   id:
                     globalThis.crypto?.randomUUID?.() ??
                     `territory-${Date.now()}`,
-                  name: name.trim() || `${selectedMetro.name} territory`,
+                  name:
+                    name.trim() ||
+                    `${formatMetroLocation(selectedMetro.name)} territory`,
                   metroId,
                   radiusMiles,
                   minimumCapital,
@@ -299,7 +308,8 @@ export function TerritoriesView({
                   <span>
                     <strong>{territory.name}</strong>
                     <small>
-                      {metro?.name} · {territory.radiusMiles} miles ·{" "}
+                      {metro ? formatMetroLocation(metro.name) : "Saved area"} ·{" "}
+                      {territory.radiusMiles} miles ·{" "}
                       {compactCurrency(territory.minimumCapital)} minimum
                     </small>
                   </span>
@@ -325,7 +335,8 @@ export function TerritoriesView({
             )}
             {!territories.length && (
               <p className="real-territory-empty">
-                Save a metro above to create your first local territory rule.
+                Save a city/metro area above to create your first local
+                territory rule.
               </p>
             )}
           </div>

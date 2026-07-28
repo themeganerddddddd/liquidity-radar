@@ -10324,3 +10324,116 @@ a.real-holdings-row:hover {
     grid-column: auto;
   }
 }
+
+/* Location hierarchy, sortable directory headers, and aligned profile summary */
+.real-people-controls {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.real-people-controls label:nth-of-type(1) {
+  grid-column: span 4;
+}
+
+.real-people-controls label:nth-of-type(2),
+.real-people-controls label:nth-of-type(3),
+.real-people-controls label:nth-of-type(4),
+.real-people-controls label:nth-of-type(5) {
+  grid-column: span 2;
+}
+
+.real-people-controls label:nth-of-type(6),
+.real-people-controls label:nth-of-type(7),
+.real-people-controls label:nth-of-type(8) {
+  grid-column: span 3;
+}
+
+.real-people-result-count {
+  grid-column: 10 / -1;
+  grid-row: 2;
+}
+
+.real-people-row.heading > span {
+  min-width: 0;
+}
+
+.real-people-row.heading > span > button {
+  align-items: center;
+  background: transparent;
+  color: inherit;
+  display: inline-flex;
+  font: inherit;
+  font-weight: inherit;
+  gap: 5px;
+  letter-spacing: inherit;
+  padding: 5px 0;
+  text-align: left;
+  text-transform: inherit;
+}
+
+.real-people-row.heading > span > button:hover,
+.real-people-row.heading > span > button:focus-visible {
+  color: #146f63;
+}
+
+.real-people-row.heading > span > button > i {
+  color: #91a29d;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.real-people-row.heading > span > button > i.active {
+  color: #168474;
+}
+
+.real-profile-top-stack {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.real-profile-top-stack > .real-person-profile-hero,
+.real-profile-top-stack > .real-profile-disclosure,
+.real-profile-top-stack > .real-profile-kpis {
+  box-sizing: border-box;
+  margin: 0;
+  width: 100%;
+}
+
+.real-profile-top-stack > .real-profile-disclosure {
+  align-items: start;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.real-profile-top-stack > .real-profile-kpis {
+  border-radius: 10px;
+}
+
+@media (max-width: 1180px) {
+  .real-people-controls {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .real-people-controls label:nth-of-type(1) {
+    grid-column: span 3;
+  }
+
+  .real-people-controls label:nth-of-type(n + 2) {
+    grid-column: span 1;
+  }
+
+  .real-people-result-count {
+    grid-column: 5 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 680px) {
+  .real-people-controls,
+  .real-people-controls label:nth-of-type(n) {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+}
