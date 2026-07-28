@@ -12,10 +12,23 @@ import {
   reviewQueue,
   savedSearches,
 } from "./data";
-import type { Person } from "./data";
+import type { Person, Region } from "./data";
 import { dateLabel, money, percent, rangeMoney } from "../lib/format";
 import { matchScore } from "../lib/core";
 import { LiquidityMap } from "./LiquidityMap";
+import {
+  EventsExplorer,
+  PeopleExplorer,
+  RegionDetail,
+  RegionsDirectory,
+} from "./RegionalViews";
+import {
+  calculateAffinity,
+  parseMapState,
+  selectActiveRegion,
+  serializeMapState,
+} from "../lib/regional";
+import { getRegion } from "../lib/data-query";
 
 type View =
   | "dashboard"
@@ -37,9 +50,70 @@ type View =
   | "workspace"
   | "methodology"
   | "api"
+  | "region"
   | "profile";
 
 const subscribeToHydration = () => () => undefined;
+const subscribeToLocation = (callback: () => void) => {
+  window.addEventListener("popstate", callback);
+  return () => window.removeEventListener("popstate", callback);
+};
+const getLocationSnapshot = () => window.location.href;
+const getServerLocationSnapshot = () => "http://localhost/";
+
+function viewFromPath(pathname: string, params: URLSearchParams): View {
+  if (/^\/people\/[^/]+/.test(pathname)) return "profile";
+  if (/^\/regions\/[^/]+/.test(pathname)) return "region";
+  const routes: Record<string, View> = {
+    "/": "dashboard",
+    "/map": "map",
+    "/events": "feed",
+    "/people": "people",
+    "/organizations": "organizations",
+    "/regions": "regions",
+    "/rankings": "rankings",
+    "/capital-match": "matching",
+    "/saved-searches": "saved",
+    "/alerts": "alerts",
+    "/reports": "reports",
+    "/review": "review",
+    "/evidence": "sources",
+    "/identity": "identity",
+    "/data-operations": "jobs",
+    "/privacy": "privacy",
+    "/workspace": "workspace",
+    "/methodology": "methodology",
+    "/api-docs": "api",
+  };
+  return routes[pathname] || (params.get("view") as View) || "dashboard";
+}
+
+function pathForView(view: View) {
+  const routes: Record<View, string> = {
+    dashboard: "/",
+    map: "/map",
+    feed: "/events",
+    people: "/people",
+    profile: "/people",
+    organizations: "/organizations",
+    regions: "/regions",
+    region: "/regions",
+    rankings: "/rankings",
+    matching: "/capital-match",
+    saved: "/saved-searches",
+    alerts: "/alerts",
+    reports: "/reports",
+    review: "/review",
+    sources: "/evidence",
+    identity: "/identity",
+    jobs: "/data-operations",
+    privacy: "/privacy",
+    workspace: "/workspace",
+    methodology: "/methodology",
+    api: "/api-docs",
+  };
+  return routes[view];
+}
 
 type UserRole = "customer" | "analyst" | "admin";
 type Toast = { title: string; detail: string } | null;
@@ -125,6 +199,12 @@ const headlines: Record<
     title: "Regional capital dashboards",
     detail:
       "Creation, control, deployment, retention, leakage, and attraction—without double counting.",
+  },
+  region: {
+    eyebrow: "Regional intelligence",
+    title: "Region detail",
+    detail:
+      "Connected people, events, organizations, industries, and capital matches.",
   },
   rankings: {
     eyebrow: "Confidence ≥ 65",
@@ -222,7 +302,7 @@ function download(name: string, content: string, type: string) {
   URL.revokeObjectURL(href);
 }
 
-function csvForPeople(records: Person[]) {
+function csvForPeople(records: Person[], affinityRegion: Region) {
   const header = [
     "record_id",
     "name",
@@ -235,20 +315,29 @@ function csvForPeople(records: Person[]) {
     "primary_source",
     "geography",
     "publication_status",
+    "affinity_region",
+    "affinity_score",
+    "main_affinity_reasons",
   ];
-  const rows = records.map((person) => [
-    person.id,
-    person.name,
-    "2026-07-24",
-    person.remaining.low,
-    person.remaining.median,
-    person.remaining.high,
-    person.confidence,
-    "analyst-reviewed",
-    `${person.sourceCount} linked sources`,
-    person.location,
-    person.status,
-  ]);
+  const rows = records.map((person) => {
+    const affinity = calculateAffinity(person, affinityRegion, regions);
+    return [
+      person.id,
+      person.name,
+      "2026-07-27",
+      person.remaining.low,
+      person.remaining.median,
+      person.remaining.high,
+      person.confidence,
+      "analyst-reviewed",
+      `${person.sourceCount} linked sources`,
+      person.location,
+      person.status,
+      affinityRegion.name,
+      affinity.score,
+      affinity.mainReasons.join("; "),
+    ];
+  });
   return [header, ...rows]
     .map((row) =>
       row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","),
@@ -484,6 +573,8 @@ function Header({
   onSearch,
   role,
   onNavigate,
+  activeRegion,
+  onActiveRegion,
   onLogout,
   onMenu,
 }: {
@@ -492,6 +583,8 @@ function Header({
   onSearch: (value: string) => void;
   role: UserRole;
   onNavigate: (view: View) => void;
+  activeRegion: Region;
+  onActiveRegion: (slug: string) => void;
   onLogout: () => void;
   onMenu: () => void;
 }) {
@@ -516,6 +609,20 @@ function Header({
         <kbd>⌘ K</kbd>
       </div>
       <div className="header-actions">
+        <label className="affinity-region-control">
+          <span>Affinity region</span>
+          <select
+            aria-label="Affinity region"
+            value={activeRegion.slug}
+            onChange={(event) => onActiveRegion(event.target.value)}
+          >
+            {regions.map((region) => (
+              <option key={region.slug} value={region.slug}>
+                {region.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           className="icon-button"
           aria-label="Open notifications"
@@ -578,7 +685,8 @@ function Sidebar({
                 key={item.view}
                 className={
                   view === item.view ||
-                  (view === "profile" && item.view === "people")
+                  (view === "profile" && item.view === "people") ||
+                  (view === "region" && item.view === "regions")
                     ? "active"
                     : ""
                 }
@@ -887,7 +995,7 @@ function Dashboard({
           .sort((a, b) => b.momentum - a.momentum)
           .slice(0, 4)
           .map((region, index) => (
-            <button key={region.code} onClick={() => onNavigate("regions")}>
+            <button key={region.slug} onClick={() => onNavigate("regions")}>
               <span>{String(index + 1).padStart(2, "0")}</span>
               <div>
                 <strong>{region.metro}</strong>
@@ -901,7 +1009,7 @@ function Dashboard({
   );
 }
 
-function SearchView({
+export function SearchView({
   search,
   onSearch,
   onPerson,
@@ -1098,19 +1206,39 @@ function SearchView({
 
 function PersonProfile({
   person,
+  activeRegion,
+  onActiveRegion,
+  onRegion,
   onBack,
   onAction,
 }: {
   person: Person;
+  activeRegion: Region;
+  onActiveRegion: (slug: string) => void;
+  onRegion: (slug: string) => void;
   onBack: () => void;
   onAction: (message: string) => void;
 }) {
   const [evidenceOpen, setEvidenceOpen] = useState(0);
+  const [affinityOpen, setAffinityOpen] = useState(false);
   const [timeline, setTimeline] = useState<"all" | "liquidity" | "deployment">(
     "all",
   );
+  const affinity = calculateAffinity(person, activeRegion, regions);
   return (
     <>
+      <nav className="breadcrumbs" aria-label="Breadcrumb">
+        <button onClick={() => onRegion(person.primaryRegionSlug)}>
+          National Map
+        </button>
+        <span>
+          /{" "}
+          <button onClick={() => onRegion(person.primaryRegionSlug)}>
+            {getRegion(person.primaryRegionSlug)?.name ?? person.location}
+          </button>
+        </span>
+        <span>/ {person.name}</span>
+      </nav>
       <button className="back-link" onClick={onBack}>
         ← Back to people
       </button>
@@ -1128,7 +1256,14 @@ function PersonProfile({
               {person.role} at {person.organization}
             </p>
             <span>
-              {person.industry} · {person.location} · City-level location only
+              {person.industry} ·{" "}
+              <button
+                className="inline-region-link"
+                onClick={() => onRegion(person.primaryRegionSlug)}
+              >
+                {person.location}
+              </button>{" "}
+              · City-level location only
             </span>
           </div>
         </div>
@@ -1178,6 +1313,73 @@ function PersonProfile({
           Claim or correct profile
         </button>
       </div>
+      <section className="profile-affinity-summary">
+        <div>
+          <p className="eyebrow">Region-relative geographic affinity</p>
+          <h2>
+            Affinity to {activeRegion.name}: {affinity.score}/100
+          </h2>
+          <p>
+            {affinity.evidenceCount} evidence-linked geographic relationships ·
+            calculated {dateLabel(affinity.calculatedAt)}
+          </p>
+        </div>
+        <label>
+          Compare with
+          <select
+            aria-label="Profile affinity comparison region"
+            value={activeRegion.slug}
+            onChange={(event) => onActiveRegion(event.target.value)}
+          >
+            {regions.map((region) => (
+              <option key={region.slug} value={region.slug}>
+                {region.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="button ghost"
+          aria-expanded={affinityOpen}
+          onClick={() => setAffinityOpen((value) => !value)}
+        >
+          Why this score?
+        </button>
+        {affinityOpen && (
+          <div className="affinity-explanation">
+            {affinity.components.length ? (
+              affinity.components.map((component) => (
+                <article key={component.type}>
+                  <div>
+                    <strong>{component.label}</strong>
+                    <b>+{component.points}</b>
+                  </div>
+                  {component.reasons.map((reason, index) => (
+                    <button
+                      key={reason}
+                      onClick={() =>
+                        onAction(
+                          `Opened geographic evidence ${index + 1} for ${component.label}`,
+                        )
+                      }
+                    >
+                      {reason} ↗
+                    </button>
+                  ))}
+                  <small>
+                    {component.evidenceCount} supporting evidence item(s)
+                  </small>
+                </article>
+              ))
+            ) : (
+              <p>
+                No documented geographic relationships currently connect this
+                person to {activeRegion.name}.
+              </p>
+            )}
+          </div>
+        )}
+      </section>
       <section className="profile-kpis">
         {[
           [
@@ -1405,21 +1607,23 @@ function PersonProfile({
           </article>
           <article className="panel">
             <p className="eyebrow">Geographic relationships</p>
-            <h2>Documented affinities</h2>
-            {[
-              ["Primary economic location", person.location, 92],
-              ["Company location", person.location, 98],
-              ["Investment activity", "Raleigh–Durham, NC", 84],
-              ["Board affiliation", "Boston, MA", 77],
-            ].map(([type, place, score]) => (
-              <div className="affinity" key={String(type)}>
+            <h2>Affinity to {activeRegion.name}</h2>
+            {person.geographicRelationships.map((relationship) => (
+              <button
+                className="affinity geographic-link"
+                key={`${relationship.type}-${relationship.evidenceId}`}
+                onClick={() => onRegion(relationship.regionSlug)}
+              >
                 <span className="pin">•</span>
                 <div>
-                  <small>{type}</small>
-                  <strong>{place}</strong>
+                  <small>{relationship.type.replace(/_/g, " ")}</small>
+                  <strong>
+                    {getRegion(relationship.regionSlug)?.name ??
+                      relationship.regionSlug}
+                  </strong>
                 </div>
-                <Confidence value={Number(score)} />
-              </div>
+                <span>Open region →</span>
+              </button>
             ))}
             <p className="panel-note">
               No street-level residential data is stored or shown.
@@ -1453,7 +1657,7 @@ function PersonProfile({
   );
 }
 
-function FeedView({
+export function FeedView({
   onPerson,
   onSave,
 }: {
@@ -1578,7 +1782,11 @@ function FeedView({
   );
 }
 
-function RegionsView({ onNavigate }: { onNavigate: (view: View) => void }) {
+export function RegionsView({
+  onNavigate,
+}: {
+  onNavigate: (view: View) => void;
+}) {
   const [compare, setCompare] = useState("Capital created");
   return (
     <>
@@ -1598,7 +1806,7 @@ function RegionsView({ onNavigate }: { onNavigate: (view: View) => void }) {
       />
       <section className="region-cards">
         {regions.slice(0, 6).map((region) => (
-          <article key={region.code}>
+          <article key={region.slug}>
             <div>
               <span>{region.code}</span>
               <b>+{region.momentum}% momentum</b>
@@ -1654,9 +1862,11 @@ function RegionsView({ onNavigate }: { onNavigate: (view: View) => void }) {
 function RankingsView({
   onPerson,
   onExport,
+  activeRegion,
 }: {
   onPerson: (person: Person) => void;
   onExport: () => void;
+  activeRegion: Region;
 }) {
   const [metric, setMetric] = useState("Estimated remaining liquidity");
   const ranked = people
@@ -1666,7 +1876,10 @@ function RankingsView({
     .sort((a, b) =>
       metric === "Radar score"
         ? b.radar - a.radar
-        : b.remaining.median - a.remaining.median,
+        : metric.startsWith("Affinity to")
+          ? calculateAffinity(b, activeRegion, regions).score -
+            calculateAffinity(a, activeRegion, regions).score
+          : b.remaining.median - a.remaining.median,
     )
     .slice(0, 15);
   return (
@@ -1685,7 +1898,7 @@ function RankingsView({
           "Confidence-adjusted liquidity",
           "Radar score",
           "Post-exit activity",
-          "Local affinity",
+          `Affinity to ${activeRegion.name}`,
         ].map((value) => (
           <button
             className={metric === value ? "active" : ""}
@@ -1731,6 +1944,12 @@ function RankingsView({
               <small>Radar</small>
               <b className="score">{person.radar}</b>
             </span>
+            <span>
+              <small>Affinity to {activeRegion.name}</small>
+              <b className="score">
+                {calculateAffinity(person, activeRegion, regions).score}
+              </b>
+            </span>
             <span className="momentum">+{person.momentum}%</span>
           </button>
         ))}
@@ -1742,9 +1961,11 @@ function RankingsView({
 function MatchingView({
   onPerson,
   notify,
+  activeRegion,
 }: {
   onPerson: (person: Person) => void;
   notify: (message: string) => void;
+  activeRegion: Region;
 }) {
   const [generated, setGenerated] = useState(false);
   const [industry, setIndustry] = useState("Healthcare");
@@ -1758,7 +1979,8 @@ function MatchingView({
         capacity: 0.93 - index * 0.025,
         confidence: person.confidence / 100,
         sectorAffinity: index % 3 === 0 ? 0.95 : 0.78,
-        geographicAffinity: index % 2 === 0 ? 0.92 : 0.7,
+        geographicAffinity:
+          calculateAffinity(person, activeRegion, regions).score / 100,
         checkSizeFit: 0.88 - index * 0.02,
         deploymentPropensity: 0.82,
         recency: 0.9 - index * 0.04,
@@ -1945,8 +2167,17 @@ function MatchingView({
                     Check-size fit <b>88</b>
                   </span>
                   <span>
-                    <i style={{ width: "84%" }} />
-                    Geographic affinity <b>84</b>
+                    <i
+                      style={{
+                        width: `${
+                          calculateAffinity(person, activeRegion, regions).score
+                        }%`,
+                      }}
+                    />
+                    Affinity to {activeRegion.name}{" "}
+                    <b>
+                      {calculateAffinity(person, activeRegion, regions).score}
+                    </b>
                   </span>
                 </div>
                 <div className="match-capacity">
@@ -2389,6 +2620,53 @@ function WorkspaceViews({
     );
   }
   return null;
+}
+
+function RegionalPreferenceCard({
+  homeRegion,
+  activeRegion,
+  onHomeRegion,
+}: {
+  homeRegion: Region;
+  activeRegion: Region;
+  onHomeRegion: (slug: string) => void;
+}) {
+  return (
+    <section className="panel regional-preferences">
+      <div>
+        <p className="eyebrow">Workspace Settings → Regional Preferences</p>
+        <h2>Regional preferences</h2>
+        <p>
+          The workspace home region is the default affinity reference when no
+          URL or recent user selection is available.
+        </p>
+      </div>
+      <label>
+        Workspace home region
+        <select
+          aria-label="Workspace home region"
+          value={homeRegion.slug}
+          onChange={(event) => onHomeRegion(event.target.value)}
+        >
+          {regions.map((region) => (
+            <option key={region.slug} value={region.slug}>
+              {region.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <dl>
+        <div>
+          <dt>Current home region</dt>
+          <dd>{homeRegion.name}</dd>
+        </div>
+        <div>
+          <dt>Your active affinity region</dt>
+          <dd>{activeRegion.name}</dd>
+        </div>
+      </dl>
+    </section>
+  );
 }
 
 function OperationsViews({
@@ -3233,14 +3511,67 @@ function MethodologyView({ view }: { view: "methodology" | "api" }) {
 export function RadarApp() {
   const [authenticated, setAuthenticated] = useState(false);
   const [role, setRole] = useState<UserRole>("customer");
-  const [view, setView] = useState<View>("dashboard");
+  const [viewState, setView] = useState<View>("dashboard");
   const [selectedPerson, setSelectedPerson] = useState<Person>(people[0]);
   const [search, setSearch] = useState("");
-  const [mapMetric, setMapMetric] = useState<
-    "created" | "controlled" | "deployed" | "momentum"
-  >("created");
   const [toast, setToast] = useState<Toast>(null);
   const [mobileNav, setMobileNav] = useState(false);
+  const [activeRegionChoice, setActiveRegionChoice] = useState("");
+  const [homeRegionSlug, setHomeRegionSlug] = useState("");
+  const ready = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
+  const locationHref = useSyncExternalStore(
+    subscribeToLocation,
+    getLocationSnapshot,
+    getServerLocationSnapshot,
+  );
+  const currentUrl = new URL(locationHref);
+  const routeView = viewFromPath(currentUrl.pathname, currentUrl.searchParams);
+  const view = ready ? routeView : viewState;
+  const storedRole = ready
+    ? (window.localStorage.getItem("lr_demo_role") as UserRole | null)
+    : null;
+  const effectiveAuthenticated = authenticated || Boolean(storedRole);
+  const effectiveRole = authenticated ? role : storedRole || role;
+  const storedHomeRegion = ready
+    ? window.localStorage.getItem("lr_home_region")
+    : null;
+  const recentRegion = ready
+    ? window.localStorage.getItem("lr_recent_region")
+    : null;
+  const routeRegionSlug =
+    currentUrl.pathname.match(/^\/regions\/([^/]+)/)?.[1] || "";
+  const selectedRegionSlug =
+    currentUrl.searchParams.get("region") || routeRegionSlug;
+  const resolvedHomeRegionSlug =
+    homeRegionSlug || storedHomeRegion || "montgomery-county-md";
+  const activeRegionSlug =
+    activeRegionChoice ||
+    selectActiveRegion({
+      urlRegion:
+        currentUrl.searchParams.get("affinityRegion") ||
+        selectedRegionSlug ||
+        null,
+      recentRegion,
+      homeRegion: resolvedHomeRegionSlug,
+    });
+  const activeRegion =
+    getRegion(activeRegionSlug) ??
+    getRegion(resolvedHomeRegionSlug) ??
+    regions[0];
+  const homeRegion =
+    getRegion(resolvedHomeRegionSlug) ??
+    getRegion("montgomery-county-md") ??
+    regions[0];
+  const pathPersonSlug =
+    currentUrl.pathname.match(/^\/people\/([^/]+)/)?.[1] || "";
+  const currentPerson =
+    people.find((person) => person.slug === pathPersonSlug) || selectedPerson;
+  const queryString = currentUrl.searchParams.toString();
+  const mapState = parseMapState(currentUrl.searchParams);
 
   function notify(message: string) {
     setToast({ title: "Workspace updated", detail: message });
@@ -3265,19 +3596,97 @@ export function RadarApp() {
     }
   }
 
+  function applyLocation(
+    pathname: string,
+    params = new URLSearchParams(),
+    replace = false,
+  ) {
+    const next = `${pathname}${params.size ? `?${params}` : ""}`;
+    if (replace) window.history.replaceState({}, "", next);
+    else window.history.pushState({}, "", next);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
+
   function navigate(next: View) {
     setView(next);
     setMobileNav(false);
-    const url = new URL(window.location.href);
-    url.searchParams.set("view", next);
-    if (search) url.searchParams.set("q", search);
-    window.history.replaceState({}, "", url);
+    const params = new URLSearchParams();
+    if (activeRegion.slug) params.set("affinityRegion", activeRegion.slug);
+    if (next === "people" && search) params.set("q", search);
+    applyLocation(pathForView(next), params);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function openPerson(person: Person) {
     setSelectedPerson(person);
-    navigate("profile");
+    setView("profile");
+    applyLocation(
+      `/people/${person.slug}`,
+      new URLSearchParams({ affinityRegion: activeRegion.slug }),
+    );
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function openRegion(slug: string, context?: URLSearchParams) {
+    const region = getRegion(slug);
+    if (!region) return;
+    setView("region");
+    setActiveRegionChoice(slug);
+    window.localStorage.setItem("lr_recent_region", slug);
+    const params = new URLSearchParams(context);
+    params.set("affinityRegion", slug);
+    applyLocation(`/regions/${slug}`, params);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function openFilteredView(
+    target: "feed" | "people",
+    filters: Record<string, string>,
+  ) {
+    const params = new URLSearchParams(filters);
+    const referencedRegion = filters.region;
+    const affinitySlug = referencedRegion || activeRegion.slug;
+    if (affinitySlug) params.set("affinityRegion", affinitySlug);
+    if (referencedRegion) {
+      setActiveRegionChoice(referencedRegion);
+      window.localStorage.setItem("lr_recent_region", referencedRegion);
+    }
+    setView(target);
+    applyLocation(pathForView(target), params);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function updateCurrentQuery(
+    target: "feed" | "people",
+    params: URLSearchParams,
+    replace = false,
+  ) {
+    if (!params.has("affinityRegion")) {
+      params.set("affinityRegion", activeRegion.slug);
+    }
+    setView(target);
+    applyLocation(pathForView(target), params, replace);
+  }
+
+  function changeActiveRegion(slug: string) {
+    if (!getRegion(slug)) return;
+    setActiveRegionChoice(slug);
+    window.localStorage.setItem("lr_recent_region", slug);
+    const params = new URLSearchParams(currentUrl.searchParams);
+    params.set("affinityRegion", slug);
+    applyLocation(currentUrl.pathname, params, true);
+    notify(`Affinity scores recalculated for ${getRegion(slug)!.name}`);
+  }
+
+  function changeHomeRegion(slug: string) {
+    const region = getRegion(slug);
+    if (!region) return;
+    setHomeRegionSlug(slug);
+    window.localStorage.setItem("lr_home_region", slug);
+    changeActiveRegion(slug);
+    void persist("regional_preference", "Workspace home region", {
+      home_region_id: slug,
+    });
   }
 
   function exportPeople(
@@ -3285,7 +3694,7 @@ export function RadarApp() {
   ) {
     download(
       "liquidity-radar-people.csv",
-      csvForPeople(records),
+      csvForPeople(records, activeRegion),
       "text/csv;charset=utf-8",
     );
     notify(
@@ -3293,13 +3702,23 @@ export function RadarApp() {
     );
   }
 
-  if (!authenticated) {
+  if (!effectiveAuthenticated) {
     return (
       <Login
         onLogin={(nextRole) => {
           setRole(nextRole);
           setAuthenticated(true);
-          setView(nextRole === "customer" ? "dashboard" : "review");
+          window.localStorage.setItem("lr_demo_role", nextRole);
+          const nextView =
+            routeView !== "dashboard"
+              ? routeView
+              : nextRole === "customer"
+                ? "dashboard"
+                : "review";
+          setView(nextView);
+          if (routeView === "dashboard" && nextView !== "dashboard") {
+            applyLocation(pathForView(nextView));
+          }
         }}
       />
     );
@@ -3317,16 +3736,40 @@ export function RadarApp() {
   else if (view === "map")
     content = (
       <>
-        <PageIntro
-          view="map"
-          actions={
-            <>
-              <span className="filter-chip">90 days ×</span>
-              <span className="filter-chip">Confidence 65+ ×</span>
-            </>
+        <PageIntro view="map" />
+        <LiquidityMap
+          metric={mapState.metric}
+          period={mapState.period}
+          industry={mapState.industry}
+          selectedRegion={mapState.region}
+          center={mapState.center}
+          zoom={mapState.zoom}
+          onMetricChange={(metric) => {
+            const next = serializeMapState({ ...mapState, metric });
+            next.set("affinityRegion", activeRegion.slug);
+            applyLocation("/map", next, true);
+          }}
+          onPeriodChange={(period) => {
+            const next = serializeMapState({ ...mapState, period });
+            next.set("affinityRegion", activeRegion.slug);
+            applyLocation("/map", next, true);
+          }}
+          onIndustryChange={(industry) => {
+            const next = serializeMapState({ ...mapState, industry });
+            next.set("affinityRegion", activeRegion.slug);
+            applyLocation("/map", next, true);
+          }}
+          onViewportChange={(center, zoom) => {
+            const next = serializeMapState({ ...mapState, center, zoom });
+            next.set("affinityRegion", activeRegion.slug);
+            applyLocation("/map", next, true);
+          }}
+          onRegion={(region) =>
+            openRegion(region, serializeMapState({ ...mapState, region }))
           }
+          onPeople={(region) => openFilteredView("people", { region })}
+          onEvents={(region) => openFilteredView("feed", { region })}
         />
-        <LiquidityMap metric={mapMetric} onMetricChange={setMapMetric} />
         <div className="coverage-footnote">
           <strong>Privacy protected.</strong> The map uses aggregate metro
           points and never displays residential coordinates. Confidence-aware
@@ -3335,12 +3778,33 @@ export function RadarApp() {
       </>
     );
   else if (view === "feed")
-    content = <FeedView onPerson={openPerson} onSave={notify} />;
+    content = (
+      <EventsExplorer
+        key={`events-${queryString}`}
+        queryString={queryString}
+        onQueryChange={(params, replace) =>
+          updateCurrentQuery("feed", params, replace)
+        }
+        onPerson={openPerson}
+        onRegion={openRegion}
+        onOrganization={(slug) =>
+          applyLocation(
+            "/organizations",
+            new URLSearchParams({ organization: slug }),
+          )
+        }
+        notify={notify}
+      />
+    );
   else if (view === "people")
     content = (
-      <SearchView
-        search={search}
-        onSearch={setSearch}
+      <PeopleExplorer
+        key={`people-${queryString}-${activeRegion.slug}`}
+        queryString={queryString}
+        activeRegion={activeRegion}
+        onQueryChange={(params, replace) =>
+          updateCurrentQuery("people", params, replace)
+        }
         onPerson={openPerson}
         onSave={() =>
           persist("saved_search", search || "Qualified people · confidence 65+")
@@ -3351,28 +3815,78 @@ export function RadarApp() {
   else if (view === "profile")
     content = (
       <PersonProfile
-        person={selectedPerson}
+        person={currentPerson}
+        activeRegion={activeRegion}
+        onActiveRegion={changeActiveRegion}
+        onRegion={openRegion}
         onBack={() => navigate("people")}
         onAction={notify}
       />
     );
   else if (view === "organizations")
     content = <OrganizationsView notify={notify} />;
-  else if (view === "regions") content = <RegionsView onNavigate={navigate} />;
+  else if (view === "regions")
+    content = (
+      <RegionsDirectory onRegion={openRegion} onMap={() => navigate("map")} />
+    );
+  else if (view === "region")
+    content = (
+      <RegionDetail
+        key={`${routeRegionSlug}-${activeRegion.slug}`}
+        regionSlug={routeRegionSlug}
+        activeRegion={activeRegion}
+        onRegion={openRegion}
+        onPerson={openPerson}
+        onEvents={(filters) => openFilteredView("feed", filters)}
+        onPeople={(filters) => openFilteredView("people", filters)}
+        onOrganization={(slug) =>
+          applyLocation(
+            "/organizations",
+            new URLSearchParams({ organization: slug }),
+          )
+        }
+      />
+    );
   else if (view === "rankings")
     content = (
-      <RankingsView onPerson={openPerson} onExport={() => exportPeople()} />
-    );
-  else if (view === "matching")
-    content = <MatchingView onPerson={openPerson} notify={notify} />;
-  else if (["saved", "alerts", "reports", "workspace"].includes(view))
-    content = (
-      <WorkspaceViews
-        view={view}
-        notify={notify}
+      <RankingsView
         onPerson={openPerson}
         onExport={() => exportPeople()}
+        activeRegion={activeRegion}
       />
+    );
+  else if (view === "matching")
+    content = (
+      <MatchingView
+        onPerson={openPerson}
+        notify={notify}
+        activeRegion={activeRegion}
+      />
+    );
+  else if (["saved", "alerts", "reports", "workspace"].includes(view))
+    content = (
+      <>
+        <WorkspaceViews
+          view={view}
+          notify={notify}
+          onPerson={openPerson}
+          onExport={() => exportPeople()}
+        />
+        {view === "workspace" && (
+          <RegionalPreferenceCard
+            homeRegion={homeRegion}
+            activeRegion={activeRegion}
+            onHomeRegion={changeHomeRegion}
+          />
+        )}
+        {view === "saved" && (
+          <div className="coverage-footnote">
+            <strong>Affinity region: {activeRegion.name}.</strong> Saved people
+            searches and exports recalculate geographic affinity against the
+            currently selected region.
+          </div>
+        )}
+      </>
     );
   else if (["review", "sources", "identity", "jobs", "privacy"].includes(view))
     content = <OperationsViews view={view} notify={notify} />;
@@ -3386,9 +3900,14 @@ export function RadarApp() {
         view={view}
         search={search}
         onSearch={setSearch}
-        role={role}
+        role={effectiveRole}
         onNavigate={navigate}
-        onLogout={() => setAuthenticated(false)}
+        activeRegion={activeRegion}
+        onActiveRegion={changeActiveRegion}
+        onLogout={() => {
+          window.localStorage.removeItem("lr_demo_role");
+          setAuthenticated(false);
+        }}
         onMenu={() => setMobileNav((value) => !value)}
       />
       {mobileNav && (

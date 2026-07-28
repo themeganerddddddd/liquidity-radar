@@ -1,4 +1,5 @@
-import { events } from "../../../data";
+import { filterLiquidityEvents, publicEvent } from "../../../../lib/data-query";
+import { eventQuerySchema, queryObject } from "../../../../lib/regional";
 import {
   apiResponse,
   apiUnauthorized,
@@ -9,26 +10,30 @@ import {
 export function GET(request: Request) {
   const id = requestId(request);
   if (!authorizeApi(request)) return apiUnauthorized(id);
-  const limit = Math.min(
-    100,
-    Math.max(1, Number(new URL(request.url).searchParams.get("limit") || 25)),
-  );
-  return apiResponse(
-    events.slice(0, limit).map((event) => ({
-      id: event.id,
-      person: event.person,
-      organization: event.organization,
-      event_type: event.type,
-      event_date: event.date,
-      location: event.place,
-      gross_amount: { ...event.gross, currency: "USD" },
-      estimated_net_amount: { ...event.net, currency: "USD" },
-      confidence: event.confidence,
-      status: event.status.toLowerCase(),
-      classification: event.classification,
-      primary_source: event.source,
-    })),
-    id,
-    { next_cursor: events.length > limit ? "demo_event_cursor" : null },
-  );
+  const url = new URL(request.url);
+  const parsed = eventQuerySchema.safeParse(queryObject(url.searchParams));
+  if (!parsed.success) {
+    return Response.json(
+      {
+        error: {
+          code: "invalid_parameters",
+          message: "One or more event filters are invalid.",
+          details: parsed.error.flatten(),
+          request_id: id,
+        },
+      },
+      { status: 400, headers: { "x-request-id": id } },
+    );
+  }
+  const { cursor, limit: requestedLimit, ...filters } = parsed.data;
+  const limit = requestedLimit ?? 25;
+  const offset = cursor ? Math.max(0, Number(cursor) || 0) : 0;
+  const matched = filterLiquidityEvents(filters);
+  const data = matched.slice(offset, offset + limit).map(publicEvent);
+  const nextOffset = offset + data.length;
+  return apiResponse(data, id, {
+    result_count: matched.length,
+    next_cursor: nextOffset < matched.length ? String(nextOffset) : null,
+    applied_filters: filters,
+  });
 }

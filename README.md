@@ -16,6 +16,10 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+The map uses an OpenStreetMap raster fallback and requires no token. Set
+`PUBLIC_MAP_STYLE_URL` or `NEXT_PUBLIC_MAP_STYLE_URL` to use a compatible
+external MapLibre style.
+
 Demonstration accounts use the local-only password `RadarDemo!2026`:
 
 - `customer@liquidityradar.local`
@@ -26,7 +30,7 @@ The local API key is `lr_demo_local_2026`.
 
 ## Product surfaces
 
-The demonstration includes marketing and access, dashboard, MapLibre capital map, event feed, people and organization search, person evidence ledger, regions, rankings, opportunity matching, saved searches, alerts, reports, CSV/PDF export, `/api/v1`, analyst review, source management, identity resolution, jobs, privacy requests, workspace entitlements, methodology, health, and readiness.
+The demonstration includes marketing and access, dashboard, MapLibre capital map, multi-field event search, region-connected people and organization search, region-relative affinity, person evidence ledger, regional trends and capital matches, rankings, opportunity matching, saved searches, alerts, reports, CSV/PDF export, `/api/v1`, analyst review, source management, identity resolution, jobs, privacy requests, workspace entitlements, methodology, health, and readiness.
 
 All named people, organizations, events, and values are fictional.
 
@@ -76,4 +80,3 @@ OpenAPI: `http://localhost:3000/api/v1/openapi.json`.
 ## Documentation
 
 See [`docs/`](./docs) for architecture, models, estimation and confidence methodology, geography, connectors, privacy, security, API, deployment, testing, operations, and limitations.
-

@@ -32,6 +32,32 @@ export function GET() {
       "/people": {
         get: {
           summary: "Search published people",
+          parameters: [
+            "q",
+            "region",
+            "relationshipType",
+            "industry",
+            "minLiquidity",
+            "minConfidence",
+            "affinityRegion",
+            "minAffinity",
+            "sort",
+            "cursor",
+            "limit",
+          ].map((name) => ({
+            name,
+            in: "query",
+            schema: {
+              type: [
+                "minLiquidity",
+                "minConfidence",
+                "minAffinity",
+                "limit",
+              ].includes(name)
+                ? "number"
+                : "string",
+            },
+          })),
           responses: {
             "200": { description: "Paginated people" },
             "401": { description: "Invalid API key" },
@@ -56,6 +82,43 @@ export function GET() {
       "/events": {
         get: {
           summary: "Query liquidity events",
+          parameters: [
+            "q",
+            "region",
+            "state",
+            "metro",
+            "county",
+            "city",
+            "industry",
+            "naics",
+            "eventType",
+            "status",
+            "dateFrom",
+            "dateTo",
+            "minAmount",
+            "maxAmount",
+            "minConfidence",
+            "personRole",
+            "organizationClass",
+            "completion",
+            "category",
+            "sort",
+            "cursor",
+            "limit",
+          ].map((name) => ({
+            name,
+            in: "query",
+            schema: {
+              type: [
+                "minAmount",
+                "maxAmount",
+                "minConfidence",
+                "limit",
+              ].includes(name)
+                ? "number"
+                : "string",
+            },
+          })),
           responses: { "200": { description: "Liquidity events" } },
         },
       },
@@ -63,6 +126,44 @@ export function GET() {
         get: {
           summary: "Retrieve regional aggregates",
           responses: { "200": { description: "Regions" } },
+        },
+      },
+      "/regions/{slug}": {
+        get: {
+          summary: "Retrieve a regional dashboard",
+          responses: { "200": { description: "Regional detail" } },
+        },
+      },
+      "/regions/{slug}/people": {
+        get: {
+          summary: "Retrieve people connected to a region",
+          responses: { "200": { description: "Region-relative people" } },
+        },
+      },
+      "/regions/{slug}/events": {
+        get: {
+          summary: "Search events within a region",
+          responses: { "200": { description: "Regional events" } },
+        },
+      },
+      "/regions/{slug}/organizations": {
+        get: {
+          summary: "Retrieve organizations connected to a region",
+          responses: { "200": { description: "Regional organizations" } },
+        },
+      },
+      "/people/{id}/affinity": {
+        get: {
+          summary: "Calculate a person's affinity to a selected region",
+          parameters: [
+            {
+              name: "region",
+              in: "query",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: { "200": { description: "Affinity component breakdown" } },
         },
       },
       "/rankings": {

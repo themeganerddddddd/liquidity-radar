@@ -69,10 +69,16 @@ export const locations = sqliteTable(
   "locations",
   {
     id: text("id").primaryKey(),
+    slug: text("slug"),
     name: text("name").notNull(),
     geographicType: text("geographic_type").notNull(),
     parentLocationId: text("parent_location_id"),
     fipsCode: text("fips_code"),
+    stateCode: text("state_code"),
+    metroName: text("metro_name"),
+    countyName: text("county_name"),
+    cityName: text("city_name"),
+    normalizedLookup: text("normalized_lookup"),
     longitude: real("longitude"),
     latitude: real("latitude"),
     population: integer("population"),
@@ -82,8 +88,41 @@ export const locations = sqliteTable(
     ...auditColumns,
   },
   (table) => [
+    uniqueIndex("locations_slug_idx").on(table.slug),
     index("locations_type_idx").on(table.geographicType),
     index("locations_fips_idx").on(table.fipsCode),
+    index("locations_parent_idx").on(table.parentLocationId),
+    index("locations_lookup_idx").on(table.normalizedLookup),
+  ],
+);
+
+export const personGeographicRelationships = sqliteTable(
+  "person_geographic_relationships",
+  {
+    id: text("id").primaryKey(),
+    personId: text("person_id").notNull(),
+    locationId: text("location_id").notNull(),
+    relationshipType: text("relationship_type").notNull(),
+    evidenceClaimId: text("evidence_claim_id"),
+    relationshipDate: text("relationship_date"),
+    confidence: integer("confidence").notNull().default(65),
+    publicVisibility: integer("public_visibility", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("person_geo_unique_idx").on(
+      table.personId,
+      table.locationId,
+      table.relationshipType,
+      table.evidenceClaimId,
+    ),
+    index("person_geo_person_idx").on(table.personId, table.relationshipType),
+    index("person_geo_location_idx").on(
+      table.locationId,
+      table.relationshipType,
+    ),
   ],
 );
 
@@ -181,6 +220,12 @@ export const liquidityEvents = sqliteTable(
     index("events_date_idx").on(table.eventDate),
     index("events_publication_idx").on(table.publicationState),
     index("events_confidence_idx").on(table.confidence),
+    index("events_person_region_idx").on(table.personId, table.eventLocationId),
+    index("events_org_region_idx").on(
+      table.organizationId,
+      table.eventLocationId,
+    ),
+    index("events_type_status_idx").on(table.eventType, table.status),
   ],
 );
 
@@ -269,6 +314,7 @@ export const workspaces = sqliteTable("workspaces", {
   name: text("name").notNull(),
   plan: text("plan").notNull(),
   seats: integer("seats").notNull(),
+  homeRegionId: text("home_region_id"),
   restrictedUseAcknowledgedAt: text("restricted_use_acknowledged_at"),
   billingCustomerReference: text("billing_customer_reference"),
   ...auditColumns,
@@ -283,6 +329,7 @@ export const workspaceRecords = sqliteTable(
     recordType: text("record_type").notNull(),
     title: text("title").notNull(),
     payload: text("payload").notNull(),
+    regionId: text("region_id"),
     status: text("status").notNull().default("active"),
     ...auditColumns,
   },
@@ -292,6 +339,11 @@ export const workspaceRecords = sqliteTable(
       table.recordType,
     ),
     index("workspace_records_user_idx").on(table.userEmail),
+    index("workspace_records_region_idx").on(
+      table.workspaceId,
+      table.userEmail,
+      table.regionId,
+    ),
   ],
 );
 

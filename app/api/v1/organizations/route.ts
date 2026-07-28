@@ -1,4 +1,4 @@
-import { organizations } from "../../../data";
+import { organizationProfiles } from "../../../data";
 import {
   apiResponse,
   apiUnauthorized,
@@ -10,22 +10,14 @@ export function GET(request: Request) {
   const id = requestId(request);
   if (!authorizeApi(request)) return apiUnauthorized(id);
   return apiResponse(
-    organizations.map((name, index) => ({
-      id: `org_${String(index + 1).padStart(3, "0")}`,
-      display_name: name,
-      organization_type: [
-        "private_company",
-        "acquirer",
-        "investment_firm",
-        "foundation",
-        "family_office",
-      ][index % 5],
-      industry: [
-        "Life Sciences",
-        "Enterprise Software",
-        "Climate Technology",
-        "Advanced Manufacturing",
-      ][index % 4],
+    organizationProfiles.map((organization) => ({
+      id: organization.id,
+      slug: organization.slug,
+      display_name: organization.name,
+      organization_type: organization.type,
+      industry: organization.industry,
+      public_classification: organization.publicClassification,
+      region_slugs: organization.regionSlugs,
       publication_status: "published",
     })),
     id,

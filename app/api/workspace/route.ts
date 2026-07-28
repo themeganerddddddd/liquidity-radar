@@ -3,7 +3,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const workspaceRecord = z.object({
-  type: z.enum(["saved_search", "alert", "report", "list", "audit_event"]),
+  type: z.enum([
+    "saved_search",
+    "alert",
+    "report",
+    "list",
+    "audit_event",
+    "regional_preference",
+  ]),
   title: z.string().trim().min(1).max(160),
   payload: z.record(z.string(), z.unknown()).default({}),
 });
@@ -27,26 +34,31 @@ export async function POST(request: Request) {
   const email =
     request.headers.get("oai-authenticated-user-email") ||
     "customer@liquidityradar.local";
-  await env.DB.prepare(
-    `INSERT INTO workspace_records
-      (id, workspace_id, user_email, record_type, title, payload, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, 'active', datetime('now'), datetime('now'))`,
-  )
-    .bind(
+  const regionId =
+    typeof parsed.data.payload.home_region_id === "string"
+      ? parsed.data.payload.home_region_id
+      : typeof parsed.data.payload.region === "string"
+        ? parsed.data.payload.region
+        : null;
+  const statements = [
+    env.DB.prepare(
+      `INSERT INTO workspace_records
+      (id, workspace_id, user_email, record_type, title, payload, region_id, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'active', datetime('now'), datetime('now'))`,
+    ).bind(
       id,
       "workspace_northstar",
       email,
       parsed.data.type,
       parsed.data.title,
       JSON.stringify(parsed.data.payload),
-    )
-    .run();
-  await env.DB.prepare(
-    `INSERT INTO audit_logs
+      regionId,
+    ),
+    env.DB.prepare(
+      `INSERT INTO audit_logs
       (id, workspace_id, actor_email, action, entity_type, entity_id, request_id, metadata, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
-  )
-    .bind(
+    ).bind(
       crypto.randomUUID(),
       "workspace_northstar",
       email,
@@ -55,8 +67,16 @@ export async function POST(request: Request) {
       id,
       requestId,
       JSON.stringify({ title: parsed.data.title }),
-    )
-    .run();
+    ),
+  ];
+  if (parsed.data.type === "regional_preference" && regionId) {
+    statements.push(
+      env.DB.prepare(
+        `UPDATE workspaces SET home_region_id = ?, updated_at = datetime('now') WHERE id = ?`,
+      ).bind(regionId, "workspace_northstar"),
+    );
+  }
+  await env.DB.batch(statements);
   return NextResponse.json(
     { data: { id, ...parsed.data }, request_id: requestId },
     { status: 201, headers: { "x-request-id": requestId } },
@@ -69,7 +89,7 @@ export async function GET(request: Request) {
     request.headers.get("oai-authenticated-user-email") ||
     "customer@liquidityradar.local";
   const results = await env.DB.prepare(
-    `SELECT id, record_type, title, payload, status, created_at, updated_at
+    `SELECT id, record_type, title, payload, region_id, status, created_at, updated_at
      FROM workspace_records
      WHERE workspace_id = ? AND user_email = ? AND deleted_at IS NULL
      ORDER BY created_at DESC LIMIT 100`,
