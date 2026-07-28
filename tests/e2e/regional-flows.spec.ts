@@ -23,6 +23,8 @@ test("state map opens a region, relevant person, and region-relative affinity", 
       "Fixed United States state map of regional capital metrics",
     ),
   ).toBeVisible();
+  await expect(page.locator(".state-shape")).toHaveCount(51);
+  await expect(page.locator(".state-shape.selected")).toHaveCount(1);
   await expect(
     page.getByText(/official 2025 U\.S\. Census state boundaries/),
   ).toBeVisible();

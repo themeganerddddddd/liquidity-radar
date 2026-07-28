@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import maplibregl, {
-  type Map as MapLibreMap,
-  type StyleSpecification,
-} from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import { regions, type Region } from "./data";
+import { useEffect, useMemo, useState } from "react";
+import {
+  geoAlbersUsa,
+  geoPath,
+  type ExtendedFeature,
+  type ExtendedFeatureCollection,
+  type GeoGeometryObjects,
+} from "d3-geo";
+import { events, people, regions, type Region } from "./data";
 import { money } from "../lib/format";
 import type { MapUrlState } from "../lib/regional";
 
@@ -21,6 +23,14 @@ type StateSummary = {
   events: number;
   highConfidencePeople: number;
 };
+
+type StateProperties = {
+  STUSPS: string;
+  NAME: string;
+};
+
+type StateFeature = ExtendedFeature<GeoGeometryObjects, StateProperties>;
+type StateFeatureCollection = ExtendedFeatureCollection<StateFeature>;
 
 const metricLabels: Record<MapMetric, string> = {
   created: "Liquidity created",
@@ -44,27 +54,57 @@ const periodMultipliers: Record<MapPeriod, number> = {
 };
 
 const stateNames: Record<string, string> = {
+  AK: "Alaska",
+  AL: "Alabama",
+  AR: "Arkansas",
+  AZ: "Arizona",
   CA: "California",
+  CO: "Colorado",
+  CT: "Connecticut",
   DC: "District of Columbia",
+  DE: "Delaware",
+  FL: "Florida",
+  GA: "Georgia",
+  HI: "Hawaii",
+  IA: "Iowa",
+  ID: "Idaho",
+  IL: "Illinois",
+  IN: "Indiana",
+  KS: "Kansas",
+  KY: "Kentucky",
   LA: "Louisiana",
   MA: "Massachusetts",
   MD: "Maryland",
+  ME: "Maine",
+  MI: "Michigan",
+  MN: "Minnesota",
+  MO: "Missouri",
+  MS: "Mississippi",
+  MT: "Montana",
   NC: "North Carolina",
+  ND: "North Dakota",
+  NE: "Nebraska",
+  NH: "New Hampshire",
+  NJ: "New Jersey",
+  NM: "New Mexico",
+  NV: "Nevada",
   NY: "New York",
+  OH: "Ohio",
+  OK: "Oklahoma",
+  OR: "Oregon",
+  PA: "Pennsylvania",
+  RI: "Rhode Island",
+  SC: "South Carolina",
+  SD: "South Dakota",
+  TN: "Tennessee",
   TX: "Texas",
+  UT: "Utah",
   VA: "Virginia",
-};
-
-const illustrativeStyle: StyleSpecification = {
-  version: 8,
-  sources: {},
-  layers: [
-    {
-      id: "background",
-      type: "background",
-      paint: { "background-color": "#f4f1e9" },
-    },
-  ],
+  VT: "Vermont",
+  WA: "Washington",
+  WI: "Wisconsin",
+  WV: "West Virginia",
+  WY: "Wyoming",
 };
 
 function selectedValue(region: Region, metric: MapMetric) {
@@ -91,76 +131,6 @@ function stateColor(value: number, maximum: number) {
   return "#9bc4bb";
 }
 
-function stateFillExpression(summaries: StateSummary[]) {
-  const maximum = Math.max(...summaries.map((summary) => summary.value), 1);
-  return [
-    "match",
-    ["get", "STUSPS"],
-    ...summaries.flatMap((summary) => [
-      summary.code,
-      stateColor(summary.value, maximum),
-    ]),
-    "#dfe7e3",
-  ];
-}
-
-function ensureStateLayers(map: MapLibreMap) {
-  if (!map.getSource("census-states")) {
-    map.addSource("census-states", {
-      type: "geojson",
-      data: "/data/us-states-20m.geojson",
-      attribution: "U.S. Census Bureau, 2025 Cartographic Boundary Files",
-    });
-  }
-  if (!map.getLayer("state-shadows")) {
-    map.addLayer({
-      id: "state-shadows",
-      type: "fill",
-      source: "census-states",
-      paint: {
-        "fill-color": "#0e3037",
-        "fill-opacity": 0.12,
-        "fill-translate": [0, 3],
-      },
-    });
-  }
-  if (!map.getLayer("state-fills")) {
-    map.addLayer({
-      id: "state-fills",
-      type: "fill",
-      source: "census-states",
-      paint: {
-        "fill-color": "#dfe7e3",
-        "fill-opacity": 0.98,
-      },
-    });
-  }
-  if (!map.getLayer("state-outlines")) {
-    map.addLayer({
-      id: "state-outlines",
-      type: "line",
-      source: "census-states",
-      paint: {
-        "line-color": "#ffffff",
-        "line-width": 1.15,
-        "line-opacity": 0.95,
-      },
-    });
-  }
-  if (!map.getLayer("selected-state")) {
-    map.addLayer({
-      id: "selected-state",
-      type: "line",
-      source: "census-states",
-      filter: ["==", ["get", "STUSPS"], ""],
-      paint: {
-        "line-color": "#f3ad36",
-        "line-width": 3.5,
-      },
-    });
-  }
-}
-
 export function LiquidityMap({
   metric,
   period,
@@ -184,15 +154,10 @@ export function LiquidityMap({
   onPeople: (slug: string) => void;
   onEvents: (slug: string) => void;
 }) {
-  const mapNode = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<MapLibreMap | null>(null);
   const [tableView, setTableView] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const configuredStyle =
-    process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
-    process.env.PUBLIC_MAP_STYLE_URL ||
-    "";
+  const [stateFeatures, setStateFeatures] = useState<StateFeature[]>([]);
   const visibleRegions = useMemo(
     () =>
       industry
@@ -221,7 +186,6 @@ export function LiquidityMap({
     });
     return [...grouped.values()].sort((a, b) => b.value - a.value);
   }, [metric, period, visibleRegions]);
-  const stateSummariesRef = useRef(stateSummaries);
   const selectedCode =
     regions.find((region) => region.slug === selectedRegion)?.code ?? "";
   const [focusedCode, setFocusedCode] = useState(selectedCode || "MD");
@@ -237,93 +201,79 @@ export function LiquidityMap({
     stateSummaries[0];
 
   useEffect(() => {
-    stateSummariesRef.current = stateSummaries;
-  }, [stateSummaries]);
-
-  useEffect(() => {
-    if (!mapNode.current || mapRef.current) return;
-    const map = new maplibregl.Map({
-      container: mapNode.current,
-      center: [-96.5, 38.4],
-      zoom: 3.1,
-      minZoom: 3.1,
-      maxZoom: 3.1,
-      renderWorldCopies: false,
-      attributionControl: false,
-      dragPan: false,
-      scrollZoom: false,
-      boxZoom: false,
-      dragRotate: false,
-      keyboard: false,
-      doubleClickZoom: false,
-      touchZoomRotate: false,
-      style: configuredStyle || illustrativeStyle,
-    });
-    map.addControl(
-      new maplibregl.AttributionControl({ compact: true }),
-      "bottom-left",
-    );
-    map.on("load", () => {
-      ensureStateLayers(map);
-      map.fitBounds(
-        [
-          [-125, 24],
-          [-66.5, 49.5],
-        ],
-        { padding: 18, duration: 0 },
-      );
-      setLoading(false);
-      setError("");
-      map.on("click", "state-fills", (event) => {
-        const code = String(event.features?.[0]?.properties?.STUSPS ?? "");
-        if (
-          stateSummariesRef.current.some((summary) => summary.code === code)
-        ) {
-          setFocusedCode(code);
+    const controller = new AbortController();
+    async function loadBoundaries() {
+      try {
+        const response = await fetch("/data/us-states-20m.geojson", {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error(`Boundary file returned ${response.status}.`);
         }
-      });
-      map.on("mousemove", "state-fills", (event) => {
-        const code = String(event.features?.[0]?.properties?.STUSPS ?? "");
-        map.getCanvas().style.cursor = stateSummariesRef.current.some(
-          (summary) => summary.code === code,
-        )
-          ? "pointer"
-          : "";
-      });
-      map.on("mouseleave", "state-fills", () => {
-        map.getCanvas().style.cursor = "";
-      });
-    });
-    map.on("error", (event) => {
-      if (!String(event.error?.message ?? "").includes("glyph")) {
-        setError(
-          event.error?.message ||
-            "The state illustration could not be loaded. Use the accessible regional table.",
+        const collection = (await response.json()) as StateFeatureCollection;
+        const features = collection.features.filter(
+          (feature) =>
+            feature.properties?.STUSPS && feature.properties.STUSPS !== "PR",
         );
-        setLoading(false);
+        if (features.length < 51) {
+          throw new Error("The state boundary file is incomplete.");
+        }
+        setStateFeatures(features);
+        setError("");
+      } catch (loadError) {
+        if (!controller.signal.aborted) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "The state illustration could not be loaded.",
+          );
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
       }
-    });
-    mapRef.current = map;
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
-  }, [configuredStyle]);
+    }
+    void loadBoundaries();
+    return () => controller.abort();
+  }, []);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || loading || !map.getLayer("state-fills")) return;
-    map.setPaintProperty(
-      "state-fills",
-      "fill-color",
-      stateFillExpression(stateSummaries),
+  const stateDrawing = useMemo(() => {
+    if (!stateFeatures.length) return [];
+    const collection: StateFeatureCollection = {
+      type: "FeatureCollection",
+      features: stateFeatures,
+    };
+    const projection = geoAlbersUsa().fitExtent(
+      [
+        [34, 30],
+        [926, 532],
+      ],
+      collection,
     );
-    map.setFilter("selected-state", [
-      "==",
-      ["get", "STUSPS"],
-      focusedState?.code ?? "",
-    ]);
-  }, [focusedState?.code, loading, stateSummaries]);
+    const path = geoPath(projection);
+    const summaryByCode = new Map(
+      stateSummaries.map((summary) => [summary.code, summary]),
+    );
+    const maximum = Math.max(
+      ...stateSummaries.map((summary) => summary.value),
+      1,
+    );
+    return stateFeatures
+      .map((feature) => {
+        const code = feature.properties.STUSPS;
+        const summary = summaryByCode.get(code);
+        const centroid = path.centroid(feature);
+        return {
+          code,
+          name: feature.properties.NAME,
+          path: path(feature) ?? "",
+          centroid,
+          labelVisible: path.area(feature) > 360,
+          summary,
+          fill: summary ? stateColor(summary.value, maximum) : "#dfe7e3",
+        };
+      })
+      .filter((state) => state.path);
+  }, [stateFeatures, stateSummaries]);
 
   return (
     <section className="map-panel" aria-labelledby="map-title">
@@ -416,11 +366,84 @@ export function LiquidityMap({
         )}
         <div className="illustrative-map-layout">
           <div className="state-map-surface">
-            <div
-              ref={mapNode}
-              className="map-canvas"
+            <div className="map-coverage-badge">
+              <strong>Nationwide demo coverage</strong>
+              <span>
+                {stateSummaries.length} states/DC · {regions.length} regional
+                views · {people.length} people · {events.length} events
+              </span>
+            </div>
+            <svg
+              className="state-map-svg"
+              viewBox="0 0 960 570"
+              preserveAspectRatio="xMidYMid meet"
               aria-label="Fixed United States state map of regional capital metrics"
-            />
+              role="group"
+            >
+              <title>
+                Fixed United States state map of regional capital metrics
+              </title>
+              <g className="state-map-paths">
+                {stateDrawing.map((state) => (
+                  <path
+                    key={state.code}
+                    className={
+                      state.code === focusedState?.code
+                        ? "state-shape selected"
+                        : state.summary
+                          ? "state-shape has-data"
+                          : "state-shape"
+                    }
+                    d={state.path}
+                    fill={state.fill}
+                    role={state.summary ? "button" : undefined}
+                    tabIndex={state.summary ? 0 : -1}
+                    aria-label={
+                      state.summary
+                        ? `${state.name}: ${displayValue(state.summary.value, metric)} ${metricLabels[metric].toLowerCase()}`
+                        : `${state.name}: no matching data`
+                    }
+                    aria-pressed={
+                      state.summary
+                        ? state.code === focusedState?.code
+                        : undefined
+                    }
+                    onClick={() => {
+                      if (state.summary) setFocusedCode(state.code);
+                    }}
+                    onKeyDown={(event) => {
+                      if (
+                        state.summary &&
+                        (event.key === "Enter" || event.key === " ")
+                      ) {
+                        event.preventDefault();
+                        setFocusedCode(state.code);
+                      }
+                    }}
+                  >
+                    <title>
+                      {state.name}
+                      {state.summary
+                        ? ` · ${displayValue(state.summary.value, metric)}`
+                        : " · no matching data"}
+                    </title>
+                  </path>
+                ))}
+              </g>
+              <g className="state-map-labels" aria-hidden="true">
+                {stateDrawing
+                  .filter((state) => state.labelVisible)
+                  .map((state) => (
+                    <text
+                      key={state.code}
+                      x={state.centroid[0]}
+                      y={state.centroid[1]}
+                    >
+                      {state.code}
+                    </text>
+                  ))}
+              </g>
+            </svg>
             <div className="map-legend state-map-legend">
               <strong>{metricLabels[metric]}</strong>
               <span>Lower</span>

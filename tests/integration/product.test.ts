@@ -31,6 +31,13 @@ describe("publication and workspace isolation contracts", () => {
 });
 
 describe("regional and event aggregate contracts", () => {
+  it("covers every state and the District of Columbia with expanded demo data", () => {
+    expect(new Set(regions.map((region) => region.code)).size).toBe(51);
+    expect(regions.length).toBeGreaterThanOrEqual(52);
+    expect(people.length).toBeGreaterThanOrEqual(240);
+    expect(events.length).toBeGreaterThanOrEqual(720);
+  });
+
   it("keeps retention and leakage complementary for known deployment", () => {
     for (const region of regions)
       expect(region.retained + region.leakage).toBeCloseTo(1);

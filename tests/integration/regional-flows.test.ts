@@ -135,6 +135,6 @@ describe("regional API filtering", () => {
   });
 });
 
-it("keeps the enhanced fictional event set non-empty", () => {
-  expect(events.length).toBeGreaterThanOrEqual(75);
+it("keeps the expanded fictional event set populated", () => {
+  expect(events.length).toBeGreaterThanOrEqual(720);
 });

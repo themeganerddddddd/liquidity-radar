@@ -217,6 +217,41 @@ export const organizations = [
   "Summit Civic Foundation",
   "Beacon Ridge Holdings",
   "Mariner Growth Fund",
+  "Copperline Analytics",
+  "Prairie Sky Networks",
+  "Evergreen Cellworks",
+  "Harborstone Payments",
+  "Cascade Quantum",
+  "Palmetto Medical",
+  "Great Lakes Automation",
+  "Desert Bloom Ventures",
+  "Bluegrass Biologics",
+  "Frontier Battery",
+  "Allegheny Research",
+  "Twin Rivers Systems",
+  "Granite State Health",
+  "High Plains Robotics",
+  "Magnolia Infrastructure",
+  "Sunbelt Circularity",
+  "Wasatch Climate Partners",
+  "Ozark Precision",
+  "Gulfstream AgTech",
+  "Pioneer Data Trust",
+  "Acadia Marine Science",
+  "Hoosier Digital Works",
+  "Badger Advanced Materials",
+  "Peachtree Growth",
+  "Silver State Mobility",
+  "Empire Lake Capital",
+  "Red River Diagnostics",
+  "Mountain West Compute",
+  "Diamond State Ventures",
+  "Ocean State Biosystems",
+  "Aloha Grid Labs",
+  "Nutmeg Security",
+  "Yellowstone Industrial",
+  "Tar Heel Family Partners",
+  "Garden State Therapeutics",
 ];
 
 const industries = [
@@ -230,7 +265,17 @@ const industries = [
   "Climate Technology",
 ];
 
-const regionalGeographies = [
+type RegionalGeography = {
+  slug: string;
+  location: string;
+  regionName: string;
+  state: string;
+  metro: string;
+  county: string;
+  city: string;
+};
+
+const coreRegionalGeographies = [
   {
     slug: "washington-arlington-alexandria",
     location: "Washington, DC",
@@ -321,7 +366,443 @@ const regionalGeographies = [
     county: "San Diego County",
     city: "San Diego",
   },
+] satisfies RegionalGeography[];
+
+const stateMarketSeeds = [
+  {
+    slug: "alabama",
+    name: "Alabama",
+    code: "AL",
+    metro: "Birmingham–Hoover",
+    county: "Jefferson County",
+    city: "Birmingham",
+    longitude: -86.8025,
+    latitude: 33.5207,
+  },
+  {
+    slug: "alaska",
+    name: "Alaska",
+    code: "AK",
+    metro: "Anchorage",
+    county: "Anchorage Municipality",
+    city: "Anchorage",
+    longitude: -149.9003,
+    latitude: 61.2181,
+  },
+  {
+    slug: "arizona",
+    name: "Arizona",
+    code: "AZ",
+    metro: "Phoenix–Mesa–Chandler",
+    county: "Maricopa County",
+    city: "Phoenix",
+    longitude: -112.074,
+    latitude: 33.4484,
+  },
+  {
+    slug: "arkansas",
+    name: "Arkansas",
+    code: "AR",
+    metro: "Little Rock–North Little Rock–Conway",
+    county: "Pulaski County",
+    city: "Little Rock",
+    longitude: -92.2896,
+    latitude: 34.7465,
+  },
+  {
+    slug: "colorado",
+    name: "Colorado",
+    code: "CO",
+    metro: "Denver–Aurora–Lakewood",
+    county: "Denver County",
+    city: "Denver",
+    longitude: -104.9903,
+    latitude: 39.7392,
+  },
+  {
+    slug: "connecticut",
+    name: "Connecticut",
+    code: "CT",
+    metro: "Hartford–East Hartford–Middletown",
+    county: "Hartford County",
+    city: "Hartford",
+    longitude: -72.6734,
+    latitude: 41.7658,
+  },
+  {
+    slug: "delaware",
+    name: "Delaware",
+    code: "DE",
+    metro: "Philadelphia–Camden–Wilmington",
+    county: "New Castle County",
+    city: "Wilmington",
+    longitude: -75.5398,
+    latitude: 39.7391,
+  },
+  {
+    slug: "florida",
+    name: "Florida",
+    code: "FL",
+    metro: "Miami–Fort Lauderdale–Pompano Beach",
+    county: "Miami-Dade County",
+    city: "Miami",
+    longitude: -80.1918,
+    latitude: 25.7617,
+  },
+  {
+    slug: "georgia",
+    name: "Georgia",
+    code: "GA",
+    metro: "Atlanta–Sandy Springs–Alpharetta",
+    county: "Fulton County",
+    city: "Atlanta",
+    longitude: -84.388,
+    latitude: 33.749,
+  },
+  {
+    slug: "hawaii",
+    name: "Hawaii",
+    code: "HI",
+    metro: "Urban Honolulu",
+    county: "Honolulu County",
+    city: "Honolulu",
+    longitude: -157.8583,
+    latitude: 21.3069,
+  },
+  {
+    slug: "idaho",
+    name: "Idaho",
+    code: "ID",
+    metro: "Boise City",
+    county: "Ada County",
+    city: "Boise",
+    longitude: -116.2023,
+    latitude: 43.615,
+  },
+  {
+    slug: "illinois",
+    name: "Illinois",
+    code: "IL",
+    metro: "Chicago–Naperville–Elgin",
+    county: "Cook County",
+    city: "Chicago",
+    longitude: -87.6298,
+    latitude: 41.8781,
+  },
+  {
+    slug: "indiana",
+    name: "Indiana",
+    code: "IN",
+    metro: "Indianapolis–Carmel–Anderson",
+    county: "Marion County",
+    city: "Indianapolis",
+    longitude: -86.1581,
+    latitude: 39.7684,
+  },
+  {
+    slug: "iowa",
+    name: "Iowa",
+    code: "IA",
+    metro: "Des Moines–West Des Moines",
+    county: "Polk County",
+    city: "Des Moines",
+    longitude: -93.625,
+    latitude: 41.5868,
+  },
+  {
+    slug: "kansas",
+    name: "Kansas",
+    code: "KS",
+    metro: "Wichita",
+    county: "Sedgwick County",
+    city: "Wichita",
+    longitude: -97.3301,
+    latitude: 37.6872,
+  },
+  {
+    slug: "kentucky",
+    name: "Kentucky",
+    code: "KY",
+    metro: "Louisville/Jefferson County",
+    county: "Jefferson County",
+    city: "Louisville",
+    longitude: -85.7585,
+    latitude: 38.2527,
+  },
+  {
+    slug: "maine",
+    name: "Maine",
+    code: "ME",
+    metro: "Portland–South Portland",
+    county: "Cumberland County",
+    city: "Portland",
+    longitude: -70.2568,
+    latitude: 43.6591,
+  },
+  {
+    slug: "michigan",
+    name: "Michigan",
+    code: "MI",
+    metro: "Detroit–Warren–Dearborn",
+    county: "Wayne County",
+    city: "Detroit",
+    longitude: -83.0458,
+    latitude: 42.3314,
+  },
+  {
+    slug: "minnesota",
+    name: "Minnesota",
+    code: "MN",
+    metro: "Minneapolis–St. Paul–Bloomington",
+    county: "Hennepin County",
+    city: "Minneapolis",
+    longitude: -93.265,
+    latitude: 44.9778,
+  },
+  {
+    slug: "mississippi",
+    name: "Mississippi",
+    code: "MS",
+    metro: "Jackson",
+    county: "Hinds County",
+    city: "Jackson",
+    longitude: -90.1848,
+    latitude: 32.2988,
+  },
+  {
+    slug: "missouri",
+    name: "Missouri",
+    code: "MO",
+    metro: "St. Louis",
+    county: "St. Louis County",
+    city: "St. Louis",
+    longitude: -90.1994,
+    latitude: 38.627,
+  },
+  {
+    slug: "montana",
+    name: "Montana",
+    code: "MT",
+    metro: "Billings",
+    county: "Yellowstone County",
+    city: "Billings",
+    longitude: -108.5007,
+    latitude: 45.7833,
+  },
+  {
+    slug: "nebraska",
+    name: "Nebraska",
+    code: "NE",
+    metro: "Omaha–Council Bluffs",
+    county: "Douglas County",
+    city: "Omaha",
+    longitude: -95.998,
+    latitude: 41.2565,
+  },
+  {
+    slug: "nevada",
+    name: "Nevada",
+    code: "NV",
+    metro: "Las Vegas–Henderson–Paradise",
+    county: "Clark County",
+    city: "Las Vegas",
+    longitude: -115.1398,
+    latitude: 36.1699,
+  },
+  {
+    slug: "new-hampshire",
+    name: "New Hampshire",
+    code: "NH",
+    metro: "Manchester–Nashua",
+    county: "Hillsborough County",
+    city: "Manchester",
+    longitude: -71.4548,
+    latitude: 42.9956,
+  },
+  {
+    slug: "new-jersey",
+    name: "New Jersey",
+    code: "NJ",
+    metro: "New York–Newark–Jersey City",
+    county: "Essex County",
+    city: "Newark",
+    longitude: -74.1724,
+    latitude: 40.7357,
+  },
+  {
+    slug: "new-mexico",
+    name: "New Mexico",
+    code: "NM",
+    metro: "Albuquerque",
+    county: "Bernalillo County",
+    city: "Albuquerque",
+    longitude: -106.6504,
+    latitude: 35.0844,
+  },
+  {
+    slug: "north-dakota",
+    name: "North Dakota",
+    code: "ND",
+    metro: "Fargo",
+    county: "Cass County",
+    city: "Fargo",
+    longitude: -96.7898,
+    latitude: 46.8772,
+  },
+  {
+    slug: "ohio",
+    name: "Ohio",
+    code: "OH",
+    metro: "Columbus",
+    county: "Franklin County",
+    city: "Columbus",
+    longitude: -82.9988,
+    latitude: 39.9612,
+  },
+  {
+    slug: "oklahoma",
+    name: "Oklahoma",
+    code: "OK",
+    metro: "Oklahoma City",
+    county: "Oklahoma County",
+    city: "Oklahoma City",
+    longitude: -97.5164,
+    latitude: 35.4676,
+  },
+  {
+    slug: "oregon",
+    name: "Oregon",
+    code: "OR",
+    metro: "Portland–Vancouver–Hillsboro",
+    county: "Multnomah County",
+    city: "Portland",
+    longitude: -122.6765,
+    latitude: 45.5231,
+  },
+  {
+    slug: "pennsylvania",
+    name: "Pennsylvania",
+    code: "PA",
+    metro: "Philadelphia–Camden–Wilmington",
+    county: "Philadelphia County",
+    city: "Philadelphia",
+    longitude: -75.1652,
+    latitude: 39.9526,
+  },
+  {
+    slug: "rhode-island",
+    name: "Rhode Island",
+    code: "RI",
+    metro: "Providence–Warwick",
+    county: "Providence County",
+    city: "Providence",
+    longitude: -71.4128,
+    latitude: 41.824,
+  },
+  {
+    slug: "south-carolina",
+    name: "South Carolina",
+    code: "SC",
+    metro: "Charleston–North Charleston",
+    county: "Charleston County",
+    city: "Charleston",
+    longitude: -79.9311,
+    latitude: 32.7765,
+  },
+  {
+    slug: "south-dakota",
+    name: "South Dakota",
+    code: "SD",
+    metro: "Sioux Falls",
+    county: "Minnehaha County",
+    city: "Sioux Falls",
+    longitude: -96.7311,
+    latitude: 43.5446,
+  },
+  {
+    slug: "tennessee",
+    name: "Tennessee",
+    code: "TN",
+    metro: "Nashville–Davidson–Murfreesboro–Franklin",
+    county: "Davidson County",
+    city: "Nashville",
+    longitude: -86.7816,
+    latitude: 36.1627,
+  },
+  {
+    slug: "utah",
+    name: "Utah",
+    code: "UT",
+    metro: "Salt Lake City",
+    county: "Salt Lake County",
+    city: "Salt Lake City",
+    longitude: -111.891,
+    latitude: 40.7608,
+  },
+  {
+    slug: "vermont",
+    name: "Vermont",
+    code: "VT",
+    metro: "Burlington–South Burlington",
+    county: "Chittenden County",
+    city: "Burlington",
+    longitude: -73.2121,
+    latitude: 44.4759,
+  },
+  {
+    slug: "washington",
+    name: "Washington",
+    code: "WA",
+    metro: "Seattle–Tacoma–Bellevue",
+    county: "King County",
+    city: "Seattle",
+    longitude: -122.3321,
+    latitude: 47.6062,
+  },
+  {
+    slug: "west-virginia",
+    name: "West Virginia",
+    code: "WV",
+    metro: "Charleston",
+    county: "Kanawha County",
+    city: "Charleston",
+    longitude: -81.6326,
+    latitude: 38.3498,
+  },
+  {
+    slug: "wisconsin",
+    name: "Wisconsin",
+    code: "WI",
+    metro: "Milwaukee–Waukesha",
+    county: "Milwaukee County",
+    city: "Milwaukee",
+    longitude: -87.9065,
+    latitude: 43.0389,
+  },
+  {
+    slug: "wyoming",
+    name: "Wyoming",
+    code: "WY",
+    metro: "Cheyenne",
+    county: "Laramie County",
+    city: "Cheyenne",
+    longitude: -104.8202,
+    latitude: 41.14,
+  },
 ] as const;
+
+const regionalGeographies: RegionalGeography[] = [
+  ...coreRegionalGeographies,
+  ...stateMarketSeeds.map((seed) => ({
+    slug: seed.slug,
+    location: `${seed.city}, ${seed.code}`,
+    regionName: seed.name,
+    state: seed.name,
+    metro: seed.metro,
+    county: seed.county,
+    city: seed.city,
+  })),
+];
 
 const eventTypes = [
   "Private-company acquisition",
@@ -348,8 +829,16 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export const people: Person[] = firstNames.map((first, index) => {
-  const name = `${first} ${lastNames[index]}`;
+export const people: Person[] = Array.from({ length: 240 }, (_, index) => {
+  const first = firstNames[index % firstNames.length];
+  const nameRound = Math.floor(index / firstNames.length);
+  const last =
+    lastNames[
+      index < firstNames.length
+        ? index
+        : (index + nameRound * 7) % lastNames.length
+    ];
+  const name = `${first} ${last}`;
   const median = 18_000_000 + ((index * 37) % 145) * 1_000_000;
   const createdMedian = Math.round(median * (1.35 + (index % 4) * 0.12));
   const deployedMedian = Math.round(
@@ -437,7 +926,7 @@ export const people: Person[] = firstNames.map((first, index) => {
     id: `person_${String(index + 1).padStart(3, "0")}`,
     slug: slugify(name),
     name,
-    initials: `${first[0]}${lastNames[index][0]}`,
+    initials: `${first[0]}${last[0]}`,
     role: roles[index % roles.length],
     organization: organizations[index % organizations.length],
     industry:
@@ -536,7 +1025,7 @@ const eventStatuses: LiquidityEvent["status"][] = [
 ];
 
 export const events: LiquidityEvent[] = Array.from(
-  { length: 75 },
+  { length: 720 },
   (_, index) => {
     const person = people[index % people.length];
     const geography =
@@ -616,7 +1105,20 @@ export const events: LiquidityEvent[] = Array.from(
   },
 );
 
-const regionMetricSeeds = [
+type RegionMetricSeed = readonly [
+  slug: string,
+  name: string,
+  code: string,
+  metro: string,
+  county: string,
+  city: string,
+  type: Region["type"],
+  hierarchy: readonly string[],
+  longitude: number,
+  latitude: number,
+];
+
+const regionMetricSeeds: RegionMetricSeed[] = [
   [
     "washington-arlington-alexandria",
     "Washington–Arlington–Alexandria Metro",
@@ -737,7 +1239,19 @@ const regionMetricSeeds = [
     -117.16,
     32.72,
   ],
-] as const;
+  ...stateMarketSeeds.map((seed): RegionMetricSeed => [
+    seed.slug,
+    seed.name,
+    seed.code,
+    seed.metro,
+    seed.county,
+    seed.city,
+    "state",
+    [seed.slug],
+    seed.longitude,
+    seed.latitude,
+  ]),
+];
 
 export const regions: Region[] = regionMetricSeeds.map((seed, index) => {
   const [

@@ -434,8 +434,8 @@ function Login({ onLogin }: { onLogin: (role: UserRole) => void }) {
               <span>median evidence confidence</span>
             </div>
             <div>
-              <strong>412</strong>
-              <span>qualified capital controllers</span>
+              <strong>{people.length}</strong>
+              <span>fictional capital-controller profiles</span>
             </div>
           </div>
           <div
@@ -797,12 +797,24 @@ function Dashboard({
             "+9.7%",
             "Low $4.8B · High $8.9B",
           ],
-          ["High-confidence people", "184", "+23", "Confidence score ≥ 80"],
+          [
+            "High-confidence people",
+            String(
+              people.filter(
+                (person) =>
+                  person.confidence >= 80 && person.status !== "Pending review",
+              ).length,
+            ),
+            "Expanded",
+            "Confidence score ≥ 80",
+          ],
           [
             `Events · ${period}`,
-            "327",
-            "+14.1%",
-            "264 completed · 63 proposed",
+            String(events.length),
+            "National",
+            `${events.filter((event) => event.status === "Completed").length} completed · ${
+              events.filter((event) => event.status === "Proposed").length
+            } proposed`,
           ],
         ].map(([label, value, change, note]) => (
           <article className="kpi-card" key={label}>
