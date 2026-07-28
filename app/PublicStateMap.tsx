@@ -8,7 +8,6 @@ import {
   type ExtendedFeatureCollection,
   type GeoGeometryObjects,
 } from "d3-geo";
-import snapshotJson from "../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../lib/public-data";
 
 type StateProperties = {
@@ -19,7 +18,7 @@ type StateProperties = {
 type StateFeature = ExtendedFeature<GeoGeometryObjects, StateProperties>;
 type StateFeatureCollection = ExtendedFeatureCollection<StateFeature>;
 
-type Metric = "applications" | "projected" | "advisers" | "assets" | "growth";
+type Metric = "applications" | "projected" | "growth";
 
 type StateRow = {
   code: string;
@@ -27,13 +26,9 @@ type StateRow = {
   applications: number;
   projected: number;
   monthlyChange: number;
-  advisers: number;
-  assets: number;
   growth: number;
   gdp: number;
 };
-
-const initialSnapshot = snapshotJson as PublicDataSnapshot;
 
 const metrics: Array<{
   id: Metric;
@@ -42,16 +37,11 @@ const metrics: Array<{
 }> = [
   { id: "applications", label: "Business applications", source: "Census" },
   { id: "projected", label: "Projected formations", source: "Census" },
-  { id: "advisers", label: "Registered advisers", source: "SEC" },
-  { id: "assets", label: "Regulatory assets", source: "SEC" },
   { id: "growth", label: "Real GDP growth", source: "BEA" },
 ];
 
 function stateRows(data: PublicDataSnapshot): StateRow[] {
   return data.businessFormation.states.map((formation) => {
-    const adviser = data.advisers.states.find(
-      (item) => item.code === formation.code,
-    );
     const economy = data.regionalEconomy.states.find(
       (item) => item.code === formation.code,
     );
@@ -61,8 +51,6 @@ function stateRows(data: PublicDataSnapshot): StateRow[] {
       applications: formation.applications,
       projected: formation.projectedFormations,
       monthlyChange: formation.monthlyChange,
-      advisers: adviser?.firms ?? 0,
-      assets: adviser?.regulatoryAssets ?? 0,
       growth: economy?.quarterlyGrowth ?? 0,
       gdp: economy?.realGdpMillions ?? 0,
     };
@@ -74,16 +62,17 @@ function metricValue(row: StateRow, metric: Metric) {
 }
 
 function formatMetric(value: number, metric: Metric) {
-  if (metric === "assets") {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      notation: "compact",
-      maximumFractionDigits: 1,
-    }).format(value);
-  }
   if (metric === "growth") return `${value >= 0 ? "+" : ""}${value}%`;
   return value.toLocaleString();
+}
+
+function formatDollars(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
 }
 
 function stateFill(value: number, minimum: number, maximum: number) {
@@ -96,8 +85,7 @@ function stateFill(value: number, minimum: number, maximum: number) {
   return "#c6ddd6";
 }
 
-export function PublicStateMap() {
-  const [data, setData] = useState(initialSnapshot);
+export function PublicStateMap({ data }: { data: PublicDataSnapshot }) {
   const [metric, setMetric] = useState<Metric>("applications");
   const [selectedCode, setSelectedCode] = useState("CA");
   const [query, setQuery] = useState("");
@@ -106,16 +94,6 @@ export function PublicStateMap() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void fetch("/api/public-data", { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error("Public data refresh failed.");
-        return response.json() as Promise<{ data: PublicDataSnapshot }>;
-      })
-      .then((body) => setData(body.data))
-      .catch(() => {
-        // The verified checked-in snapshot remains available.
-      });
-
     void fetch("/data/us-states-20m.geojson", {
       signal: controller.signal,
     })
@@ -349,17 +327,10 @@ export function PublicStateMap() {
                 <small>within four quarters</small>
               </div>
               <div>
-                <dt>Registered advisers</dt>
-                <dd>{selected.advisers.toLocaleString()}</dd>
-                <small>
-                  {formatMetric(selected.assets, "assets")} regulatory assets
-                </small>
-              </div>
-              <div>
                 <dt>Real GDP growth</dt>
                 <dd>{formatMetric(selected.growth, "growth")}</dd>
                 <small>
-                  {formatMetric(selected.gdp * 1_000_000, "assets")} real GDP
+                  {formatDollars(selected.gdp * 1_000_000)} real GDP
                 </small>
               </div>
             </dl>

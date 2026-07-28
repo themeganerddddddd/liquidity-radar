@@ -9144,3 +9144,622 @@ a.real-holdings-row:hover {
     border-top: 1px solid var(--line);
   }
 }
+
+/* Workspace readability, alignment, and capital-directory polish */
+.real-workspace-shell .sidebar > .brand {
+  flex-basis: 76px;
+}
+
+.real-workspace-shell .workspace-chip {
+  margin-bottom: 20px;
+  padding: 11px;
+}
+
+.real-workspace-shell .workspace-chip strong {
+  font-size: 12px;
+}
+
+.real-workspace-shell .workspace-chip small {
+  font-size: 10px;
+}
+
+.real-workspace-shell .nav-group {
+  margin-bottom: 18px;
+}
+
+.real-workspace-shell .nav-group > p {
+  font-size: 9px;
+  padding-bottom: 7px;
+}
+
+.real-workspace-shell .nav-group > button {
+  border: 1px solid transparent;
+  font-size: 13px;
+  min-height: 40px;
+}
+
+.real-workspace-shell .nav-group > button > span {
+  font-size: 8px;
+  width: 24px;
+}
+
+.real-workspace-shell .nav-group > button.active {
+  border-color: rgba(95, 211, 187, 0.18);
+}
+
+.real-workspace-shell .sidebar-foot > button,
+.real-workspace-shell .coverage-mini span,
+.real-workspace-shell .coverage-mini strong {
+  font-size: 10px;
+}
+
+.real-workspace-shell .coverage-mini {
+  gap: 7px;
+  padding: 12px;
+}
+
+.real-workspace-shell .coverage-mini small {
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.real-workspace-shell .app-header {
+  gap: 20px;
+  height: 72px;
+  padding: 0 30px;
+}
+
+.real-global-search-wrap .global-search {
+  height: 44px;
+}
+
+.real-global-search-wrap .global-search input {
+  font-size: 13px;
+}
+
+.real-workspace-shell .account strong {
+  font-size: 11px;
+}
+
+.real-workspace-shell .account small,
+.real-workspace-shell .logout {
+  font-size: 10px;
+}
+
+.real-workspace-main {
+  padding: 104px 30px 72px;
+}
+
+.real-page-intro {
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.real-page-intro .eyebrow,
+.real-workspace-panel .eyebrow,
+.real-profile-panel .eyebrow,
+.real-owner-transition .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.09em;
+}
+
+.real-page-intro h1 {
+  font-size: clamp(34px, 3.2vw, 44px);
+  margin: 7px 0 8px;
+}
+
+.real-page-intro > div > p:last-child {
+  font-size: 13px;
+  max-width: 820px;
+}
+
+.real-count-pill {
+  border-radius: 7px;
+  font-size: 11px;
+  padding: 10px 12px;
+}
+
+.real-workspace-status {
+  border-radius: 9px;
+  gap: 16px;
+  min-height: 58px;
+  padding: 11px 14px;
+}
+
+.real-workspace-status > span {
+  font-size: 10px;
+}
+
+.real-workspace-status p {
+  font-size: 12px;
+}
+
+.real-workspace-status p strong {
+  color: #214b44;
+}
+
+.real-workspace-status button,
+.real-workspace-panel .panel-head button {
+  font-size: 11px;
+}
+
+.real-workspace-kpis {
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.real-workspace-kpis article {
+  border-radius: 10px;
+  gap: 7px;
+  min-height: 142px;
+  padding: 18px;
+}
+
+.real-workspace-kpis article > span {
+  font-size: 11px;
+}
+
+.real-workspace-kpis article > strong {
+  font-size: 32px;
+}
+
+.real-workspace-kpis article > small {
+  font-size: 10px;
+  line-height: 1.4;
+  max-width: 80%;
+}
+
+.real-workspace-kpis article > b {
+  bottom: 16px;
+  font-size: 8px;
+  right: 16px;
+}
+
+.real-workspace-grid {
+  gap: 14px;
+}
+
+.real-workspace-panel,
+.real-directory-card,
+.real-people-directory {
+  border-radius: 10px;
+}
+
+.real-workspace-panel {
+  padding: 20px;
+}
+
+.real-workspace-panel .panel-head h2 {
+  font-size: 21px;
+}
+
+.real-person-preview-list button {
+  gap: 12px;
+  min-height: 62px;
+  padding: 8px 6px;
+}
+
+.real-person-preview-list button > span {
+  font-size: 10px;
+  padding: 7px 8px;
+}
+
+.real-person-preview-list button strong {
+  font-size: 12px;
+}
+
+.real-person-preview-list button small {
+  font-size: 10px;
+}
+
+.real-pulse-row {
+  font-size: 11px;
+  min-height: 57px;
+}
+
+.real-pulse-row.heading {
+  font-size: 9px;
+  min-height: 36px;
+}
+
+.real-pulse-row strong,
+.real-pulse-row b {
+  font-size: 11px;
+}
+
+.real-pulse-row strong i {
+  font-size: 9px;
+  height: 30px;
+  width: 32px;
+}
+
+.real-source-strip {
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.real-source-strip a {
+  border-radius: 9px;
+  gap: 5px;
+  min-height: 96px;
+  padding: 15px;
+}
+
+.real-source-strip span,
+.real-source-strip small {
+  font-size: 9px;
+}
+
+.real-source-strip strong {
+  font-size: 11px;
+}
+
+.real-global-search-results {
+  top: 51px;
+}
+
+.real-global-search-results > p {
+  font-size: 9px;
+}
+
+.real-global-search-results strong {
+  font-size: 11px;
+}
+
+.real-global-search-results small {
+  font-size: 9px;
+}
+
+.real-people-controls {
+  border-radius: 10px;
+  gap: 12px;
+  padding: 15px;
+}
+
+.real-people-controls label > span {
+  font-size: 10px;
+}
+
+.real-people-controls input,
+.real-people-controls select {
+  background: #fff;
+  border-color: #c8d4cf;
+  border-radius: 7px;
+  font-size: 12px;
+  height: 44px;
+  padding: 0 12px;
+}
+
+.real-people-result-count {
+  min-height: 44px;
+}
+
+.real-people-result-count strong {
+  font-size: 25px;
+}
+
+.real-people-result-count span {
+  font-size: 10px;
+}
+
+.real-people-row {
+  gap: 18px;
+  min-height: 74px;
+  padding: 10px 18px;
+}
+
+.real-people-row.heading {
+  font-size: 10px;
+  min-height: 43px;
+}
+
+.real-people-row > span strong {
+  font-size: 12px;
+}
+
+.real-people-row > span small {
+  font-size: 10px;
+}
+
+.real-person-cell {
+  grid-template-columns: 40px minmax(0, 1fr);
+}
+
+.real-person-cell > i {
+  font-size: 10px;
+  height: 40px;
+  width: 40px;
+}
+
+.real-directory-more {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #c8d4cf;
+  border-radius: 8px;
+  color: #146f63;
+  display: flex;
+  font-size: 12px;
+  font-weight: 800;
+  justify-content: center;
+  margin: 12px auto 0;
+  min-width: 260px;
+  padding: 12px 18px;
+}
+
+.real-directory-more span {
+  border-left: 1px solid #d8e1dd;
+  color: var(--quiet);
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 12px;
+  padding-left: 12px;
+}
+
+.real-workspace-footnote {
+  border-radius: 8px;
+  font-size: 11px;
+  margin-top: 12px;
+  padding: 13px 15px;
+}
+
+.real-directory-head {
+  font-size: 9px;
+  min-height: 43px;
+}
+
+.real-directory-row {
+  font-size: 11px;
+  min-height: 68px;
+}
+
+.real-directory-row > span,
+.real-directory-row > small {
+  font-size: 10px;
+}
+
+.real-directory-row > b {
+  font-size: 10px;
+}
+
+.real-signal-disclosure {
+  align-items: center;
+  background: #fff7e7;
+  border: 1px solid #e9d8b5;
+  border-radius: 9px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 190px minmax(0, 1fr);
+  margin-bottom: 14px;
+  padding: 14px 16px;
+}
+
+.real-signal-disclosure strong {
+  color: #895f20;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.real-signal-disclosure p {
+  color: #6f6046;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.real-exit-layout {
+  align-items: start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 310px;
+}
+
+.real-exit-layout .real-directory-card {
+  overflow-x: auto;
+}
+
+.real-exit-row {
+  grid-template-columns:
+    82px minmax(115px, 0.9fr) minmax(140px, 1.1fr)
+    minmax(155px, 1.2fr);
+  min-width: 555px;
+}
+
+.real-exit-row > span:last-child {
+  display: grid;
+  gap: 4px;
+}
+
+.real-exit-row > span:last-child small {
+  color: #17766b;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.real-owner-transition {
+  background: var(--navy);
+  border-radius: 10px;
+  color: #fff;
+  display: grid;
+  gap: 13px;
+  padding: 22px;
+}
+
+.real-owner-transition .eyebrow {
+  color: #61d1b9;
+}
+
+.real-owner-transition h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.real-owner-transition > p:not(.eyebrow) {
+  color: #a9bbc0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.real-owner-transition > a {
+  color: #66d4bc;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.real-owner-transition > div {
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 16px 0;
+}
+
+.real-owner-transition > div strong {
+  color: #fff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  font-weight: 400;
+}
+
+.real-owner-transition > div span {
+  color: #a9bbc0;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.real-methodology-note p {
+  font-size: 12px;
+}
+
+.real-source-directory span,
+.real-source-directory b,
+.real-source-directory small {
+  font-size: 10px;
+}
+
+.real-source-directory h2 {
+  font-size: 21px;
+}
+
+.real-source-directory p {
+  font-size: 11px;
+}
+
+.real-source-directory > a > strong {
+  font-size: 11px;
+}
+
+.real-person-profile-identity > div > p:last-child,
+.real-profile-disclosure p {
+  font-size: 12px;
+}
+
+.real-person-profile-identity h1 + b,
+.real-profile-disclosure strong,
+.real-profile-panel .panel-head > span,
+.real-profile-kpis span,
+.real-profile-kpis small,
+.real-profile-facts dt,
+.real-model-card dt {
+  font-size: 10px;
+}
+
+.real-profile-kpis strong {
+  font-size: 23px;
+}
+
+.real-profile-panel .panel-head h2,
+.real-model-card h2 {
+  font-size: 20px;
+}
+
+.real-liquidity-ledger-row.heading,
+.real-holdings-row.heading {
+  font-size: 9px;
+}
+
+.real-liquidity-ledger-row strong,
+.real-holdings-row strong,
+.real-holdings-row b,
+.real-profile-timeline strong,
+.real-related-people strong,
+.real-profile-facts dd {
+  font-size: 11px;
+}
+
+.real-liquidity-ledger-row small,
+.real-holdings-row small,
+.real-holdings-row > span,
+.real-profile-timeline span,
+.real-profile-timeline small,
+.real-related-people small,
+.real-model-card dd,
+.real-profile-limit li,
+.real-profile-panel-note {
+  font-size: 9px;
+}
+
+@media (max-width: 1080px) {
+  .real-exit-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .real-owner-transition {
+    grid-template-columns: minmax(0, 1fr) 220px;
+  }
+
+  .real-owner-transition > div,
+  .real-owner-transition > a:last-child {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 680px) {
+  .real-workspace-shell .app-header {
+    height: 64px;
+    padding: 0 14px;
+  }
+
+  .real-workspace-main {
+    padding: 88px 14px 54px;
+  }
+
+  .real-page-intro {
+    align-items: flex-start;
+    display: grid;
+    gap: 14px;
+  }
+
+  .real-page-intro h1 {
+    font-size: 34px;
+  }
+
+  .real-workspace-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .real-workspace-kpis article {
+    min-height: 132px;
+  }
+
+  .real-source-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .real-signal-disclosure {
+    grid-template-columns: 1fr;
+  }
+
+  .real-owner-transition {
+    grid-template-columns: 1fr;
+  }
+
+  .real-owner-transition > div,
+  .real-owner-transition > a:last-child {
+    grid-column: auto;
+  }
+}

@@ -1,5 +1,5 @@
 export type PublicSourceStatus = {
-  id: "sec" | "adv" | "irs" | "census" | "bea";
+  id: "sec" | "adv" | "irs" | "census" | "bea" | "ftc";
   name: string;
   publisher: string;
   freshness: string;
@@ -75,6 +75,23 @@ export type PublicLiquidityEvidence = {
   updatedAt: string;
   events: PublicLiquidityEvent[];
   holdings: PublicHoldingPosition[];
+  coverage?: {
+    startDate: string;
+    endDate: string;
+    reportingPartyCount: number;
+    filingCount: number;
+  };
+};
+
+export type PublicExitSignal = {
+  id: string;
+  date: string;
+  acquiringParty: string;
+  acquiredParty: string;
+  acquiredEntities: string[];
+  sourceUrl: string;
+  status: "cleared_to_close";
+  note: string;
 };
 
 export type AdviserFirm = {
@@ -126,6 +143,10 @@ export type PublicDataSnapshot = {
     filings: SecFiling[];
   };
   liquidity: PublicLiquidityEvidence;
+  exitSignals?: {
+    updatedAt: string;
+    records: PublicExitSignal[];
+  };
   advisers: {
     period: string;
     firmCount: number;
@@ -679,34 +700,137 @@ export async function fetchSecLiquidityEvidence(
     await delay(110);
   }
 
-  return {
+  return mergePublicLiquidityEvidence({
     updatedAt: new Date().toISOString(),
-    events: [
-      ...events
-        .reduce((deduplicated, event) => {
-          const key = [
-            event.eventType,
-            event.reportingParty.toLowerCase(),
-            event.issuer.toLowerCase().replace(/[,.]/g, ""),
-            event.transactionDate,
-            event.shares.toFixed(4),
-            event.grossAmount.toFixed(2),
-          ].join(":");
-          const current = deduplicated.get(key);
-          if (
-            !current ||
-            (current.form === "Form 144" && event.form === "Form 4")
-          ) {
-            deduplicated.set(key, event);
-          }
-          return deduplicated;
-        }, new Map<string, PublicLiquidityEvent>())
-        .values(),
-    ].sort((left, right) =>
-      right.transactionDate.localeCompare(left.transactionDate),
-    ),
-    holdings: [...latestHoldings.values()].sort((left, right) =>
-      right.asOfDate.localeCompare(left.asOfDate),
-    ),
+    events,
+    holdings: [...latestHoldings.values()],
+  });
+}
+
+function liquidityIdentity(value: {
+  reportingParty: string;
+  reportingPartyCik: string;
+}) {
+  const cik = value.reportingPartyCik.replace(/^0+/, "");
+  return cik
+    ? `cik:${cik}`
+    : `name:${value.reportingParty
+        .toLocaleLowerCase()
+        .replace(/[.,]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()}`;
+}
+
+export function mergePublicLiquidityEvidence(
+  ...collections: PublicLiquidityEvidence[]
+): PublicLiquidityEvidence {
+  const deduplicatedEvents = collections
+    .flatMap((collection) => collection.events)
+    .reduce((deduplicated, event) => {
+      const key = [
+        event.eventType,
+        liquidityIdentity(event),
+        event.issuer.toLowerCase().replace(/[,.]/g, ""),
+        event.transactionDate,
+        event.shares.toFixed(4),
+        event.grossAmount.toFixed(2),
+      ].join(":");
+      const current = deduplicated.get(key);
+      if (
+        !current ||
+        (current.form === "Form 144" && event.form === "Form 4")
+      ) {
+        deduplicated.set(key, event);
+      }
+      return deduplicated;
+    }, new Map<string, PublicLiquidityEvent>());
+  const latestHoldings = collections
+    .flatMap((collection) => collection.holdings)
+    .reduce((deduplicated, holding) => {
+      const key = [
+        liquidityIdentity(holding),
+        holding.issuerCik,
+        holding.securityTitle.toLowerCase(),
+        holding.directOrIndirect,
+      ].join(":");
+      const current = deduplicated.get(key);
+      if (!current || holding.asOfDate >= current.asOfDate) {
+        deduplicated.set(key, holding);
+      }
+      return deduplicated;
+    }, new Map<string, PublicHoldingPosition>());
+  const events = [...deduplicatedEvents.values()].sort((left, right) =>
+    right.transactionDate.localeCompare(left.transactionDate),
+  );
+  const holdings = [...latestHoldings.values()].sort((left, right) =>
+    right.asOfDate.localeCompare(left.asOfDate),
+  );
+  const dates = events.map((event) => event.transactionDate).filter(Boolean);
+  const identities = new Set(events.map(liquidityIdentity));
+  const filings = new Set(events.map((event) => event.accession));
+
+  return {
+    updatedAt:
+      collections
+        .map((collection) => collection.updatedAt)
+        .filter(Boolean)
+        .sort()
+        .at(-1) ?? new Date().toISOString(),
+    events,
+    holdings,
+    coverage: {
+      startDate: [...dates].sort().at(0) ?? "",
+      endDate: [...dates].sort().at(-1) ?? "",
+      reportingPartyCount: identities.size,
+      filingCount: filings.size,
+    },
   };
+}
+
+export function selectLiquidityProfileCoverage(
+  evidence: PublicLiquidityEvidence,
+  maximumProfiles = 1500,
+) {
+  const profiles = new Map<
+    string,
+    { completedGross: number; proposedGross: number; latestDate: string }
+  >();
+  for (const event of evidence.events) {
+    const key = liquidityIdentity(event);
+    const current = profiles.get(key) ?? {
+      completedGross: 0,
+      proposedGross: 0,
+      latestDate: "",
+    };
+    if (event.eventType === "completed_public_share_sale") {
+      current.completedGross += event.grossAmount;
+    } else if (event.eventType === "proposed_public_share_sale") {
+      current.proposedGross += event.grossAmount;
+    }
+    if (event.transactionDate > current.latestDate) {
+      current.latestDate = event.transactionDate;
+    }
+    profiles.set(key, current);
+  }
+  const selected = new Set(
+    [...profiles.entries()]
+      .sort(
+        ([, left], [, right]) =>
+          right.completedGross - left.completedGross ||
+          right.proposedGross - left.proposedGross ||
+          right.latestDate.localeCompare(left.latestDate),
+      )
+      .slice(0, maximumProfiles)
+      .map(([key]) => key),
+  );
+
+  return mergePublicLiquidityEvidence({
+    updatedAt: evidence.updatedAt,
+    events: evidence.events.filter((event) =>
+      selected.has(liquidityIdentity(event)),
+    ),
+    holdings: evidence.holdings.filter((holding) =>
+      selected.has(liquidityIdentity(holding)),
+    ),
+  });
 }

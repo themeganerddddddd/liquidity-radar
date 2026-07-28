@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import snapshotJson from "../public/data/public-signals.json";
 import type { PublicDataSnapshot } from "../lib/public-data";
 import {
   buildRealPeople,
@@ -17,17 +16,8 @@ import {
   type TestSession,
 } from "./TestAuth";
 
-const initialSnapshot = snapshotJson as PublicDataSnapshot;
-
 type WorkspaceView =
-  | "dashboard"
-  | "map"
-  | "people"
-  | "profile"
-  | "filings"
-  | "advisers"
-  | "foundations"
-  | "sources";
+  "dashboard" | "map" | "people" | "profile" | "filings" | "exits" | "sources";
 
 const navigation: Array<{
   label: string;
@@ -37,16 +27,15 @@ const navigation: Array<{
     label: "Workspace",
     items: [
       { view: "dashboard", label: "Dashboard", icon: "DB" },
-      { view: "map", label: "State map", icon: "US" },
+      { view: "people", label: "Search directory", icon: "DIR" },
+      { view: "map", label: "State signals", icon: "US" },
     ],
   },
   {
-    label: "Official records",
+    label: "Capital signals",
     items: [
-      { view: "people", label: "People", icon: "PPL" },
+      { view: "exits", label: "Business exit watch", icon: "M&A" },
       { view: "filings", label: "SEC filings", icon: "4" },
-      { view: "advisers", label: "Registered advisers", icon: "ADV" },
-      { view: "foundations", label: "Foundations", icon: "PF" },
     ],
   },
   {
@@ -60,22 +49,22 @@ const viewCopy: Record<
   { eyebrow: string; title: string; detail: string }
 > = {
   dashboard: {
-    eyebrow: "Evidence-backed personal liquidity",
-    title: "Good afternoon.",
+    eyebrow: "Capital intelligence workspace",
+    title: "Liquidity Radar",
     detail:
-      "Track when public records show people receiving cash, how much may remain deployable, and which evidence supports each estimate.",
+      "Find people with attributable cash-creation events, review estimated deployable capital, and follow emerging business-exit signals.",
   },
   map: {
     eyebrow: "Regional intelligence",
     title: "State signal map",
     detail:
-      "Compare official state-level business formation, adviser, asset, and economic-growth records.",
+      "Compare official business-formation and economic-growth records as market context, without treating them as personal liquidity.",
   },
   people: {
-    eyebrow: "Personal liquidity search",
-    title: "People with attributable capital events",
+    eyebrow: "Searchable capital database",
+    title: "Capital directory",
     detail:
-      "Rank real reporting parties by completed gross proceeds and estimated remaining liquidity, then inspect every model input.",
+      "Search people, firms, issuers, completed sales, proposed sales, and reported holdings from one directory.",
   },
   profile: {
     eyebrow: "SEC reporting-party profile",
@@ -89,17 +78,11 @@ const viewCopy: Record<
     detail:
       "Review recently indexed ownership and transaction filings directly from the SEC public record.",
   },
-  advisers: {
-    eyebrow: "SEC Form ADV",
-    title: "Registered investment advisers",
+  exits: {
+    eyebrow: "Transaction intelligence",
+    title: "Business exit watch",
     detail:
-      "Inspect firm-reported regulatory assets. These values describe adviser books, not personal wealth.",
-  },
-  foundations: {
-    eyebrow: "IRS Form 990-PF",
-    title: "Private-foundation returns",
-    detail:
-      "Browse attributable foundation filings from the IRS electronic filing index.",
+      "Monitor public M&A signals, named acquired parties, and acquired businesses without treating a deal notice as personal cash.",
   },
   sources: {
     eyebrow: "Evidence policy",
@@ -126,6 +109,25 @@ function displayDate(value: string) {
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(`${value.slice(0, 10)}T00:00:00Z`));
+}
+
+function liquidityCoverage(data: PublicDataSnapshot) {
+  const dates = data.liquidity.events
+    .map((event) => event.transactionDate)
+    .filter(Boolean)
+    .sort();
+  const startDate = data.liquidity.coverage?.startDate || dates.at(0) || "";
+  const endDate = data.liquidity.coverage?.endDate || dates.at(-1) || "";
+  const start = startDate ? new Date(`${startDate}T00:00:00Z`).getTime() : 0;
+  const end = endDate ? new Date(`${endDate}T00:00:00Z`).getTime() : 0;
+  const days = start && end ? Math.round((end - start) / 86_400_000) + 1 : 0;
+  const label =
+    startDate && endDate
+      ? startDate === endDate
+        ? displayDate(startDate)
+        : `${displayDate(startDate)} – ${displayDate(endDate)}`
+      : "Coverage date unavailable";
+  return { startDate, endDate, days, label };
 }
 
 function filingName(filing: PublicDataSnapshot["sec"]["filings"][number]) {
@@ -161,11 +163,15 @@ function PageIntro({
 function WorkspaceSidebar({
   view,
   open,
+  profileCount,
+  coverageLabel,
   onNavigate,
   onClose,
 }: {
   view: WorkspaceView;
   open: boolean;
+  profileCount: number;
+  coverageLabel: string;
   onNavigate: (view: WorkspaceView) => void;
   onClose: () => void;
 }) {
@@ -185,10 +191,9 @@ function WorkspaceSidebar({
       <div className="workspace-chip">
         <span>LR</span>
         <div>
-          <strong>Public Records</strong>
-          <small>Test workspace</small>
+          <strong>Capital Intelligence</strong>
+          <small>Research workspace</small>
         </div>
-        <b aria-hidden="true">●</b>
       </div>
       <nav className="side-nav" aria-label="Product navigation">
         {navigation.map((group) => (
@@ -224,12 +229,12 @@ function WorkspaceSidebar({
           Methodology
         </button>
         <div className="coverage-mini">
-          <span>Visible records</span>
-          <strong>100% real</strong>
+          <span>Directory coverage</span>
+          <strong>{profileCount.toLocaleString()} profiles</strong>
           <i>
             <b />
           </i>
-          <small>SEC + IRS + Census + BEA only</small>
+          <small>{coverageLabel}</small>
         </div>
       </div>
     </aside>
@@ -265,7 +270,14 @@ function WorkspaceHeader({
     query.trim().length > 1
       ? people
           .filter((person) =>
-            [person.name, ...person.issuers, ...person.forms]
+            [
+              person.name,
+              ...person.issuers,
+              ...person.forms,
+              ...person.filings.map((filing) => filing.reportingParty),
+              ...person.liquidityEvents.map((event) => event.reportingParty),
+              ...person.holdings.map((holding) => holding.reportingParty),
+            ]
               .join(" ")
               .toLocaleLowerCase()
               .includes(query.trim().toLocaleLowerCase()),
@@ -297,12 +309,10 @@ function WorkspaceHeader({
             }}
             placeholder={
               view === "filings"
-                ? "Filter SEC filings or find a reporting person…"
-                : view === "advisers"
-                  ? "Filter advisers or find a reporting person…"
-                  : view === "foundations"
-                    ? "Filter foundations or find a reporting person…"
-                    : "Search real people, firms, or issuers…"
+                ? "Filter SEC filings or search the directory…"
+                : view === "exits"
+                  ? "Filter buyers, sellers, or acquired businesses…"
+                  : "Search the directory by person, firm, or issuer…"
             }
             aria-label="Search people and public records"
             aria-controls={
@@ -318,7 +328,7 @@ function WorkspaceHeader({
             role="listbox"
             aria-label="Matching SEC reporting parties"
           >
-            <p>People and reporting parties</p>
+            <p>Directory profiles</p>
             {peopleResults.map((person) => (
               <button
                 type="button"
@@ -341,10 +351,6 @@ function WorkspaceHeader({
         )}
       </div>
       <div className="header-actions">
-        <span className="real-only-pill">
-          <i />
-          Real records only
-        </span>
         <div className="account" aria-label={`Signed in as ${session.name}`}>
           <span>{initials || "LR"}</span>
           <div>
@@ -371,6 +377,7 @@ function Dashboard({
   onNavigate: (view: WorkspaceView) => void;
   onPerson: (person: RealPersonRecord) => void;
 }) {
+  const coverage = liquidityCoverage(data);
   const liquidPeople = people.filter(
     (person) => person.kind === "Person" && person.grossCompletedSales > 0,
   );
@@ -407,26 +414,26 @@ function Dashboard({
           <button
             type="button"
             className="button ghost"
-            onClick={() => onNavigate("sources")}
+            onClick={() => onNavigate("people")}
           >
-            Review sources
+            Search directory
           </button>
         }
       />
       <div className="real-workspace-status">
         <span>
           <i />
-          {data.sec.mode === "live"
-            ? "Live source refresh"
-            : "Verified snapshot"}
+          {coverage.days > 0 && coverage.days <= 10
+            ? "Current filing window"
+            : "Liquidity coverage"}
         </span>
         <p>
-          Every profile is tied to transaction-level public evidence. Completed
-          proceeds are separated from proposed sales, and every remaining-cash
-          range exposes its model assumptions.
+          <strong>{coverage.label}.</strong> The dashboard combines completed
+          sale evidence with proposed-sale and holdings signals. Proposed deals
+          and Form 144 notices do not enter estimated cash.
         </p>
         <button type="button" onClick={() => onNavigate("sources")}>
-          Evidence policy →
+          Methodology →
         </button>
       </div>
 
@@ -438,9 +445,12 @@ function Dashboard({
           <b>SEC</b>
         </article>
         <article>
-          <span>People with completed-sale evidence</span>
-          <strong>{liquidPeople.length.toLocaleString()}</strong>
-          <small>Ranked by modeled remaining liquidity</small>
+          <span>Profiles in capital directory</span>
+          <strong>{people.length.toLocaleString()}</strong>
+          <small>
+            {liquidPeople.length.toLocaleString()} people with completed-sale
+            evidence
+          </small>
           <b>SEC</b>
         </article>
         <article>
@@ -540,18 +550,22 @@ function Dashboard({
       </section>
 
       <section className="real-source-strip" aria-label="Connected sources">
-        {data.sources.map((source) => (
-          <a
-            key={source.id}
-            href={source.sourceUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span>{source.publisher}</span>
-            <strong>{source.name}</strong>
-            <small>{source.freshness}</small>
-          </a>
-        ))}
+        {data.sources
+          .filter((source) =>
+            ["sec", "ftc", "census", "bea"].includes(source.id),
+          )
+          .map((source) => (
+            <a
+              key={source.id}
+              href={source.sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span>{source.publisher}</span>
+              <strong>{source.name}</strong>
+              <small>{source.freshness}</small>
+            </a>
+          ))}
       </section>
     </>
   );
@@ -616,15 +630,20 @@ function FilingsView({
   );
 }
 
-function AdvisersView({
+function ExitSignalsView({
   data,
   query,
 }: {
   data: PublicDataSnapshot;
   query: string;
 }) {
-  const firms = data.advisers.topFirms.filter((firm) =>
-    [firm.name, firm.legalName, firm.city, firm.state, firm.crd, firm.secNumber]
+  const records = (data.exitSignals?.records ?? []).filter((record) =>
+    [
+      record.acquiringParty,
+      record.acquiredParty,
+      ...record.acquiredEntities,
+      record.id,
+    ]
       .join(" ")
       .toLowerCase()
       .includes(query.toLowerCase()),
@@ -633,102 +652,83 @@ function AdvisersView({
   return (
     <>
       <PageIntro
-        view="advisers"
+        view="exits"
         action={
           <span className="real-count-pill">
-            {data.advisers.firmCount.toLocaleString()} firms in source roster
+            {records.length.toLocaleString()} current deal signals
           </span>
         }
       />
-      <section className="real-directory-card">
-        <div className="real-directory-head real-adviser-row">
-          <span>Firm</span>
-          <span>Location</span>
-          <span>Regulatory assets</span>
-          <span>Latest filing</span>
-          <span>Identifiers</span>
-        </div>
-        {firms.map((firm) => (
-          <div
-            className="real-directory-row real-adviser-row"
-            key={`${firm.crd}-${firm.secNumber}`}
-          >
-            <strong>{firm.name}</strong>
-            <span>
-              {firm.city}, {firm.state}
-            </span>
-            <b>{compactCurrency(firm.regulatoryAssets)}</b>
-            <span>{displayDate(firm.filingDate)}</span>
-            <small>
-              CRD {firm.crd} · {firm.secNumber}
-            </small>
+      <div className="real-signal-disclosure">
+        <strong>Deal signal—not cash evidence</strong>
+        <p>
+          These are FTC HSR early-termination notices. They show that a waiting
+          period ended early, but they do not prove the acquisition closed,
+          disclose consideration, or establish personal proceeds.
+        </p>
+      </div>
+      <section className="real-exit-layout">
+        <div className="real-directory-card">
+          <div className="real-directory-head real-exit-row">
+            <span>Date</span>
+            <span>Acquired party</span>
+            <span>Acquired business</span>
+            <span>Acquiring party</span>
           </div>
-        ))}
-        {!firms.length && (
-          <p className="real-empty">No adviser records match “{query}”.</p>
-        )}
+          {records.map((record) => (
+            <a
+              className="real-directory-row real-exit-row"
+              href={record.sourceUrl}
+              key={record.id}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span>{displayDate(record.date)}</span>
+              <strong>{record.acquiredParty}</strong>
+              <span>
+                {record.acquiredEntities.join(", ") || "Entity not listed"}
+              </span>
+              <span>
+                {record.acquiringParty}
+                <small>FTC {record.id} ↗</small>
+              </span>
+            </a>
+          ))}
+          {!records.length && (
+            <p className="real-empty">No exit-watch records match “{query}”.</p>
+          )}
+        </div>
+        <aside className="real-owner-transition">
+          <p className="eyebrow">Owner transition lens</p>
+          <h2>Aging owners are a market signal, not a named-person fact.</h2>
+          <p>
+            Census owner-age tables can prioritize industries and regions for
+            succession research. They do not identify an individual owner or
+            prove that a business is for sale.
+          </p>
+          <a
+            href="https://www.census.gov/data/tables/2024/econ/abs/2024-abs-characteristics-of-owners.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Explore 2024 owner-age tables ↗
+          </a>
+          <div>
+            <strong>51%</strong>
+            <span>
+              of responding employer-business owners were 55+ in the 2018
+              reference-year ABS
+            </span>
+          </div>
+          <a
+            href="https://www.census.gov/content/dam/Census/library/visualizations/2020/comm/business-owners-ages.pdf"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open the Census age brief ↗
+          </a>
+        </aside>
       </section>
-      <p className="real-workspace-footnote">
-        Regulatory assets under management are firm-reported adviser values.
-        They are not an individual investor’s assets or available liquidity.
-      </p>
-    </>
-  );
-}
-
-function FoundationsView({
-  data,
-  query,
-}: {
-  data: PublicDataSnapshot;
-  query: string;
-}) {
-  const filings = data.foundations.recentFilings.filter((filing) =>
-    [filing.name, filing.ein, filing.taxPeriod, filing.objectId]
-      .join(" ")
-      .toLowerCase()
-      .includes(query.toLowerCase()),
-  );
-
-  return (
-    <>
-      <PageIntro
-        view="foundations"
-        action={
-          <span className="real-count-pill">
-            {data.foundations.filingCount.toLocaleString()} indexed filings
-          </span>
-        }
-      />
-      <section className="real-foundation-grid">
-        {filings.map((filing) => (
-          <article key={filing.objectId}>
-            <span>IRS 990-PF</span>
-            <h2>{filing.name}</h2>
-            <dl>
-              <div>
-                <dt>Tax period</dt>
-                <dd>{filing.taxPeriod}</dd>
-              </div>
-              <div>
-                <dt>EIN</dt>
-                <dd>••-•••{filing.ein.slice(-4)}</dd>
-              </div>
-              <div>
-                <dt>IRS object ID</dt>
-                <dd>{filing.objectId}</dd>
-              </div>
-            </dl>
-          </article>
-        ))}
-        {!filings.length && (
-          <p className="real-empty">No foundation records match “{query}”.</p>
-        )}
-      </section>
-      <p className="real-workspace-footnote">
-        Foundation returns provide organizational filing context. They do not
-        establish a donor’s current personal capital or willingness to invest.
-      </p>
     </>
   );
 }
@@ -757,7 +757,13 @@ function SourcesView({ data }: { data: PublicDataSnapshot }) {
           >
             <div>
               <span>{source.publisher}</span>
-              <b>{source.freshness}</b>
+              <b>
+                {source.id === "adv"
+                  ? "Regional context"
+                  : source.id === "irs"
+                    ? "Excluded from estimates"
+                    : source.freshness}
+              </b>
             </div>
             <h2>{source.name}</h2>
             <p>{source.methodology}</p>
@@ -780,8 +786,11 @@ export function RealRadarApp() {
   const [mobileNav, setMobileNav] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedPersonId, setSelectedPersonId] = useState("");
-  const [data, setData] = useState(initialSnapshot);
-  const people = useMemo(() => buildRealPeople(data), [data]);
+  const [data, setData] = useState<PublicDataSnapshot | null>(null);
+  const people = useMemo(() => (data ? buildRealPeople(data) : []), [data]);
+  const coverage = data
+    ? liquidityCoverage(data)
+    : { startDate: "", endDate: "", days: 0, label: "Loading coverage…" };
   const selectedPerson =
     people.find((person) => person.id === selectedPersonId) ?? people[0];
   const ready = useSyncExternalStore(
@@ -793,20 +802,22 @@ export function RealRadarApp() {
     session === "signed-out"
       ? null
       : (session ?? (ready ? readTestSession() : null));
+  const signedIn = Boolean(effectiveSession);
 
   useEffect(() => {
+    if (!ready || !signedIn) return;
     const controller = new AbortController();
-    void fetch("/api/public-data", { signal: controller.signal })
+    void fetch("/data/public-signals.json", { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Public-data refresh failed.");
-        return response.json() as Promise<{ data: PublicDataSnapshot }>;
+        return response.json() as Promise<PublicDataSnapshot>;
       })
-      .then((body) => setData(body.data))
+      .then(setData)
       .catch(() => {
-        // Preserve the checked-in official snapshot when a publisher is down.
+        // A reload retries the immutable checked-in public snapshot.
       });
     return () => controller.abort();
-  }, []);
+  }, [ready, signedIn]);
 
   const navigate = (nextView: WorkspaceView) => {
     setView(nextView);
@@ -838,6 +849,17 @@ export function RealRadarApp() {
     );
   }
 
+  if (!data) {
+    return (
+      <main className="test-auth-loading" aria-label="Loading public records">
+        <span className="radar-mark" aria-hidden="true">
+          <i />
+        </span>
+        <p>Loading the public-record directory…</p>
+      </main>
+    );
+  }
+
   let content: React.ReactNode;
   if (view === "dashboard") {
     content = (
@@ -849,7 +871,7 @@ export function RealRadarApp() {
       />
     );
   } else if (view === "map") {
-    content = <PublicStateMap />;
+    content = <PublicStateMap data={data} />;
   } else if (view === "people") {
     content = (
       <>
@@ -857,7 +879,7 @@ export function RealRadarApp() {
           view="people"
           action={
             <span className="real-count-pill">
-              {people.length} real liquidity profiles
+              {people.length.toLocaleString()} searchable profiles
             </span>
           }
         />
@@ -880,10 +902,8 @@ export function RealRadarApp() {
     );
   } else if (view === "filings") {
     content = <FilingsView data={data} query={query} />;
-  } else if (view === "advisers") {
-    content = <AdvisersView data={data} query={query} />;
-  } else if (view === "foundations") {
-    content = <FoundationsView data={data} query={query} />;
+  } else if (view === "exits") {
+    content = <ExitSignalsView data={data} query={query} />;
   } else {
     content = <SourcesView data={data} />;
   }
@@ -893,6 +913,8 @@ export function RealRadarApp() {
       <WorkspaceSidebar
         view={view}
         open={mobileNav}
+        profileCount={people.length}
+        coverageLabel={coverage.label}
         onNavigate={navigate}
         onClose={() => setMobileNav(false)}
       />

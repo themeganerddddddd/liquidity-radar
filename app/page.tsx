@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { RealRadarApp } from "./RealRadarApp";
 
 export const metadata: Metadata = {
-  title: "Liquidity Radar — Official public capital signals",
+  title: "Liquidity Radar — Public liquidity and exit signals",
   description:
-    "Explore attributable SEC, IRS, Census, and BEA public records by state.",
+    "Search attributable SEC liquidity records, FTC transaction signals, and official Census and BEA market context.",
 };
 
 export default function Home() {

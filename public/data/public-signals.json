@@ -3,12 +3,12 @@
   "sources": [
     {
       "id": "sec",
-      "name": "EDGAR current filings",
+      "name": "EDGAR insider transactions",
       "publisher": "U.S. Securities and Exchange Commission",
-      "freshness": "Near real time",
-      "recordCount": 163,
-      "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
-      "methodology": "Exact-form EDGAR metadata plus underlying ownership XML. Completed gross proceeds are recognized only from Form 4 sale transactions with reported shares and price or completed prior sales explicitly disclosed on Form 144. Proposed Form 144 values remain excluded from completed liquidity."
+      "freshness": "Apr 23, 2026 to Jul 28, 2026",
+      "recordCount": 416,
+      "sourceUrl": "https://www.sec.gov/data-research/sec-markets-data/insider-transactions-data-sets",
+      "methodology": "Exact-form EDGAR metadata and underlying ownership XML. Completed gross proceeds are recognized only from Form 4 sale transactions with reported shares and price or completed prior sales explicitly disclosed on Form 144. Proposed Form 144 values remain excluded from completed liquidity. The daily importer is prepared to add the SEC quarterly history once its required contact identity is configured."
     },
     {
       "id": "adv",
@@ -17,7 +17,7 @@
       "freshness": "July 2026",
       "recordCount": 14453,
       "sourceUrl": "https://www.sec.gov/data-research/sec-markets-data/information-about-registered-investment-advisers-exempt-reporting-advisers",
-      "methodology": "Approved SEC-registered advisers with public office and reported regulatory-asset fields."
+      "methodology": "Approved SEC-registered advisers with public office and reported regulatory-asset fields. Used only as source context; adviser assets are not attributed to the firm or its employees as liquidity."
     },
     {
       "id": "irs",
@@ -26,7 +26,7 @@
       "freshness": "2026 e-file index",
       "recordCount": 68094,
       "sourceUrl": "https://www.irs.gov/charities-non-profits/form-990-series-downloads",
-      "methodology": "Electronically filed private-foundation returns indexed by the IRS. Values are filing metadata, not modeled wealth."
+      "methodology": "Electronically filed private-foundation returns indexed by the IRS. Retained as source context only until return-level asset and cash fields can be verified; no foundation value enters a liquidity estimate."
     },
     {
       "id": "census",
@@ -45,6 +45,15 @@
       "recordCount": 51,
       "sourceUrl": "https://www.bea.gov/itable/regional-gdp-and-personal-income",
       "methodology": "Quarterly state real GDP in millions of chained 2017 dollars, with quarter-over-quarter change calculated by Liquidity Radar."
+    },
+    {
+      "id": "ftc",
+      "name": "HSR early-termination notices",
+      "publisher": "Federal Trade Commission",
+      "freshness": "Jul 21, 2026",
+      "recordCount": 20,
+      "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices",
+      "methodology": "Recent public HSR early-termination notices identify acquiring parties, acquired parties, and acquired entities. They are deal-watch signals only and do not prove closing, consideration, or personal proceeds."
     }
   ],
   "sec": {
@@ -1522,6 +1531,12 @@
   },
   "liquidity": {
     "updatedAt": "2026-07-28T15:29:33.597Z",
+    "coverage": {
+      "startDate": "2026-04-23",
+      "endDate": "2026-07-28",
+      "reportingPartyCount": 69,
+      "filingCount": 163
+    },
     "events": [
       {
         "id": "0001959173-26-005399-proposed-0",
@@ -14675,6 +14690,218 @@
         "valueClassification": "not_valued",
         "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1961099/000196109926000008/0001961099-26-000008-index.htm",
         "accession": "0001961099-26-000008"
+      }
+    ]
+  },
+  "exitSignals": {
+    "updatedAt": "2026-07-28T16:20:00.000Z",
+    "records": [
+      {
+        "id": "20261686",
+        "date": "2026-07-21",
+        "acquiringParty": "ExlService Holdings, Inc.",
+        "acquiredParty": "i merit inc.",
+        "acquiredEntities": ["i merit inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261686",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261687",
+        "date": "2026-07-21",
+        "acquiringParty": "Clearlake Capital Partners VI, L.P.",
+        "acquiredParty": "Paul Gertner",
+        "acquiredEntities": ["Starborn Industries, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261687",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261691",
+        "date": "2026-07-21",
+        "acquiringParty": "Otro Capital Fund I-A, LP",
+        "acquiredParty": "EFC2 Capital, L.P.",
+        "acquiredEntities": ["OD Sports Acquisition, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261691",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261703",
+        "date": "2026-07-21",
+        "acquiringParty": "Build HoldCo LLC",
+        "acquiredParty": "ASP VIII Alternative Investments, L.P.",
+        "acquiredEntities": ["United FP Holdings, LLC"],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261703",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261714",
+        "date": "2026-07-21",
+        "acquiringParty": "General Atlantic Partners (Ontario) AIV II, L.P.",
+        "acquiredParty": "ICEYE Oy",
+        "acquiredEntities": ["ICEYE Oy"],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261714",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261719",
+        "date": "2026-07-21",
+        "acquiringParty": "Figure Technology Solutions, Inc.",
+        "acquiredParty": "Kiavi, Inc.",
+        "acquiredEntities": ["Kiavi, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261719",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261742",
+        "date": "2026-07-21",
+        "acquiringParty": "SIPCO Holdings Limited",
+        "acquiredParty": "M536, Inc.",
+        "acquiredEntities": ["Berger Financial Group, LLC"],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261742",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261743",
+        "date": "2026-07-21",
+        "acquiringParty": "Standard BioTools, Inc.",
+        "acquiredParty": "Treeline Biosciences, Inc.",
+        "acquiredEntities": ["Treeline Biosciences, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261743",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261745",
+        "date": "2026-07-21",
+        "acquiringParty": "Audax Private Equity Origins Fund I, L.P.",
+        "acquiredParty": "Imperial Capital Acquisition Fund VIII (Canada), LP",
+        "acquiredEntities": ["Integral Group Parent Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261745",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261753",
+        "date": "2026-07-21",
+        "acquiringParty": "H&F Manuka Lux S.a r.l.",
+        "acquiredParty": "Providence Equity Partners IX L.P.",
+        "acquiredEntities": ["Heron UK TopCo Limited"],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261753",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261754",
+        "date": "2026-07-21",
+        "acquiringParty": "Par Health, Inc.",
+        "acquiredParty": "Keenova Therapeutics plc",
+        "acquiredEntities": [
+          "Ozantri Limited",
+          "Endo Operations Limited",
+          "Endo USA, Inc."
+        ],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261754",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261764",
+        "date": "2026-07-21",
+        "acquiringParty": "TDK Corporation",
+        "acquiredParty": "Fabric8Labs, Inc.",
+        "acquiredEntities": ["Fabric8Labs, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261764",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261771",
+        "date": "2026-07-21",
+        "acquiringParty": "Harbert Power Fund VII, LP",
+        "acquiredParty": "Rockland Power Partners IV, LP",
+        "acquiredEntities": ["SEPG MGA Holdings, LLC"],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261771",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261777",
+        "date": "2026-07-21",
+        "acquiringParty": "Wynnchurch Capital Partners VI, L.P.",
+        "acquiredParty": "Wynnchurch Capital Partners IV, L.P.",
+        "acquiredEntities": [
+          "Eastern Metal Supply Holdings, LP",
+          "Eastern Metal Supply Holdings GP, LLC"
+        ],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261777",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261778",
+        "date": "2026-07-21",
+        "acquiringParty": "TMX Group Limited",
+        "acquiredParty": "Research Affiliates Global Holdings LLC",
+        "acquiredEntities": ["RAFI Indices, LLC"],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261778",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261513",
+        "date": "2026-07-17",
+        "acquiringParty": "SLB N.V. (SLB Limited)",
+        "acquiredParty": "S&P Global Inc.",
+        "acquiredEntities": ["S&P Global Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261513",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261430",
+        "date": "2026-07-13",
+        "acquiringParty": "Rome Wildlife, Inc.",
+        "acquiredParty": "RE/MAX Holdings, Inc.",
+        "acquiredEntities": ["RE/MAX Holdings, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261430",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261431",
+        "date": "2026-07-13",
+        "acquiringParty": "David Liniger",
+        "acquiredParty": "Rome Wildlife, Inc.",
+        "acquiredEntities": ["Rome Wildlife, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261431",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261432",
+        "date": "2026-07-13",
+        "acquiringParty": "David Liniger",
+        "acquiredParty": "RE/MAX Holdings, Inc.",
+        "acquiredEntities": ["RE/MAX Holdings, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261432",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
+      },
+      {
+        "id": "20261433",
+        "date": "2026-07-13",
+        "acquiringParty": "RE/MAX Holdings, Inc.",
+        "acquiredParty": "David Liniger",
+        "acquiredEntities": ["RIHI, Inc."],
+        "sourceUrl": "https://www.ftc.gov/legal-library/browse/early-termination-notices/20261433",
+        "status": "cleared_to_close",
+        "note": "FTC early termination means the HSR waiting period ended early. It is a deal signal, not proof that the transaction closed or that a person received cash."
       }
     ]
   },

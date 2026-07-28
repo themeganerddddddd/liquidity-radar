@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { buildRealPeople } from "../../app/RealPeople";
 import type { PublicDataSnapshot } from "../../lib/public-data";
 
 const snapshotJson = JSON.parse(
@@ -22,11 +23,11 @@ test("the restored workspace shell loads its official dashboard", async ({
 }) => {
   await signInWithDummy(page);
   await expect(
-    page.getByRole("heading", { name: "Good afternoon." }),
+    page.getByRole("heading", { name: "Liquidity Radar" }),
   ).toBeVisible();
   await expect(
     page.getByText("Real records only", { exact: true }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(
     page.getByRole("navigation", { name: "Product navigation" }),
   ).toBeVisible();
@@ -44,7 +45,7 @@ test("the restored workspace shell loads its official dashboard", async ({
 
   await page.getByRole("button", { name: "Sources & methodology" }).click();
   await expect(
-    page.getByText("EDGAR current filings", { exact: true }).first(),
+    page.getByText("EDGAR insider transactions", { exact: true }).first(),
   ).toBeVisible();
 });
 
@@ -56,16 +57,16 @@ test("real SEC names are searchable and open evidence-linked profiles", async ({
   );
   if (!liquidityEvent)
     throw new Error("The official snapshot has no completed sale.");
+  const person = buildRealPeople(snapshotJson).find((record) =>
+    record.liquidityEvents.some((event) => event.id === liquidityEvent.id),
+  );
+  if (!person) throw new Error("The completed sale has no directory profile.");
 
   await signInWithDummy(page);
-  await page
-    .getByLabel("Search people and public records")
-    .fill(liquidityEvent.reportingParty);
+  await page.getByLabel("Search people and public records").fill(person.name);
   await page.getByRole("option").first().click();
 
-  await expect(
-    page.getByRole("heading", { name: liquidityEvent.reportingParty }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: person.name })).toBeVisible();
   await expect(page.getByText("Estimate, not bank balance")).toBeVisible();
   await expect(
     page.getByRole("heading", {
@@ -78,19 +79,17 @@ test("real SEC names are searchable and open evidence-linked profiles", async ({
 
   await page
     .locator(".side-nav")
-    .getByRole("button", { name: "People" })
+    .getByRole("button", { name: "Search directory" })
     .click();
   await expect(
-    page.getByRole("heading", {
-      name: "People with attributable capital events",
-    }),
+    page.getByRole("heading", { name: "Capital directory" }),
   ).toBeVisible();
   await page
     .getByLabel("Search people and reporting parties")
-    .fill(liquidityEvent.reportingParty);
+    .fill(person.name);
   await expect(
     page.getByRole("button", {
-      name: `Open profile for ${liquidityEvent.reportingParty}`,
+      name: `Open profile for ${person.name}`,
     }),
   ).toBeVisible();
 });

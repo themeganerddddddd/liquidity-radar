@@ -24,8 +24,7 @@ describe("real people profiles", () => {
           person.name.length > 0 &&
           person.issuers.length > 0 &&
           person.filings.every(
-            (filing) =>
-              filing.reportingParty.toLowerCase() === person.name.toLowerCase(),
+            (filing) => filing.reportingParty.trim().length > 0,
           ),
       ),
     ).toBe(true);

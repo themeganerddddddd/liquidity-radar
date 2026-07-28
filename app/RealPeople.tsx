@@ -115,11 +115,27 @@ export function estimateLiquidity(
 }
 
 function entityKind(name: string): RealPersonRecord["kind"] {
-  return /\b(LLC|L\.L\.C\.|INC|CORP|LTD|LP|L\.P\.|TRUST|GRAT|IRREVOCABLE|FOUNDATION|FUND|CAPITAL|PARTNERS|HOLDINGS)\b/i.test(
+  return /\b(LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|CO|COMPANY|LTD|LIMITED|LP|L\.P\.|LLP|PLC|P\.L\.C\.|B\.?V\.?|N\.?V\.?|S\.?A\.?|AG|GMBH|TRUST|GRAT|IRREVOCABLE|FOUNDATION|FUND|CAPITAL|PARTNERS|HOLDINGS|INVESTMENT|INVESTMENTS|VENTURES|MANAGEMENT|GROUP|ASSOCIATES|MASTER)\b/i.test(
     name,
   )
     ? "Entity"
     : "Person";
+}
+
+function normalizedName(name: string) {
+  return name
+    .toLocaleLowerCase()
+    .replace(/[.,]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function identityKey(value: {
+  reportingParty: string;
+  reportingPartyCik?: string;
+}) {
+  const cik = value.reportingPartyCik?.replace(/^0+/, "");
+  return cik ? `cik:${cik}` : `name:${normalizedName(value.reportingParty)}`;
 }
 
 function initials(name: string) {
@@ -145,38 +161,60 @@ function archiveEntityId(url: string) {
 }
 
 export function buildRealPeople(data: PublicDataSnapshot): RealPersonRecord[] {
-  const names = new Map<string, string>();
+  const names = new Map<string, string[]>();
+  const nameToKey = new Map<string, string>();
+  const eventsByKey = new Map<string, PublicLiquidityEvent[]>();
+  const holdingsByKey = new Map<string, PublicHoldingPosition[]>();
+  const filingsByKey = new Map<string, SecFiling[]>();
+  const addName = (key: string, name: string) => {
+    if (!name.trim()) return;
+    const current = names.get(key) ?? [];
+    if (!current.includes(name)) current.push(name);
+    names.set(key, current);
+    nameToKey.set(normalizedName(name), key);
+  };
 
+  for (const event of data.liquidity?.events ?? []) {
+    if (!event.reportingParty.trim()) continue;
+    const key = identityKey(event);
+    addName(key, event.reportingParty);
+    const current = eventsByKey.get(key) ?? [];
+    current.push(event);
+    eventsByKey.set(key, current);
+  }
+  for (const holding of data.liquidity?.holdings ?? []) {
+    if (!holding.reportingParty.trim()) continue;
+    const key = identityKey(holding);
+    addName(key, holding.reportingParty);
+    const current = holdingsByKey.get(key) ?? [];
+    current.push(holding);
+    holdingsByKey.set(key, current);
+  }
   for (const filing of data.sec.filings) {
     const name = filing.reportingParty.trim();
     if (!name) continue;
-    names.set(name.toLocaleLowerCase(), name);
-  }
-  for (const event of data.liquidity?.events ?? []) {
-    if (event.reportingParty.trim())
-      names.set(event.reportingParty.toLocaleLowerCase(), event.reportingParty);
-  }
-  for (const holding of data.liquidity?.holdings ?? []) {
-    if (holding.reportingParty.trim())
-      names.set(
-        holding.reportingParty.toLocaleLowerCase(),
-        holding.reportingParty,
-      );
+    const key =
+      nameToKey.get(normalizedName(name)) ?? `name:${normalizedName(name)}`;
+    addName(key, name);
+    const current = filingsByKey.get(key) ?? [];
+    current.push(filing);
+    filingsByKey.set(key, current);
   }
 
   return [...names.entries()]
-    .map(([key, name]) => {
-      const filings = data.sec.filings.filter(
-        (filing) => filing.reportingParty.toLocaleLowerCase() === key,
-      );
+    .map(([key, nameOptions]) => {
+      const liquidityEvents = eventsByKey.get(key) ?? [];
+      const holdings = holdingsByKey.get(key) ?? [];
+      const preferredName =
+        liquidityEvents.find((event) => event.form === "Form 144")
+          ?.reportingParty ||
+        liquidityEvents[0]?.reportingParty ||
+        holdings[0]?.reportingParty ||
+        nameOptions[0];
+      const name = preferredName;
+      const filings = filingsByKey.get(key) ?? [];
       const ordered = [...filings].sort((left, right) =>
         right.updatedAt.localeCompare(left.updatedAt),
-      );
-      const liquidityEvents = (data.liquidity?.events ?? []).filter(
-        (event) => event.reportingParty.toLocaleLowerCase() === key,
-      );
-      const holdings = (data.liquidity?.holdings ?? []).filter(
-        (holding) => holding.reportingParty.toLocaleLowerCase() === key,
       );
       const estimate = estimateLiquidity(liquidityEvents, data.generatedAt);
       const proposedSaleValue = liquidityEvents
@@ -299,12 +337,20 @@ export function RealPeopleDirectory({
   const [evidence, setEvidence] = useState("All liquidity evidence");
   const [kind, setKind] = useState("People only");
   const [sort, setSort] = useState("Estimated liquidity");
+  const [visibleCount, setVisibleCount] = useState(50);
 
   const filtered = useMemo(
     () =>
       people
         .filter((person) =>
-          [person.name, ...person.issuers, ...person.forms]
+          [
+            person.name,
+            ...person.issuers,
+            ...person.forms,
+            ...person.filings.map((filing) => filing.reportingParty),
+            ...person.liquidityEvents.map((event) => event.reportingParty),
+            ...person.holdings.map((holding) => holding.reportingParty),
+          ]
             .join(" ")
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()),
@@ -341,16 +387,20 @@ export function RealPeopleDirectory({
         }),
     [evidence, kind, people, query, sort],
   );
+  const visible = filtered.slice(0, visibleCount);
 
   return (
     <>
       <section className="real-people-controls" aria-label="People filters">
         <label className="real-people-search">
-          <span>Search real names and linked issuers</span>
+          <span>Search names, firms, and linked issuers</span>
           <input
             type="search"
             value={query}
-            onChange={(event) => onQuery(event.target.value)}
+            onChange={(event) => {
+              setVisibleCount(50);
+              onQuery(event.target.value);
+            }}
             placeholder="Search a person, reporting party, or company…"
             aria-label="Search people and reporting parties"
           />
@@ -359,7 +409,10 @@ export function RealPeopleDirectory({
           <span>Liquidity evidence</span>
           <select
             value={evidence}
-            onChange={(event) => setEvidence(event.target.value)}
+            onChange={(event) => {
+              setVisibleCount(50);
+              setEvidence(event.target.value);
+            }}
             aria-label="Filter people by liquidity evidence"
           >
             <option>All liquidity evidence</option>
@@ -372,7 +425,10 @@ export function RealPeopleDirectory({
           <span>Party type</span>
           <select
             value={kind}
-            onChange={(event) => setKind(event.target.value)}
+            onChange={(event) => {
+              setVisibleCount(50);
+              setKind(event.target.value);
+            }}
             aria-label="Filter by reporting party type"
           >
             <option>People only</option>
@@ -384,7 +440,10 @@ export function RealPeopleDirectory({
           <span>Sort by</span>
           <select
             value={sort}
-            onChange={(event) => setSort(event.target.value)}
+            onChange={(event) => {
+              setVisibleCount(50);
+              setSort(event.target.value);
+            }}
             aria-label="Sort people"
           >
             <option>Estimated liquidity</option>
@@ -401,7 +460,7 @@ export function RealPeopleDirectory({
 
       <section
         className="real-people-directory"
-        aria-label="Real SEC reporting parties"
+        aria-label="SEC reporting-party directory"
       >
         <div className="real-people-row heading">
           <span>Reporting party</span>
@@ -410,7 +469,7 @@ export function RealPeopleDirectory({
           <span>Estimated remaining liquidity</span>
           <span>Latest evidence</span>
         </div>
-        {filtered.map((person) => (
+        {visible.map((person) => (
           <button
             type="button"
             className="real-people-row"
@@ -466,6 +525,20 @@ export function RealPeopleDirectory({
           </div>
         )}
       </section>
+
+      {visible.length < filtered.length && (
+        <button
+          type="button"
+          className="real-directory-more"
+          onClick={() => setVisibleCount((current) => current + 50)}
+        >
+          Load 50 more profiles
+          <span>
+            Showing {visible.length.toLocaleString()} of{" "}
+            {filtered.length.toLocaleString()}
+          </span>
+        </button>
+      )}
 
       <p className="real-workspace-footnote">
         Completed gross proceeds are calculated from reported shares sold and
