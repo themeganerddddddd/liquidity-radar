@@ -142,14 +142,14 @@ export async function writeChunkedPublicSnapshot(
   const files = [
     {
       target: output,
-      contents: `${JSON.stringify(bootstrapSnapshot, null, 2)}\n`,
+      contents: `${JSON.stringify(bootstrapSnapshot)}\n`,
     },
     ...chunks.map((chunk, index) => ({
       target: path.join(
         path.dirname(output),
         path.basename(chunkUrls[index].split("?")[0]),
       ),
-      contents: `${JSON.stringify(chunk, null, 2)}\n`,
+      contents: `${JSON.stringify(chunk)}\n`,
     })),
   ];
   for (const file of files) {
