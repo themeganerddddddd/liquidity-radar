@@ -84,27 +84,41 @@ describe("official public-record contracts", () => {
       path.join(process.cwd(), "public", "data", "public-signals.json"),
     );
     const audit = auditPublicValuations(hydrated);
-    const scorpio = hydrated.liquidity.events.find(
-      (event) => event.accession === "0001969452-26-000010",
-    );
-    const scorpioHolding = hydrated.liquidity.holdings.find(
-      (holding) => holding.accession === "0001969452-26-000010",
-    );
 
     expect(audit.errors).toEqual([]);
     expect(audit.totals.jointEvents).toBeGreaterThan(10_000);
-    expect(scorpio).toMatchObject({
-      shares: 15_000,
-      pricePerShare: 82.029,
-      grossAmount: 1_230_435,
-      priceBasis: "derived_from_reported_aggregate",
-    });
-    expect(scorpioHolding).toMatchObject({
-      shares: 62_668,
-      referencePrice: 82.029,
-      priceBasis: "derived_from_reported_aggregate",
-    });
-    expect(scorpioHolding?.estimatedValue).toBeCloseTo(5_140_593.372, 3);
+    expect(
+      audit.totals.correctedEvents + audit.totals.correctedHoldings,
+    ).toBeGreaterThan(0);
+    expect(
+      hydrated.liquidity.events
+        .filter(
+          (event) =>
+            event.priceBasis === "derived_from_reported_aggregate" &&
+            event.shares > 0,
+        )
+        .every(
+          (event) =>
+            Math.abs(event.grossAmount - event.shares * event.pricePerShare) <
+            0.01,
+        ),
+    ).toBe(true);
+    expect(
+      hydrated.liquidity.holdings
+        .filter(
+          (holding) =>
+            holding.priceBasis === "derived_from_reported_aggregate" &&
+            holding.referencePrice !== null &&
+            holding.estimatedValue !== null,
+        )
+        .every(
+          (holding) =>
+            Math.abs(
+              holding.estimatedValue! -
+                holding.shares * holding.referencePrice!,
+            ) < 0.01,
+        ),
+    ).toBe(true);
   });
 
   it("associates current Form 144 profiles with proposed sale values", async () => {

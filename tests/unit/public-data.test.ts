@@ -6,6 +6,7 @@ import {
   parseSecSubmissionLocation,
   parseSecFilingLocation,
   parseSecAtom,
+  selectLiquidityProfileCoverage,
   type SecFiling,
 } from "../../lib/public-data";
 import { parseCompletedExit8K } from "../../lib/completed-exits";
@@ -172,6 +173,50 @@ describe("official public-data parsing", () => {
       location: { city: "CHICAGO", state: "IL", country: "" },
       locationBasis: "issuer_business_address",
     });
+  });
+
+  it("retains current SEC identities before filling the rolling profile cap", () => {
+    const baseEvent = parseForm144Liquidity(
+      fixture("form144.xml"),
+      filing("Form 144"),
+    ).events[0];
+    const historical = [
+      {
+        ...baseEvent,
+        id: "historical-high",
+        reportingParty: "Historical High",
+        reportingPartyCik: "0000000001",
+        grossAmount: 10_000_000,
+      },
+      {
+        ...baseEvent,
+        id: "historical-medium",
+        reportingParty: "Historical Medium",
+        reportingPartyCik: "0000000002",
+        grossAmount: 5_000_000,
+      },
+    ];
+    const current = {
+      ...baseEvent,
+      id: "current-low",
+      reportingParty: "Current Low",
+      reportingPartyCik: "0000000003",
+      grossAmount: 1,
+    };
+    const evidence = {
+      updatedAt: "2026-07-30T12:00:00Z",
+      events: [...historical, current],
+      holdings: [],
+    };
+    const selected = selectLiquidityProfileCoverage(evidence, 2, {
+      updatedAt: evidence.updatedAt,
+      events: [current],
+      holdings: [],
+    });
+
+    expect(selected.events.map((event) => event.reportingParty).sort()).toEqual(
+      ["Current Low", "Historical High"],
+    );
   });
 
   it("recognizes completed Item 2.01 evidence and disclosed consideration", () => {

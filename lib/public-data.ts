@@ -1144,6 +1144,7 @@ export function mergePublicLiquidityEvidence(
 export function selectLiquidityProfileCoverage(
   evidence: PublicLiquidityEvidence,
   maximumProfiles = 1500,
+  requiredEvidence?: PublicLiquidityEvidence,
 ) {
   const profiles = new Map<
     string,
@@ -1166,17 +1167,25 @@ export function selectLiquidityProfileCoverage(
     }
     profiles.set(key, current);
   }
-  const selected = new Set(
-    [...profiles.entries()]
-      .sort(
-        ([, left], [, right]) =>
-          right.completedGross - left.completedGross ||
-          right.proposedGross - left.proposedGross ||
-          right.latestDate.localeCompare(left.latestDate),
-      )
-      .slice(0, maximumProfiles)
-      .map(([key]) => key),
+  const requiredIdentities = new Set([
+    ...(requiredEvidence?.events ?? []).map(liquidityIdentity),
+    ...(requiredEvidence?.holdings ?? []).map(liquidityIdentity),
+  ]);
+  const remainingCapacity = Math.max(
+    0,
+    maximumProfiles - requiredIdentities.size,
   );
+  const rankedIdentities = [...profiles.entries()]
+    .filter(([key]) => !requiredIdentities.has(key))
+    .sort(
+      ([, left], [, right]) =>
+        right.completedGross - left.completedGross ||
+        right.proposedGross - left.proposedGross ||
+        right.latestDate.localeCompare(left.latestDate),
+    )
+    .slice(0, remainingCapacity)
+    .map(([key]) => key);
+  const selected = new Set([...requiredIdentities, ...rankedIdentities]);
 
   return mergePublicLiquidityEvidence({
     updatedAt: evidence.updatedAt,
