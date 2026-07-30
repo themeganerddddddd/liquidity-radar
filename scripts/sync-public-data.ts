@@ -461,6 +461,7 @@ const liquidity = selectLiquidityProfileCoverage(
     currentLiquidity,
   ),
   1500,
+  currentLiquidity,
 );
 const eventLocationByAccession = new Map(
   liquidity.events
