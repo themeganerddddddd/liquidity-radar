@@ -1,0 +1,42 @@
+name: Sync Money in Motion
+
+on:
+  schedule:
+    - cron: "17 */4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: public-record-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Normalize live public transaction sources
+        run: npm run data:sync-motion
+      - name: Verify money-in-motion contracts
+        run: npm run test -- tests/unit/money-in-motion.test.ts
+      - name: Commit changed public snapshot
+        run: |
+          if git diff --quiet -- public/data/money-in-motion.json; then
+            echo "No source changes."
+            exit 0
+          fi
+          git config user.name "liquidity-radar-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/data/money-in-motion.json
+          git commit -m "Refresh Money in Motion snapshot"
+          git push origin main

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "news-acquisition",
+    "source": "gdelt",
+    "expected": "ACQUISITION",
+    "title": "Buyer completed acquisition of Example Co"
+  },
+  {
+    "id": "news-not-transaction",
+    "source": "gdelt",
+    "expected": null,
+    "title": "Example Co sales growth accelerated"
+  },
+  {
+    "id": "cms-chow",
+    "source": "cms_chow",
+    "expected": "HEALTHCARE_CHOW",
+    "title": "CMS skilled nursing change of ownership"
+  },
+  {
+    "id": "patent-sale",
+    "source": "uspto_assignments",
+    "expected": "PATENT_ASSIGNMENT",
+    "title": "Assignment and sale of patent rights"
+  },
+  {
+    "id": "patent-name-change",
+    "source": "uspto_assignments",
+    "expected": null,
+    "title": "Corrective change of name"
+  },
+  {
+    "id": "fcc-license",
+    "source": "fcc_uls",
+    "expected": "LICENSE_TRANSFER",
+    "title": "FCC license assignment"
+  },
+  {
+    "id": "ferc-asset",
+    "source": "ferc",
+    "expected": "ENERGY_ASSET_TRANSFER",
+    "title": "FERC authorization of asset transfer"
+  },
+  {
+    "id": "stb-control",
+    "source": "stb",
+    "expected": "TRANSPORT_ASSET_TRANSFER",
+    "title": "STB control transaction"
+  },
+  {
+    "id": "state-dissolution",
+    "source": "registry",
+    "expected": "DISSOLUTION_AFTER_TRANSACTION",
+    "title": "Entity dissolved after transaction"
+  },
+  {
+    "id": "property-closing",
+    "source": "commercial_property",
+    "expected": "COMMERCIAL_REAL_ESTATE_SALE",
+    "title": "Recorded commercial property closing"
+  },
+  {
+    "id": "anonymous-listing",
+    "source": "broker_feeds",
+    "expected": "BUSINESS_FOR_SALE",
+    "title": "Anonymous owner lists business for sale"
+  }
+]

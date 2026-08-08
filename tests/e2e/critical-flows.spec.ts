@@ -161,6 +161,44 @@ test("confirmed exits, owner attribution, and saved metro alerts are usable", as
   await expect(page.getByText("Stored on this device")).toBeVisible();
 });
 
+test("Money in Motion exposes multi-source filters, evidence, and source health", async ({
+  page,
+}) => {
+  await signInWithDummy(page);
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "Money in Motion" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Money in Motion" }),
+  ).toBeVisible();
+  await expect(page.getByText("Estimate, not bank balance.")).toBeVisible();
+  await expect(page.getByLabel("Money in Motion filters")).toBeVisible();
+  await expect(page.locator(".motion-card").first()).toBeVisible();
+  await page
+    .locator(".motion-card")
+    .first()
+    .getByRole("button", { name: "Review evidence →" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Transaction" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Source timeline" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close evidence" }).click();
+
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "Source monitor" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Source Monitor" }),
+  ).toBeVisible();
+  await expect(page.getByText("CMS change of ownership")).toBeVisible();
+  await expect(page.getByText("FCC Universal Licensing System")).toBeVisible();
+});
+
 test("legacy fictional workspace routes are unavailable", async ({ page }) => {
   const response = await page.goto("/people");
   expect(response?.status()).toBe(404);

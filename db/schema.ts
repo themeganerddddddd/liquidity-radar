@@ -155,6 +155,271 @@ export const sourceDocuments = sqliteTable(
   ],
 );
 
+export const sourceRecords = sqliteTable(
+  "source_records",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id").notNull(),
+    sourceType: text("source_type").notNull(),
+    externalRecordId: text("external_record_id").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    retrievedAt: text("retrieved_at").notNull(),
+    publishedAt: text("published_at"),
+    eventDate: text("event_date"),
+    eventType: text("event_type").notNull(),
+    eventStage: text("event_stage").notNull(),
+    rawTitle: text("raw_title").notNull(),
+    rawText: text("raw_text"),
+    sellerEntity: text("seller_entity"),
+    buyerEntity: text("buyer_entity"),
+    subjectPerson: text("subject_person"),
+    subjectCompany: text("subject_company"),
+    asset: text("asset"),
+    location: text("location"),
+    reportedTransactionValue: integer("reported_transaction_value"),
+    currency: text("currency").notNull().default("USD"),
+    ownershipPercentageLow: real("ownership_percentage_low"),
+    ownershipPercentageHigh: real("ownership_percentage_high"),
+    status: text("status").notNull(),
+    metadata: text("metadata"),
+    rawPayloadHash: text("raw_payload_hash").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("source_records_external_idx").on(
+      table.sourceId,
+      table.externalRecordId,
+    ),
+    index("source_records_event_idx").on(
+      table.eventType,
+      table.eventStage,
+      table.eventDate,
+    ),
+    index("source_records_hash_idx").on(table.rawPayloadHash),
+  ],
+);
+
+export const entities = sqliteTable(
+  "entities",
+  {
+    id: text("id").primaryKey(),
+    slug: text("slug").notNull(),
+    displayName: text("display_name").notNull(),
+    normalizedName: text("normalized_name").notNull(),
+    entityType: text("entity_type").notNull(),
+    marketClassification: text("market_classification")
+      .notNull()
+      .default("UNKNOWN"),
+    industry: text("industry"),
+    primaryLocationId: text("primary_location_id"),
+    suppressionStatus: text("suppression_status").notNull().default("active"),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("entities_slug_idx").on(table.slug),
+    index("entities_name_idx").on(table.normalizedName),
+    index("entities_type_idx").on(table.entityType),
+  ],
+);
+
+export const entityAliases = sqliteTable(
+  "entity_aliases",
+  {
+    id: text("id").primaryKey(),
+    entityId: text("entity_id").notNull(),
+    alias: text("alias").notNull(),
+    normalizedAlias: text("normalized_alias").notNull(),
+    aliasType: text("alias_type").notNull(),
+    sourceRecordId: text("source_record_id"),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("entity_alias_unique_idx").on(
+      table.entityId,
+      table.normalizedAlias,
+      table.aliasType,
+    ),
+    index("entity_alias_lookup_idx").on(table.normalizedAlias),
+  ],
+);
+
+export const personEntityRoles = sqliteTable(
+  "person_entity_roles",
+  {
+    id: text("id").primaryKey(),
+    personId: text("person_id").notNull(),
+    entityId: text("entity_id").notNull(),
+    role: text("role").notNull(),
+    ownershipPercentageLow: real("ownership_percentage_low"),
+    ownershipPercentageHigh: real("ownership_percentage_high"),
+    effectiveFrom: text("effective_from"),
+    effectiveThrough: text("effective_through"),
+    evidenceClaimId: text("evidence_claim_id"),
+    confidence: integer("confidence").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    index("person_entity_person_idx").on(table.personId),
+    index("person_entity_entity_idx").on(table.entityId),
+  ],
+);
+
+export const transactions = sqliteTable(
+  "transactions",
+  {
+    id: text("id").primaryKey(),
+    clusterKey: text("cluster_key").notNull(),
+    eventType: text("event_type").notNull(),
+    eventStage: text("event_stage").notNull(),
+    eventDate: text("event_date").notNull(),
+    announcedAt: text("announced_at"),
+    closedAt: text("closed_at"),
+    title: text("title").notNull(),
+    summary: text("summary"),
+    asset: text("asset"),
+    locationId: text("location_id"),
+    currency: text("currency").notNull().default("USD"),
+    reportedValueLow: integer("reported_value_low"),
+    reportedValueHigh: integer("reported_value_high"),
+    valueClassification: text("value_classification")
+      .notNull()
+      .default("UNKNOWN"),
+    confidence: integer("confidence").notNull(),
+    publicationState: text("publication_state").notNull().default("draft"),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("transactions_cluster_idx").on(table.clusterKey),
+    index("transactions_stage_date_idx").on(table.eventStage, table.eventDate),
+    index("transactions_type_idx").on(table.eventType),
+  ],
+);
+
+export const transactionParties = sqliteTable(
+  "transaction_parties",
+  {
+    id: text("id").primaryKey(),
+    transactionId: text("transaction_id").notNull(),
+    entityId: text("entity_id"),
+    personId: text("person_id"),
+    partyName: text("party_name").notNull(),
+    partyRole: text("party_role").notNull(),
+    identityClassification: text("identity_classification")
+      .notNull()
+      .default("UNKNOWN"),
+    confidence: integer("confidence").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    index("transaction_parties_transaction_idx").on(table.transactionId),
+    index("transaction_parties_entity_idx").on(table.entityId),
+    index("transaction_parties_person_idx").on(table.personId),
+  ],
+);
+
+export const ownershipEvidence = sqliteTable(
+  "ownership_evidence",
+  {
+    id: text("id").primaryKey(),
+    transactionId: text("transaction_id").notNull(),
+    personId: text("person_id"),
+    entityId: text("entity_id"),
+    ownershipLow: real("ownership_low"),
+    ownershipHigh: real("ownership_high"),
+    classification: text("classification").notNull(),
+    methodology: text("methodology").notNull(),
+    sourceRecordId: text("source_record_id").notNull(),
+    confidence: integer("confidence").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    index("ownership_transaction_idx").on(table.transactionId),
+    index("ownership_person_idx").on(table.personId),
+  ],
+);
+
+export const valuationEvidence = sqliteTable(
+  "valuation_evidence",
+  {
+    id: text("id").primaryKey(),
+    transactionId: text("transaction_id").notNull(),
+    amountLow: integer("amount_low"),
+    amountHigh: integer("amount_high"),
+    currency: text("currency").notNull().default("USD"),
+    classification: text("classification").notNull(),
+    methodology: text("methodology").notNull(),
+    calculation: text("calculation"),
+    sourceRecordId: text("source_record_id").notNull(),
+    confidence: integer("confidence").notNull(),
+    ...auditColumns,
+  },
+  (table) => [index("valuation_transaction_idx").on(table.transactionId)],
+);
+
+export const signalEvents = sqliteTable(
+  "signal_events",
+  {
+    id: text("id").primaryKey(),
+    transactionId: text("transaction_id"),
+    sourceRecordId: text("source_record_id").notNull(),
+    signalType: text("signal_type").notNull(),
+    signalStage: text("signal_stage").notNull(),
+    occurredAt: text("occurred_at").notNull(),
+    title: text("title").notNull(),
+    status: text("status").notNull(),
+    confidence: integer("confidence").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    index("signal_events_stage_idx").on(table.signalStage, table.occurredAt),
+    index("signal_events_transaction_idx").on(table.transactionId),
+  ],
+);
+
+export const evidenceLinks = sqliteTable(
+  "evidence_links",
+  {
+    id: text("id").primaryKey(),
+    sourceRecordId: text("source_record_id").notNull(),
+    subjectType: text("subject_type").notNull(),
+    subjectId: text("subject_id").notNull(),
+    relationship: text("relationship").notNull(),
+    classification: text("classification").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("evidence_links_unique_idx").on(
+      table.sourceRecordId,
+      table.subjectType,
+      table.subjectId,
+      table.relationship,
+    ),
+    index("evidence_links_subject_idx").on(table.subjectType, table.subjectId),
+  ],
+);
+
+export const entityMatches = sqliteTable(
+  "entity_matches",
+  {
+    id: text("id").primaryKey(),
+    sourceRecordId: text("source_record_id").notNull(),
+    sourceName: text("source_name").notNull(),
+    matchedEntityId: text("matched_entity_id"),
+    matchedPersonId: text("matched_person_id"),
+    matchMethod: text("match_method").notNull(),
+    matchScore: integer("match_score").notNull(),
+    matchStatus: text("match_status").notNull(),
+    explanation: text("explanation").notNull(),
+    reviewedBy: text("reviewed_by"),
+    reviewedAt: text("reviewed_at"),
+    ...auditColumns,
+  },
+  (table) => [
+    index("entity_matches_source_idx").on(table.sourceRecordId),
+    index("entity_matches_status_idx").on(table.matchStatus, table.matchScore),
+  ],
+);
+
 export const evidenceClaims = sqliteTable(
   "evidence_claims",
   {
@@ -281,6 +546,15 @@ export const liquidityEstimates = sqliteTable(
   {
     id: text("id").primaryKey(),
     personId: text("person_id").notNull(),
+    transactionId: text("transaction_id"),
+    grossAttributableLow: integer("gross_attributable_low"),
+    grossAttributableHigh: integer("gross_attributable_high"),
+    potentiallyDeployableLow: integer("potentially_deployable_low"),
+    potentiallyDeployableHigh: integer("potentially_deployable_high"),
+    classification: text("classification"),
+    methodology: text("methodology"),
+    calculation: text("calculation"),
+    uncertainty: text("uncertainty"),
     remainingLow: integer("remaining_low").notNull(),
     remainingMedian: integer("remaining_median").notNull(),
     remainingHigh: integer("remaining_high").notNull(),
@@ -304,6 +578,7 @@ export const liquidityEstimates = sqliteTable(
   },
   (table) => [
     index("estimates_person_idx").on(table.personId),
+    index("estimates_transaction_idx").on(table.transactionId),
     index("estimates_median_idx").on(table.remainingMedian),
     index("estimates_confidence_idx").on(table.confidenceScore),
   ],
@@ -417,5 +692,53 @@ export const jobRuns = sqliteTable(
   (table) => [
     index("jobs_status_idx").on(table.status, table.createdAt),
     uniqueIndex("jobs_idempotency_idx").on(table.jobType, table.inputHash),
+  ],
+);
+
+export const ingestionRuns = sqliteTable(
+  "ingestion_runs",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id").notNull(),
+    status: text("status").notNull(),
+    inputCursor: text("input_cursor"),
+    inputHash: text("input_hash"),
+    recordsSeen: integer("records_seen").notNull().default(0),
+    recordsAccepted: integer("records_accepted").notNull().default(0),
+    recordsRejected: integer("records_rejected").notNull().default(0),
+    startedAt: text("started_at").notNull(),
+    completedAt: text("completed_at"),
+    errorInformation: text("error_information"),
+    ...auditColumns,
+  },
+  (table) => [
+    index("ingestion_runs_source_idx").on(table.sourceId, table.startedAt),
+    uniqueIndex("ingestion_runs_idempotency_idx").on(
+      table.sourceId,
+      table.inputHash,
+    ),
+  ],
+);
+
+export const sourceHealth = sqliteTable(
+  "source_health",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id").notNull(),
+    mode: text("mode").notNull(),
+    cadence: text("cadence").notNull(),
+    lastAttemptAt: text("last_attempt_at"),
+    lastSuccessAt: text("last_success_at"),
+    recordsSeen: integer("records_seen").notNull().default(0),
+    recordsAccepted: integer("records_accepted").notNull().default(0),
+    recordsRejected: integer("records_rejected").notNull().default(0),
+    latencyMs: integer("latency_ms"),
+    currentError: text("current_error"),
+    disabledReason: text("disabled_reason"),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("source_health_source_idx").on(table.sourceId),
+    index("source_health_mode_idx").on(table.mode),
   ],
 );
