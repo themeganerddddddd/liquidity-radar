@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import snapshot from "../../../../public/data/money-in-motion.json";
+import { loadCurrentMotionSnapshot } from "../../../../lib/server-motion-snapshot";
 
 const DEMO_API_KEY = "lr_demo_local_2026";
 
 export async function GET(request: Request) {
+  const snapshot = await loadCurrentMotionSnapshot();
   const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
   const token = request.headers
     .get("authorization")

@@ -1,7 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { GET } from "../../app/api/v1/people-in-motion/route";
+import { GET as getPublicSnapshot } from "../../app/api/money-in-motion-snapshot/route";
 
 describe("People in Motion API", () => {
+  it("serves the current v2 snapshot through the same-origin refresh endpoint", async () => {
+    const response = await getPublicSnapshot();
+    const payload = (await response.json()) as {
+      schemaVersion: number;
+      peopleInMotion: unknown[];
+    };
+    expect(response.status).toBe(200);
+    expect(payload.schemaVersion).toBe(2);
+    expect(payload.peopleInMotion.length).toBeGreaterThan(0);
+    expect(response.headers.get("cache-control")).toMatch(/s-maxage=900/);
+  });
+
   it("requires an authenticated API request", async () => {
     const response = await GET(
       new Request("https://radar.test/api/v1/people-in-motion"),

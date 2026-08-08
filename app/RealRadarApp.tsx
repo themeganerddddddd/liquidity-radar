@@ -1362,7 +1362,7 @@ export function RealRadarApp() {
   useEffect(() => {
     if (!ready || !signedIn) return;
     const controller = new AbortController();
-    void fetch("/data/money-in-motion.json", {
+    void fetch("/api/money-in-motion-snapshot", {
       signal: controller.signal,
       cache: "no-store",
     })
