@@ -11,6 +11,12 @@ const snapshot = JSON.parse(
 ) as MoneyMotionSnapshot;
 
 describe("Money in Motion public snapshot contracts", () => {
+  it("publishes the person-first v2 contract", () => {
+    expect(snapshot.schemaVersion).toBe(2);
+    expect(snapshot.peopleInMotion.length).toBeGreaterThan(0);
+    expect(snapshot.stats.people).toBe(snapshot.peopleInMotion.length);
+  });
+
   it("ships only source-linked public records", () => {
     expect(snapshot.records.length).toBeGreaterThan(1_000);
     expect(snapshot.stats.records).toBe(snapshot.records.length);
@@ -35,6 +41,7 @@ describe("Money in Motion public snapshot contracts", () => {
       expect(record.estimate.grossAttributableHigh).not.toBeNull();
       expect(record.estimate.calculation).not.toBe("No calculation performed.");
       expect(record.estimate.uncertainty.length).toBeGreaterThan(0);
+      if (record.person) expect(record.ownershipEvidence).toBe(true);
     }
   });
 
@@ -49,6 +56,8 @@ describe("Money in Motion public snapshot contracts", () => {
           confidence.valuationCertainty,
       );
       expect(confidence.total).toBeLessThanOrEqual(100);
+      expect(record.actionability.total).toBeLessThanOrEqual(100);
+      expect(record.actionability.total).toBeGreaterThanOrEqual(0);
     }
   });
 
@@ -74,7 +83,14 @@ describe("Money in Motion public snapshot contracts", () => {
       expect(sources.has(id)).toBe(true);
       expect(sources.get(id)?.reason).toBeTruthy();
     }
-    expect(sources.get("cms_chow")?.mode).toBe("LIVE");
-    expect(sources.get("uspto_assignments")?.mode).toBe("IMPORT_ONLY");
+    expect(["LIVE", "DEGRADED"]).toContain(sources.get("cms_chow")?.mode);
+    expect(sources.get("uspto_assignments")?.mode).toBe(
+      process.env.USPTO_API_KEY ? "IMPORT_ONLY" : "CONFIGURATION_REQUIRED",
+    );
+    expect(["LIVE", "DEGRADED", "ERROR"]).toContain(sources.get("stb")?.mode);
+    for (const source of sources.values()) {
+      expect(source.value).toBeTruthy();
+      expect(source.value.uniqueTransactionClusters).toBeGreaterThanOrEqual(0);
+    }
   });
 });

@@ -272,8 +272,17 @@ export const transactions = sqliteTable(
     eventType: text("event_type").notNull(),
     eventStage: text("event_stage").notNull(),
     eventDate: text("event_date").notNull(),
+    firstSignalAt: text("first_signal_at"),
+    firstPreSaleSignalAt: text("first_pre_sale_signal_at"),
     announcedAt: text("announced_at"),
+    regulatoryFilingAt: text("regulatory_filing_at"),
     closedAt: text("closed_at"),
+    leadDaysToAnnouncement: integer("lead_days_to_announcement"),
+    leadDaysToClose: integer("lead_days_to_close"),
+    independentSourceCount: integer("independent_source_count")
+      .notNull()
+      .default(1),
+    actionability: integer("actionability").notNull().default(0),
     title: text("title").notNull(),
     summary: text("summary"),
     asset: text("asset"),
@@ -292,6 +301,49 @@ export const transactions = sqliteTable(
     uniqueIndex("transactions_cluster_idx").on(table.clusterKey),
     index("transactions_stage_date_idx").on(table.eventStage, table.eventDate),
     index("transactions_type_idx").on(table.eventType),
+  ],
+);
+
+export const personLiquiditySummary = sqliteTable(
+  "person_liquidity_summary",
+  {
+    personId: text("person_id").primaryKey(),
+    name: text("name").notNull(),
+    role: text("role"),
+    company: text("company"),
+    country: text("country"),
+    state: text("state"),
+    city: text("city"),
+    locationBasis: text("location_basis"),
+    industry: text("industry"),
+    marketClass: text("market_class").notNull().default("UNKNOWN"),
+    latestEventId: text("latest_event_id").notNull(),
+    latestEventTitle: text("latest_event_title").notNull(),
+    latestStage: text("latest_stage").notNull(),
+    eventCount: integer("event_count").notNull().default(0),
+    firstSignalAt: text("first_signal_at"),
+    latestSignalAt: text("latest_signal_at"),
+    latestCloseAt: text("latest_close_at"),
+    estimatedLiquidityLow: integer("estimated_liquidity_low"),
+    estimatedLiquidityHigh: integer("estimated_liquidity_high"),
+    currency: text("currency").notNull().default("USD"),
+    highestConfidence: integer("highest_confidence").notNull().default(0),
+    actionability: integer("actionability").notNull().default(0),
+    sourceCount: integer("source_count").notNull().default(0),
+    openPreLiquidityCount: integer("open_pre_liquidity_count")
+      .notNull()
+      .default(0),
+    closedEventCount: integer("closed_event_count").notNull().default(0),
+    leadDaysToClose: integer("lead_days_to_close"),
+    evidenceJson: text("evidence_json").notNull().default("[]"),
+    uncertaintiesJson: text("uncertainties_json").notNull().default("[]"),
+    ...auditColumns,
+  },
+  (table) => [
+    index("person_liquidity_amount_idx").on(table.estimatedLiquidityHigh),
+    index("person_liquidity_actionability_idx").on(table.actionability),
+    index("person_liquidity_signal_idx").on(table.latestSignalAt),
+    index("person_liquidity_location_idx").on(table.state, table.city),
   ],
 );
 
@@ -734,6 +786,26 @@ export const sourceHealth = sqliteTable(
     recordsRejected: integer("records_rejected").notNull().default(0),
     latencyMs: integer("latency_ms"),
     currentError: text("current_error"),
+    errorType: text("error_type"),
+    watermark: text("watermark"),
+    nextRetryAt: text("next_retry_at"),
+    requests: integer("requests").notNull().default(0),
+    cacheHits: integer("cache_hits").notNull().default(0),
+    rateLimitCount: integer("rate_limit_count").notNull().default(0),
+    successfulQueries: integer("successful_queries").notNull().default(0),
+    privateCompanyTransactions: integer("private_company_transactions")
+      .notNull()
+      .default(0),
+    namedPeopleResolved: integer("named_people_resolved").notNull().default(0),
+    ownershipEvidenceEvents: integer("ownership_evidence_events")
+      .notNull()
+      .default(0),
+    reportedValuationEvents: integer("reported_valuation_events")
+      .notNull()
+      .default(0),
+    estimatesGenerated: integer("estimates_generated").notNull().default(0),
+    preLiquiditySignals: integer("pre_liquidity_signals").notNull().default(0),
+    medianLeadDays: integer("median_lead_days"),
     disabledReason: text("disabled_reason"),
     ...auditColumns,
   },

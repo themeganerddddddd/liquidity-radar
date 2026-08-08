@@ -222,6 +222,64 @@ function EvidenceDrawer({
         </section>
 
         <section className="motion-drawer-section">
+          <h3>Actionability · {record.actionability.total}/100</h3>
+          <p>
+            Actionability ranks timing and outreach relevance. It is separate
+            from evidence confidence.
+          </p>
+          <div className="motion-confidence-grid">
+            <span>
+              Magnitude <b>{record.actionability.magnitude}/30</b>
+            </span>
+            <span>
+              Recency <b>{record.actionability.recency}/20</b>
+            </span>
+            <span>
+              Pre-close timing <b>{record.actionability.preCloseTiming}/15</b>
+            </span>
+            <span>
+              Ownership <b>{record.actionability.ownershipCertainty}/15</b>
+            </span>
+            <span>
+              Private market <b>{record.actionability.privateMarket}/10</b>
+            </span>
+            <span>
+              Corroboration <b>{record.actionability.sourceCorroboration}/10</b>
+            </span>
+          </div>
+          <dl className="motion-facts">
+            <div>
+              <dt>First signal</dt>
+              <dd>{dateLabel(record.leadTime.firstSignalAt)}</dd>
+            </div>
+            <div>
+              <dt>First pre-sale signal</dt>
+              <dd>{dateLabel(record.leadTime.firstPreSaleSignalAt)}</dd>
+            </div>
+            <div>
+              <dt>Regulatory filing</dt>
+              <dd>{dateLabel(record.leadTime.regulatoryFilingAt)}</dd>
+            </div>
+            <div>
+              <dt>Closed</dt>
+              <dd>{dateLabel(record.leadTime.closedAt)}</dd>
+            </div>
+            <div>
+              <dt>Observed lead time</dt>
+              <dd>
+                {record.leadTime.leadDaysToClose === null
+                  ? "Not yet measurable"
+                  : `${record.leadTime.leadDaysToClose} days`}
+              </dd>
+            </div>
+            <div>
+              <dt>Independent sources</dt>
+              <dd>{record.independentSourceCount}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="motion-drawer-section">
           <h3>Source timeline</h3>
           <div className="motion-evidence-list">
             {record.evidence.map((evidence) => (
@@ -275,18 +333,22 @@ function SourceMonitor({ snapshot }: { snapshot: MoneyMotionSnapshot }) {
           <strong>{healthy}</strong>
         </div>
         <div>
-          <span>Import-only adapters</span>
+          <span>Needs configuration / import</span>
           <strong>
             {
               snapshot.sourceHealth.filter(
-                (source) => source.mode === "IMPORT_ONLY",
+                (source) =>
+                  source.mode === "IMPORT_ONLY" ||
+                  source.mode === "CONFIGURATION_REQUIRED",
               ).length
             }
           </strong>
         </div>
         <div>
-          <span>Records represented</span>
-          <strong>{snapshot.stats.records.toLocaleString()}</strong>
+          <span>Private-company events</span>
+          <strong>
+            {snapshot.stats.privateCompanyEvents.toLocaleString()}
+          </strong>
         </div>
         <div>
           <span>Last snapshot</span>
@@ -318,7 +380,7 @@ function SourceMonitor({ snapshot }: { snapshot: MoneyMotionSnapshot }) {
             </span>
             <span>
               <b className={`motion-mode ${source.mode.toLowerCase()}`}>
-                {source.mode.replace("_", " ")}
+                {source.mode.replaceAll("_", " ")}
               </b>
               <small>{source.cadence}</small>
             </span>
@@ -335,10 +397,25 @@ function SourceMonitor({ snapshot }: { snapshot: MoneyMotionSnapshot }) {
             <span>
               {source.recordsAccepted.toLocaleString()}
               <small>{source.recordsRejected.toLocaleString()} rejected</small>
+              <small>
+                {source.value.uniqueTransactionClusters.toLocaleString()}{" "}
+                clusters
+              </small>
             </span>
             <span className={source.error ? "has-error" : ""}>
               {source.error ||
                 (source.mode === "LIVE" ? "Healthy" : source.reason)}
+              <small className="motion-source-value">
+                {source.value.namedPeopleResolved.toLocaleString()} people ·{" "}
+                {source.value.eventsWithOwnershipEvidence.toLocaleString()}{" "}
+                ownership ·{" "}
+                {source.value.eventsWithReportedValuation.toLocaleString()}{" "}
+                values · {source.value.preLiquiditySignals.toLocaleString()}{" "}
+                pre-close
+              </small>
+              {source.nextRetryAt && (
+                <small>Next retry {dateLabel(source.nextRetryAt)}</small>
+              )}
               {source.sourceUrl && (
                 <a href={source.sourceUrl} target="_blank" rel="noreferrer">
                   Official source ↗

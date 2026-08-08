@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  aggregatePeopleInMotion,
+  calculateLeadTime,
   classifyNewsTransaction,
   classifyPatentAssignment,
   dedupeSourceEvents,
   estimatePotentialLiquidity,
   eventClusterKey,
+  estimatePrivateCompanyValue,
+  scoreActionability,
   scoreConfidence,
   type NormalizedSourceEvent,
+  type MoneyMotionRecord,
 } from "../../lib/money-in-motion";
 
 function event(
@@ -160,5 +165,133 @@ describe("Money in Motion evidence rules", () => {
     });
     expect(anonymous.seller_entity).toBe("");
     expect(anonymous.subject_person).toBe("");
+  });
+
+  it("measures pre-sale lead time without treating a future close as cash", () => {
+    const lead = calculateLeadTime({
+      firstSignalAt: "2026-01-01",
+      firstPreSaleSignalAt: "2026-01-01",
+      announcedAt: "2026-02-01",
+      closedAt: "2026-03-02",
+    });
+    expect(lead.leadDaysToAnnouncement).toBe(31);
+    expect(lead.leadDaysToClose).toBe(60);
+  });
+
+  it("keeps actionability separate from evidence confidence", () => {
+    const actionability = scoreActionability({
+      potentialLiquidityHigh: 100_000_000,
+      eventDate: "2026-08-01",
+      asOfDate: "2026-08-08",
+      stage: "PRE_SALE",
+      ownershipEvidence: false,
+      privateCompany: true,
+      independentSourceCount: 1,
+    });
+    expect(actionability.total).toBeGreaterThan(60);
+    expect(actionability.ownershipCertainty).toBe(0);
+  });
+
+  it("rejects employee-count-only private valuations", () => {
+    const valuation = estimatePrivateCompanyValue({ employeeCount: 600 });
+    expect(valuation.classification).toBe("UNKNOWN");
+    expect(valuation.low).toBeNull();
+    expect(valuation.assumptions.join(" ")).toMatch(/employee count alone/i);
+  });
+
+  it("deduplicates a person's events and never sums liquidity ranges", () => {
+    const estimate = estimatePotentialLiquidity({
+      transactionValue: 10_000_000,
+      valueClassification: "REPORTED",
+      ownershipLow: 1,
+      ownershipHigh: 1,
+    });
+    const base: MoneyMotionRecord = {
+      id: "record-1",
+      clusterKey: "same-event",
+      person: "Jamie Owner",
+      company: "Private Co",
+      seller: "Private Co",
+      buyer: "Buyer",
+      asset: "Private Co",
+      title: "Private Co sold",
+      summary: "",
+      whyHere: "",
+      eventType: "BUSINESS_SALE",
+      stage: "CLOSED",
+      eventDate: "2026-08-01",
+      publishedAt: "2026-08-01",
+      location: {
+        country: "United States",
+        state: "Virginia",
+        city: "",
+        basis: "record",
+      },
+      industry: "Software",
+      personRole: "Founder",
+      subjectKind: "PERSON",
+      marketClass: "PRIVATE",
+      reportedTransactionValue: 10_000_000,
+      transactionValueClassification: "REPORTED",
+      currency: "USD",
+      estimate,
+      confidence: scoreConfidence({
+        sourceReliability: 25,
+        transactionCertainty: 25,
+        identityMatch: 20,
+        ownershipCertainty: 15,
+        valuationCertainty: 15,
+      }),
+      actionability: scoreActionability({
+        potentialLiquidityHigh: estimate.potentiallyDeployableHigh,
+        eventDate: "2026-08-01",
+        asOfDate: "2026-08-08",
+        stage: "CLOSED",
+        ownershipEvidence: true,
+        privateCompany: true,
+        independentSourceCount: 1,
+      }),
+      leadTime: calculateLeadTime({
+        firstSignalAt: "2026-07-01",
+        firstPreSaleSignalAt: "2026-07-01",
+        closedAt: "2026-08-01",
+      }),
+      independentSourceCount: 1,
+      firstReportedAt: "2026-07-01",
+      latestReportedAt: "2026-08-01",
+      ownershipEvidence: true,
+      evidence: [
+        {
+          id: "e1",
+          sourceId: "official",
+          publisher: "Agency",
+          title: "Private Co sold",
+          sourceUrl: "https://agency.gov/1",
+          publishedAt: "2026-08-01",
+          retrievedAt: "2026-08-01",
+          classification: "REPORTED",
+          excerpt: "",
+        },
+      ],
+      sourceEventIds: ["official:1"],
+    };
+    const summary = aggregatePeopleInMotion([
+      base,
+      { ...base, id: "record-duplicate" },
+      {
+        ...base,
+        id: "record-2",
+        clusterKey: "second-event",
+        estimate: {
+          ...estimate,
+          potentiallyDeployableLow: 1_000_000,
+          potentiallyDeployableHigh: 2_000_000,
+        },
+      },
+    ])[0];
+    expect(summary.eventCount).toBe(2);
+    expect(summary.estimatedLiquidityHigh).toBe(
+      estimate.potentiallyDeployableHigh,
+    );
   });
 });

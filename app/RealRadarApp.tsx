@@ -17,6 +17,7 @@ import {
 } from "./RealPeople";
 import { PublicStateMap } from "./PublicStateMap";
 import { MoneyInMotionView } from "./MoneyInMotion";
+import { PeopleInMotionView } from "./PeopleInMotion";
 import { TerritoriesView } from "./TerritoriesView";
 import {
   clearTestSession,
@@ -34,6 +35,7 @@ type WorkspaceView =
   | "filings"
   | "exits"
   | "money"
+  | "people_motion"
   | "pre"
   | "closed"
   | "monitor"
@@ -55,6 +57,7 @@ const navigation: Array<{
   {
     label: "Capital signals",
     items: [
+      { view: "people_motion", label: "People in Motion", icon: "PIM" },
       { view: "money", label: "Money in Motion", icon: "MIM" },
       { view: "pre", label: "Pre-liquidity", icon: "PRE" },
       { view: "closed", label: "Recently closed", icon: "CL" },
@@ -122,6 +125,12 @@ const viewCopy: Record<
     title: "Money in Motion",
     detail:
       "Follow evidence-linked business sales, acquisitions, ownership changes, secondary sales, and asset transfers across live public sources.",
+  },
+  people_motion: {
+    eyebrow: "Person-first private-market intelligence",
+    title: "People in Motion",
+    detail:
+      "Find named owners and sellers connected to public transaction signals, then separate supported liquidity estimates from events where value is not established.",
   },
   pre: {
     eyebrow: "Emerging transaction signals",
@@ -1461,6 +1470,28 @@ export function RealRadarApp() {
     );
   } else if (view === "exits") {
     content = <ExitSignalsView data={data} query={query} />;
+  } else if (view === "people_motion") {
+    content = (
+      <>
+        <PageIntro
+          view="people_motion"
+          action={
+            motionData ? (
+              <span className="real-count-pill">
+                {motionData.peopleInMotion.length.toLocaleString()} named people
+              </span>
+            ) : undefined
+          }
+        />
+        {motionData ? (
+          <PeopleInMotionView snapshot={motionData} />
+        ) : (
+          <div className="motion-inline-loading">
+            Loading person-first public records…
+          </div>
+        )}
+      </>
+    );
   } else if (["money", "pre", "closed", "monitor"].includes(view)) {
     content = (
       <>

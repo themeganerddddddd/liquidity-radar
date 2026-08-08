@@ -199,6 +199,31 @@ test("Money in Motion exposes multi-source filters, evidence, and source health"
   await expect(page.getByText("FCC Universal Licensing System")).toBeVisible();
 });
 
+test("People in Motion supports person-first filtering and evidence profiles", async ({
+  page,
+}) => {
+  await signInWithDummy(page);
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "People in Motion" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "People in Motion" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("People in Motion filters")).toBeVisible();
+  await page.getByLabel("Market").selectOption("PRIVATE");
+  await page.getByLabel("Date window").selectOption("");
+  await expect(page.locator("button.people-motion-row").first()).toBeVisible();
+  await page.locator("button.people-motion-row").first().click();
+  await expect(
+    page.getByRole("heading", { name: "Supported summary" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Actionability is not confidence" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close profile" }).click();
+});
+
 test("legacy fictional workspace routes are unavailable", async ({ page }) => {
   const response = await page.goto("/people");
   expect(response?.status()).toBe(404);

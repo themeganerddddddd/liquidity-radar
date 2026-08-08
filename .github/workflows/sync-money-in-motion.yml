@@ -29,14 +29,16 @@ jobs:
         run: npm run data:sync-motion
       - name: Verify money-in-motion contracts
         run: npm run test -- tests/unit/money-in-motion.test.ts
+      - name: Generate integrity and source-value report
+        run: npm run data:report-motion
       - name: Commit changed public snapshot
         run: |
-          if git diff --quiet -- public/data/money-in-motion.json; then
+          if git diff --quiet -- public/data/money-in-motion.json public/data/gdelt-sync-state.json public/data/cms-owner-cache.json public/data/stb-sync-state.json docs/money-in-motion-validation.md; then
             echo "No source changes."
             exit 0
           fi
           git config user.name "liquidity-radar-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/data/money-in-motion.json
+          git add public/data/money-in-motion.json public/data/gdelt-sync-state.json public/data/cms-owner-cache.json public/data/stb-sync-state.json docs/money-in-motion-validation.md
           git commit -m "Refresh Money in Motion snapshot"
           git push origin main

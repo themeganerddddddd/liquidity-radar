@@ -3,11 +3,16 @@ import path from "node:path";
 import type { PublicDataSnapshot } from "../lib/public-data";
 import {
   SOURCE_ADAPTERS,
+  aggregatePeopleInMotion,
+  calculateLeadTime,
   classifyNewsTransaction,
   dedupeSourceEvents,
   estimatePotentialLiquidity,
   eventClusterKey,
+  normalizeEntityName,
+  scoreActionability,
   scoreConfidence,
+  sourceValueMetrics,
   stableId,
   type EvidenceClassification,
   type MoneyMotionRecord,
@@ -16,11 +21,39 @@ import {
   type NormalizedSourceEvent,
   type SourceHealth,
 } from "../lib/money-in-motion";
+import {
+  emptyGdeltState,
+  matchesGdeltHeadline,
+  runGdeltIncremental,
+  type GdeltArticle,
+  type GdeltPersistentState,
+} from "../lib/gdelt-client";
 
 const root = process.cwd();
 const publicDataPath = path.join(root, "public", "data", "public-signals.json");
 const outputPath = path.join(root, "public", "data", "money-in-motion.json");
+const gdeltStatePath = path.join(
+  root,
+  "public",
+  "data",
+  "gdelt-sync-state.json",
+);
+const cmsOwnerCachePath = path.join(
+  root,
+  "public",
+  "data",
+  "cms-owner-cache.json",
+);
+const stbStatePath = path.join(root, "public", "data", "stb-sync-state.json");
 const generatedAt = new Date().toISOString();
+
+async function readJson<T>(filePath: string, fallback: T): Promise<T> {
+  try {
+    return JSON.parse(await fs.readFile(filePath, "utf8")) as T;
+  } catch {
+    return fallback;
+  }
+}
 
 const stateNames: Record<string, string> = {
   AL: "Alabama",
@@ -281,9 +314,16 @@ function ftcEvents(data: PublicDataSnapshot): NormalizedSourceEvent[] {
 }
 
 type CmsChowRow = Record<string, string>;
+type CmsOwnerRow = Record<string, string>;
+type CmsOwnerCache = {
+  version: 1;
+  updatedAt: string;
+  ownersByEnrollment: Record<string, CmsOwnerRow[]>;
+};
 
 async function fetchCmsChow(): Promise<{
   events: NormalizedSourceEvent[];
+  rows: CmsChowRow[];
   health: Partial<SourceHealth>;
 }> {
   const started = Date.now();
@@ -298,8 +338,8 @@ async function fetchCmsChow(): Promise<{
     });
     if (!response.ok) throw new Error(`CMS API returned ${response.status}`);
     const rows = (await response.json()) as CmsChowRow[];
-    const accepted = rows
-      .filter((row) => row["EFFECTIVE DATE"])
+    const eligible = rows.filter((row) => row["EFFECTIVE DATE"]);
+    const accepted = eligible
       .sort((left, right) =>
         right["EFFECTIVE DATE"].localeCompare(left["EFFECTIVE DATE"]),
       )
@@ -363,17 +403,19 @@ async function fetchCmsChow(): Promise<{
           },
         });
       }),
+      rows: accepted,
       health: {
         lastSuccessAt: generatedAt,
         recordsSeen: rows.length,
         recordsAccepted: accepted.length,
-        recordsRejected: rows.length - accepted.length,
+        recordsRejected: rows.length - eligible.length,
         latencyMs: Date.now() - started,
       },
     };
   } catch (error) {
     return {
       events: [],
+      rows: [],
       health: {
         recordsSeen: 0,
         recordsAccepted: 0,
@@ -385,14 +427,134 @@ async function fetchCmsChow(): Promise<{
   }
 }
 
-type GdeltArticle = {
-  url?: string;
-  title?: string;
-  seendate?: string;
-  domain?: string;
-  language?: string;
-  sourcecountry?: string;
-};
+async function enrichCmsOwners(rows: CmsChowRow[]) {
+  const cache = await readJson<CmsOwnerCache>(cmsOwnerCachePath, {
+    version: 1,
+    updatedAt: "",
+    ownersByEnrollment: {},
+  });
+  const enrollmentIds = [
+    ...new Set(rows.map((row) => row["ENROLLMENT ID - BUYER"]).filter(Boolean)),
+  ];
+  const missing = enrollmentIds
+    .filter((enrollmentId) => !(enrollmentId in cache.ownersByEnrollment))
+    .slice(0, 25);
+  let requests = 0;
+  let errors = 0;
+  const datasetId = "d8402c90-3f46-4590-90a9-c3e510269b38";
+  for (const enrollmentId of missing) {
+    const parameters = new URLSearchParams({
+      size: "500",
+      offset: "0",
+      "filter[ENROLLMENT ID]": enrollmentId,
+    });
+    requests += 1;
+    try {
+      const response = await fetch(
+        `https://data.cms.gov/data-api/v1/dataset/${datasetId}/data?${parameters}`,
+        {
+          headers: { "User-Agent": "LiquidityRadar/0.2 public-record-sync" },
+          signal: AbortSignal.timeout(15_000),
+        },
+      );
+      if (!response.ok) throw new Error(`HTTP_${response.status}`);
+      cache.ownersByEnrollment[enrollmentId] =
+        (await response.json()) as CmsOwnerRow[];
+    } catch {
+      errors += 1;
+    }
+  }
+  cache.updatedAt = generatedAt;
+  await fs.writeFile(cmsOwnerCachePath, `${JSON.stringify(cache)}\n`, "utf8");
+
+  const events = rows.flatMap((row) => {
+    const enrollmentId = row["ENROLLMENT ID - BUYER"];
+    const ownerRows = cache.ownersByEnrollment[enrollmentId] || [];
+    return ownerRows.flatMap((owner) => {
+      if (owner["TYPE - OWNER"] !== "I") return [];
+      const person = [
+        owner["FIRST NAME - OWNER"],
+        owner["MIDDLE NAME - OWNER"],
+        owner["LAST NAME - OWNER"],
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+      if (!person) return [];
+      const rawPercentage = Number(owner["PERCENTAGE OWNERSHIP"]);
+      const percentage =
+        Number.isFinite(rawPercentage) && rawPercentage > 0
+          ? Math.min(1, rawPercentage / 100)
+          : null;
+      const buyer =
+        row["ORGANIZATION NAME - BUYER"] ||
+        row["DOING BUSINESS AS NAME - BUYER"] ||
+        "CMS-enrolled provider";
+      const seller =
+        row["ORGANIZATION NAME - SELLER"] ||
+        row["DOING BUSINESS AS NAME - SELLER"] ||
+        "Undisclosed seller";
+      const eventDate = row["EFFECTIVE DATE"];
+      const transactionId = [
+        enrollmentId,
+        row["ENROLLMENT ID - SELLER"],
+        eventDate,
+      ].join(":");
+      return [
+        sourceEvent({
+          source_id: "cms_chow",
+          source_type: "CMS CHOW + all-owners attribution",
+          external_record_id: `${transactionId}:${owner["ASSOCIATE ID - OWNER"]}`,
+          source_url:
+            "https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/provider-information",
+          retrieved_at: generatedAt,
+          published_at: generatedAt.slice(0, 10),
+          event_date: eventDate,
+          event_type: "HEALTHCARE_CHOW",
+          event_stage: "CLOSED",
+          raw_title: `${buyer} — change of ownership associated with ${person}`,
+          raw_text: `${person} is listed by CMS as ${owner["ROLE TEXT - OWNER"] || "an owner"}${percentage === null ? "; no ownership percentage was reported" : ` with ${rawPercentage}% ownership`}. ${seller} transferred to ${buyer}.`,
+          seller_entity: seller,
+          buyer_entity: buyer,
+          subject_person: person,
+          subject_company: row["DOING BUSINESS AS NAME - BUYER"] || buyer,
+          asset: row["CCN - BUYER"] ? `CMS CCN ${row["CCN - BUYER"]}` : "",
+          location: location({
+            state:
+              row["ENROLLMENT STATE - BUYER"] ||
+              row["ENROLLMENT STATE - SELLER"],
+            basis:
+              "CMS provider enrollment state; owner home addresses are excluded",
+          }),
+          reported_transaction_value: null,
+          currency: "USD",
+          ownership_percentage_low: percentage,
+          ownership_percentage_high: percentage,
+          status: row["CHOW TYPE TEXT"] || "CHANGE OF OWNERSHIP",
+          metadata: {
+            datasetId,
+            transactionId,
+            role: owner["ROLE TEXT - OWNER"] || "Owner",
+            valueClassification: "UNKNOWN",
+            marketClass: "PRIVATE",
+            subjectKind: "PERSON",
+            publisher: "Centers for Medicare & Medicaid Services",
+            industry: "Healthcare",
+            ownershipEvidence: percentage !== null,
+          },
+        }),
+      ];
+    });
+  });
+  const ownerRowsSeen = [
+    ...new Set(rows.map((row) => row["ENROLLMENT ID - BUYER"]).filter(Boolean)),
+  ].reduce(
+    (sum, enrollmentId) =>
+      sum + (cache.ownersByEnrollment[enrollmentId] || []).length,
+    0,
+  );
+  return { events, requests, errors, cache, ownerRowsSeen };
+}
 
 function gdeltDate(value = "") {
   const match = value.match(/^(\d{4})(\d{2})(\d{2})/);
@@ -401,84 +563,303 @@ function gdeltDate(value = "") {
     : generatedAt.slice(0, 10);
 }
 
+function extractMoney(value: string) {
+  const match = value.match(/\$\s?([\d,.]+)\s*(billion|million|bn|mm|m|b)\b/i);
+  if (!match) return null;
+  const amount = Number(match[1].replaceAll(",", ""));
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  const unit = match[2].toLowerCase();
+  return Math.round(amount * (/^(billion|bn|b)$/.test(unit) ? 1e9 : 1e6));
+}
+
+function cleanNewsParty(value: string) {
+  return value
+    .replace(/\s+-\s+[^-]{2,80}$/, "")
+    .replace(/^(?:report:|exclusive:)\s*/i, "")
+    .replace(/[,:;.]$/, "")
+    .trim();
+}
+
+function extractGdeltParties(title: string) {
+  const withoutValue = title.replace(
+    /\s+(?:in|for)\s+\$\s?[\d,.]+\s*(?:billion|million|bn|mm|m|b)\b.*$/i,
+    "",
+  );
+  let match = withoutValue.match(
+    /^(.+?)\s+(?:has been |was )?acquired by\s+(.+)$/i,
+  );
+  if (match)
+    return {
+      seller: cleanNewsParty(match[1]),
+      buyer: cleanNewsParty(match[2]),
+    };
+  match = withoutValue.match(
+    /^(.+?)\s+(?:has |will |agreed to )?acquir(?:e[sd]?|ing)\s+(.+)$/i,
+  );
+  if (match)
+    return {
+      seller: cleanNewsParty(match[2]),
+      buyer: cleanNewsParty(match[1]),
+    };
+  match = withoutValue.match(/^(.+?)\s+(?:has )?sold\s+(.+?)\s+to\s+(.+)$/i);
+  if (match)
+    return {
+      seller: cleanNewsParty(match[1]),
+      buyer: cleanNewsParty(match[3]),
+    };
+  match = withoutValue.match(/^(.+?)\s+(?:has been )?sold to\s+(.+)$/i);
+  if (match)
+    return {
+      seller: cleanNewsParty(match[1]),
+      buyer: cleanNewsParty(match[2]),
+    };
+  return { seller: "", buyer: "" };
+}
+
+function gdeltEvent(article: GdeltArticle): NormalizedSourceEvent | null {
+  if (!matchesGdeltHeadline(article.family, article.title)) return null;
+  const classification =
+    article.family === "pre_liquidity"
+      ? ({ eventType: "BUSINESS_FOR_SALE", stage: "PRE_SALE" } as const)
+      : classifyNewsTransaction(article.title);
+  if (!classification) return null;
+  const parties = extractGdeltParties(article.title);
+  const date = gdeltDate(article.seendate);
+  const value = extractMoney(article.title);
+  return sourceEvent({
+    source_id: "gdelt",
+    source_type: `transaction-news:${article.family}`,
+    external_record_id: stableId(article.url),
+    source_url: article.url,
+    retrieved_at: generatedAt,
+    published_at: date,
+    event_date: date,
+    event_type: classification.eventType,
+    event_stage: classification.stage,
+    raw_title: article.title,
+    raw_text:
+      "Publisher headline discovered through GDELT. Open the linked story for full context; no person or ownership is inferred from the headline.",
+    seller_entity: parties.seller,
+    buyer_entity: parties.buyer,
+    subject_person: "",
+    subject_company: parties.seller,
+    asset: parties.seller,
+    location: location({
+      country: article.sourcecountry || "",
+      basis: "publisher country only; not a party location",
+    }),
+    reported_transaction_value: value,
+    currency: "USD",
+    ownership_percentage_low: null,
+    ownership_percentage_high: null,
+    status: classification.stage,
+    metadata: {
+      domain: article.domain,
+      language: article.language,
+      queryFamily: article.family,
+      firstDetectedAt: date,
+      valueClassification: value ? "REPORTED" : "UNKNOWN",
+      marketClass: "PRIVATE",
+      subjectKind: parties.seller ? "ORGANIZATION" : "UNKNOWN",
+      publisher: article.domain || "GDELT-indexed publisher",
+    },
+  });
+}
+
 async function fetchGdelt(): Promise<{
   events: NormalizedSourceEvent[];
   health: Partial<SourceHealth>;
 }> {
   const started = Date.now();
-  const query =
-    '(acquired OR merger OR "sale of" OR divestiture OR recapitalization)';
-  const apiUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&maxrecords=75&format=json&timespan=24h`;
+  const previous = await readJson<GdeltPersistentState>(
+    gdeltStatePath,
+    emptyGdeltState(),
+  );
+  const before = { ...previous.metrics };
+  const result = await runGdeltIncremental({ state: previous });
+  await fs.writeFile(
+    gdeltStatePath,
+    `${JSON.stringify(result.state)}\n`,
+    "utf8",
+  );
+  const events = result.articles.flatMap((article) => {
+    const event = gdeltEvent(article);
+    return event ? [event] : [];
+  });
+  const queryStates = Object.values(result.state.queries);
+  const latestSuccess = queryStates
+    .map((query) => query.lastSuccessAt)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+  const nextRetry = queryStates
+    .map((query) => query.nextRetryAt)
+    .filter(Boolean)
+    .sort()
+    .at(0);
+  const errorType =
+    queryStates.find((query) => query.lastErrorType)?.lastErrorType || "";
+  return {
+    events,
+    health: {
+      mode:
+        result.stoppedForRateLimit || nextRetry || errorType
+          ? "DEGRADED"
+          : "LIVE",
+      lastSuccessAt: latestSuccess || "",
+      recordsSeen: result.articles.length,
+      recordsAccepted: events.length,
+      recordsRejected: result.articles.length - events.length,
+      latencyMs: Date.now() - started,
+      error: errorType ? `GDELT query state: ${errorType}` : "",
+      errorType,
+      watermark:
+        queryStates
+          .map((query) => query.watermark)
+          .filter(Boolean)
+          .sort()
+          .at(0) || "",
+      nextRetryAt: nextRetry || "",
+      requests: result.state.metrics.requests - before.requests,
+      cacheHits: result.state.metrics.cacheHits - before.cacheHits,
+      rateLimitCount:
+        result.state.metrics.rateLimitCount - before.rateLimitCount,
+      successfulQueries:
+        result.state.metrics.successfulQueries - before.successfulQueries,
+    },
+  };
+}
+
+type StbState = {
+  version: 1;
+  updatedAt: string;
+  firstDetectedAt: Record<string, string>;
+};
+
+function decodeHtml(value: string) {
+  return value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#(\d+);/g, (_, number) => String.fromCodePoint(Number(number)))
+    .replace(/&#x([\da-f]+);/gi, (_, number) =>
+      String.fromCodePoint(Number.parseInt(number, 16)),
+    )
+    .replaceAll("&amp;", "&")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#039;", "'")
+    .replaceAll("&nbsp;", " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function fetchStb(): Promise<{
+  events: NormalizedSourceEvent[];
+  health: Partial<SourceHealth>;
+}> {
+  const started = Date.now();
+  const sourceUrl = "https://www.stb.gov/proceedings-actions/case-status/";
+  const state = await readJson<StbState>(stbStatePath, {
+    version: 1,
+    updatedAt: "",
+    firstDetectedAt: {},
+  });
   try {
-    const response = await fetch(apiUrl, {
-      headers: { "User-Agent": "LiquidityRadar/0.1 public-record-sync" },
-      signal: AbortSignal.timeout(20_000),
+    const response = await fetch(sourceUrl, {
+      headers: { "User-Agent": "LiquidityRadar/0.2 public-record-sync" },
+      signal: AbortSignal.timeout(30_000),
     });
-    if (!response.ok) throw new Error(`GDELT API returned ${response.status}`);
-    const payload = (await response.json()) as { articles?: GdeltArticle[] };
-    const articles = payload.articles ?? [];
-    const events = articles.flatMap((article) => {
-      const classification = classifyNewsTransaction(article.title || "");
-      if (!classification || !article.url || !article.title) return [];
-      const date = gdeltDate(article.seendate);
-      return [
-        sourceEvent({
-          source_id: "gdelt",
-          source_type: "transaction-news discovery",
-          external_record_id: stableId(article.url),
-          source_url: article.url,
-          retrieved_at: generatedAt,
-          published_at: date,
-          event_date: date,
-          event_type: classification.eventType,
-          event_stage: classification.stage,
-          raw_title: article.title,
-          raw_text:
-            "News-discovery signal. Open the linked publisher story for transaction context.",
-          seller_entity: "",
-          buyer_entity: "",
-          subject_person: "",
-          subject_company: "",
-          asset: "",
-          location: location({
-            country: article.sourcecountry || "",
-            basis: "publisher country only",
-          }),
-          reported_transaction_value: null,
-          currency: "USD",
-          ownership_percentage_low: null,
-          ownership_percentage_high: null,
-          status: classification.stage,
-          metadata: {
-            domain: article.domain || "",
-            language: article.language || "",
-            valueClassification: "UNKNOWN",
-            marketClass: "UNKNOWN",
-            subjectKind: "UNKNOWN",
-            publisher: article.domain || "GDELT-indexed publisher",
-          },
+    if (!response.ok) throw new Error(`STB returned ${response.status}`);
+    const html = await response.text();
+    const table =
+      html.match(
+        /<table[^>]+id=["']tablepress-355["'][\s\S]*?<\/table>/i,
+      )?.[0] || "";
+    const rows = [...table.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)]
+      .map((match) =>
+        [...match[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)].map(
+          (cell) => cell[1],
+        ),
+      )
+      .filter((cells) => cells.length >= 4);
+    const relevant = rows.filter((cells) =>
+      /acquisition|acquire|merger|control|sale|lease\s*(?:&|and)\s*operation|change of operator/i.test(
+        decodeHtml(cells[1]),
+      ),
+    );
+    const events = relevant.map((cells) => {
+      const docket = decodeHtml(cells[0]);
+      const title = decodeHtml(cells[1]);
+      const nextAction = decodeHtml(cells[2]);
+      const currentStatus = decodeHtml(cells[3]);
+      const id = stableId(docket, title);
+      const firstDetectedAt =
+        state.firstDetectedAt[id] || generatedAt.slice(0, 10);
+      state.firstDetectedAt[id] = firstDetectedAt;
+      const href = cells[0].match(/href=["']([^"']+)/i)?.[1];
+      const docketUrl = href ? new URL(href, sourceUrl).toString() : sourceUrl;
+      const parts = title.split(/\s+[—–-]\s+/);
+      const buyer = cleanNewsParty(parts[0] || "");
+      const seller = cleanNewsParty(parts.at(-1) || "");
+      return sourceEvent({
+        source_id: "stb",
+        source_type: "STB active case status",
+        external_record_id: id,
+        source_url: docketUrl,
+        retrieved_at: generatedAt,
+        published_at: firstDetectedAt,
+        event_date: firstDetectedAt,
+        event_type: "TRANSPORT_ASSET_TRANSFER",
+        event_stage: "PENDING_REGULATORY",
+        raw_title: title,
+        raw_text: `Docket ${docket}. Current status: ${currentStatus || "not stated"}. Next action: ${nextAction || "not stated"}.`,
+        seller_entity: seller === buyer ? "" : seller,
+        buyer_entity: buyer,
+        subject_person: "",
+        subject_company: seller,
+        asset: seller,
+        location: location({
+          basis: "No party location established in STB case-status table",
         }),
-      ];
+        reported_transaction_value: null,
+        currency: "USD",
+        ownership_percentage_low: null,
+        ownership_percentage_high: null,
+        status: currentStatus,
+        metadata: {
+          docket,
+          firstDetectedAt,
+          nextAction,
+          valueClassification: "UNKNOWN",
+          marketClass: "PRIVATE",
+          subjectKind: "ORGANIZATION",
+          publisher: "Surface Transportation Board",
+          industry: "Transportation",
+        },
+      });
     });
+    state.updatedAt = generatedAt;
+    await fs.writeFile(stbStatePath, `${JSON.stringify(state)}\n`, "utf8");
     return {
       events,
       health: {
         lastSuccessAt: generatedAt,
-        recordsSeen: articles.length,
+        recordsSeen: rows.length,
         recordsAccepted: events.length,
-        recordsRejected: articles.length - events.length,
+        recordsRejected: rows.length - events.length,
         latencyMs: Date.now() - started,
+        watermark: generatedAt,
+        requests: 1,
+        successfulQueries: 1,
       },
     };
   } catch (error) {
     return {
       events: [],
       health: {
-        recordsSeen: 0,
-        recordsAccepted: 0,
-        recordsRejected: 0,
+        mode: "ERROR",
         latencyMs: Date.now() - started,
         error: error instanceof Error ? error.message : String(error),
+        errorType: "FETCH_OR_PARSE_ERROR",
+        requests: 1,
       },
     };
   }
@@ -503,7 +884,15 @@ function evidenceFor(event: NormalizedSourceEvent): MotionEvidence {
 }
 
 function confidenceFor(event: NormalizedSourceEvent) {
-  const official = ["sec", "ftc_hsr", "cms_chow"].includes(event.source_id);
+  const official = [
+    "sec",
+    "ftc_hsr",
+    "cms_chow",
+    "stb",
+    "fcc_uls",
+    "ferc",
+    "uspto_assignments",
+  ].includes(event.source_id);
   const completed = ["CLOSED", "POST_LIQUIDITY"].includes(event.event_stage);
   const identity = Boolean(
     event.subject_person || event.subject_company || event.seller_entity,
@@ -556,6 +945,43 @@ function recordFor(event: NormalizedSourceEvent): MoneyMotionRecord {
   });
   const subject =
     event.subject_person || event.subject_company || event.seller_entity;
+  const firstReportedAt =
+    String(event.metadata.firstDetectedAt || "") ||
+    event.published_at ||
+    event.event_date;
+  const leadTime = calculateLeadTime({
+    firstSignalAt: firstReportedAt,
+    firstPreSaleSignalAt: [
+      "PRE_SALE",
+      "ANNOUNCED",
+      "PENDING_REGULATORY",
+    ].includes(event.event_stage)
+      ? firstReportedAt
+      : "",
+    announcedAt: event.event_stage === "ANNOUNCED" ? event.event_date : "",
+    regulatoryFilingAt:
+      event.event_stage === "PENDING_REGULATORY" ? event.event_date : "",
+    closedAt: ["CLOSED", "POST_LIQUIDITY"].includes(event.event_stage)
+      ? event.event_date
+      : "",
+  });
+  const ownershipEvidence = Boolean(
+    event.metadata.ownershipEvidence ||
+    (event.ownership_percentage_low !== null &&
+      event.ownership_percentage_high !== null),
+  );
+  const actionability = scoreActionability({
+    potentialLiquidityHigh: estimate.potentiallyDeployableHigh,
+    eventDate:
+      Date.parse(event.event_date) > Date.parse(generatedAt)
+        ? firstReportedAt
+        : event.event_date,
+    asOfDate: generatedAt,
+    stage: event.event_stage,
+    ownershipEvidence,
+    privateCompany: event.metadata.marketClass === "PRIVATE",
+    independentSourceCount: 1,
+  });
   return {
     id: `motion-${stableId(event.source_id, event.external_record_id)}`,
     clusterKey: eventClusterKey(event),
@@ -573,6 +999,9 @@ function recordFor(event: NormalizedSourceEvent): MoneyMotionRecord {
     publishedAt: event.published_at,
     location: event.location,
     industry: String(event.metadata.industry || ""),
+    personRole: String(
+      event.metadata.role || event.metadata.relationship || "",
+    ),
     subjectKind:
       (event.metadata.subjectKind as MoneyMotionRecord["subjectKind"]) ||
       (event.subject_person ? "PERSON" : subject ? "ORGANIZATION" : "UNKNOWN"),
@@ -584,9 +1013,33 @@ function recordFor(event: NormalizedSourceEvent): MoneyMotionRecord {
     currency: event.currency,
     estimate,
     confidence: confidenceFor(event),
+    actionability,
+    leadTime,
+    independentSourceCount: 1,
+    firstReportedAt,
+    latestReportedAt: event.published_at || firstReportedAt,
+    ownershipEvidence,
     evidence: [evidenceFor(event)],
     sourceEventIds: [`${event.source_id}:${event.external_record_id}`],
   };
+}
+
+function earliest(...values: string[]) {
+  return values.filter(Boolean).sort().at(0) || "";
+}
+
+function latest(...values: string[]) {
+  return values.filter(Boolean).sort().at(-1) || "";
+}
+
+function independentSourceCount(evidence: MotionEvidence[]) {
+  const keys = evidence.map((item) => {
+    const normalizedTitle = normalizeEntityName(item.title);
+    return item.sourceId === "gdelt"
+      ? `media:${normalizedTitle}`
+      : `${item.sourceId}:${normalizedTitle}`;
+  });
+  return Math.max(1, new Set(keys).size);
 }
 
 function mergeClusters(records: MoneyMotionRecord[]) {
@@ -602,12 +1055,69 @@ function mergeClusters(records: MoneyMotionRecord[]) {
     );
     const primary =
       record.confidence.total > current.confidence.total ? record : current;
+    const independentSources = independentSourceCount([...evidence.values()]);
+    const confidence = scoreConfidence({
+      sourceReliability: primary.confidence.sourceReliability,
+      transactionCertainty: Math.min(
+        25,
+        primary.confidence.transactionCertainty +
+          Math.max(0, independentSources - 1) * 2,
+      ),
+      identityMatch: primary.confidence.identityMatch,
+      ownershipCertainty: primary.confidence.ownershipCertainty,
+      valuationCertainty: primary.confidence.valuationCertainty,
+      explanation: [
+        ...primary.confidence.explanation,
+        `${independentSources} independent evidence source${independentSources === 1 ? "" : "s"}.`,
+      ],
+    });
+    const leadTime = calculateLeadTime({
+      firstSignalAt: earliest(
+        current.leadTime.firstSignalAt,
+        record.leadTime.firstSignalAt,
+      ),
+      firstPreSaleSignalAt: earliest(
+        current.leadTime.firstPreSaleSignalAt,
+        record.leadTime.firstPreSaleSignalAt,
+      ),
+      announcedAt: earliest(
+        current.leadTime.announcedAt,
+        record.leadTime.announcedAt,
+      ),
+      regulatoryFilingAt: earliest(
+        current.leadTime.regulatoryFilingAt,
+        record.leadTime.regulatoryFilingAt,
+      ),
+      closedAt: earliest(current.leadTime.closedAt, record.leadTime.closedAt),
+    });
+    const actionability = scoreActionability({
+      potentialLiquidityHigh: primary.estimate.potentiallyDeployableHigh,
+      eventDate: primary.eventDate,
+      asOfDate: generatedAt,
+      stage: primary.stage,
+      ownershipEvidence: primary.ownershipEvidence,
+      privateCompany: primary.marketClass === "PRIVATE",
+      independentSourceCount: independentSources,
+    });
     clustered.set(record.clusterKey, {
       ...primary,
       evidence: [...evidence.values()],
       sourceEventIds: [
         ...new Set([...current.sourceEventIds, ...record.sourceEventIds]),
       ],
+      confidence,
+      actionability,
+      leadTime,
+      independentSourceCount: independentSources,
+      firstReportedAt: earliest(
+        current.firstReportedAt,
+        record.firstReportedAt,
+      ),
+      latestReportedAt: latest(
+        current.latestReportedAt,
+        record.latestReportedAt,
+      ),
+      ownershipEvidence: current.ownershipEvidence || record.ownershipEvidence,
       whyHere: `${primary.whyHere} ${evidence.size} source record${evidence.size === 1 ? "" : "s"} retained in this cluster.`,
     });
   }
@@ -637,8 +1147,16 @@ function baseHealth(
     recordsRejected: 0,
     latencyMs: null,
     error: "",
+    errorType: "",
+    watermark: "",
+    nextRetryAt: "",
+    requests: 0,
+    cacheHits: 0,
+    rateLimitCount: 0,
+    successfulQueries: 0,
     reason: adapter.reason,
     sourceUrl: adapter.sourceUrl,
+    value: sourceValueMetrics(adapter.id, [], 0, 0),
     ...overrides,
   };
 }
@@ -649,12 +1167,19 @@ async function main() {
   ) as PublicDataSnapshot;
   const sec = secEvents(publicData);
   const ftc = ftcEvents(publicData);
-  const [cms, gdelt] = await Promise.all([fetchCmsChow(), fetchGdelt()]);
+  const [cms, gdelt, stb] = await Promise.all([
+    fetchCmsChow(),
+    fetchGdelt(),
+    fetchStb(),
+  ]);
+  const cmsOwners = await enrichCmsOwners(cms.rows);
   const allEvents = dedupeSourceEvents([
     ...sec,
     ...ftc,
     ...cms.events,
+    ...cmsOwners.events,
     ...gdelt.events,
+    ...stb.events,
   ]);
   const records = mergeClusters(allEvents.map(recordFor));
   const activeCounts = new Map<string, number>();
@@ -666,34 +1191,71 @@ async function main() {
   }
 
   const sourceHealth = SOURCE_ADAPTERS.map((adapter) => {
+    let health: SourceHealth;
     if (adapter.id === "sec") {
-      return baseHealth(adapter.id, {
+      health = baseHealth(adapter.id, {
         lastSuccessAt: publicData.generatedAt,
         recordsSeen: sec.length,
         recordsAccepted: sec.length,
+        requests: 1,
+        successfulQueries: 1,
       });
-    }
-    if (adapter.id === "ftc_hsr") {
-      return baseHealth(adapter.id, {
+    } else if (adapter.id === "ftc_hsr") {
+      health = baseHealth(adapter.id, {
         lastSuccessAt: publicData.generatedAt,
         recordsSeen: ftc.length,
         recordsAccepted: ftc.length,
+        requests: 1,
+        successfulQueries: 1,
       });
+    } else if (adapter.id === "cms_chow") {
+      health = baseHealth(adapter.id, {
+        ...cms.health,
+        recordsSeen: (cms.health.recordsSeen || 0) + cmsOwners.ownerRowsSeen,
+        recordsAccepted: cms.events.length + cmsOwners.events.length,
+        recordsRejected:
+          (cms.health.recordsRejected || 0) +
+          Math.max(0, cmsOwners.ownerRowsSeen - cmsOwners.events.length),
+        requests: 1 + cmsOwners.requests,
+        successfulQueries: 1 + cmsOwners.requests - cmsOwners.errors,
+        error: cmsOwners.errors
+          ? `${cmsOwners.errors} owner-enrichment request${cmsOwners.errors === 1 ? "" : "s"} failed; CHOW records remain available.`
+          : cms.health.error || "",
+        errorType: cmsOwners.errors ? "PARTIAL_ENRICHMENT_ERROR" : "",
+        mode: cmsOwners.errors ? "DEGRADED" : "LIVE",
+      });
+    } else if (adapter.id === "gdelt") {
+      health = baseHealth(adapter.id, gdelt.health);
+    } else if (adapter.id === "stb") {
+      health = baseHealth(adapter.id, stb.health);
+    } else {
+      health = baseHealth(adapter.id);
     }
-    if (adapter.id === "cms_chow") return baseHealth(adapter.id, cms.health);
-    if (adapter.id === "gdelt") return baseHealth(adapter.id, gdelt.health);
-    return baseHealth(adapter.id);
+    health.value = sourceValueMetrics(
+      adapter.id,
+      records,
+      health.recordsAccepted,
+      health.recordsRejected,
+    );
+    return health;
   });
 
+  const peopleInMotion = aggregatePeopleInMotion(records);
+  const estimatedRecords = records.filter(
+    (record) => record.estimate.potentiallyDeployableHigh !== null,
+  );
+  const secEstimates = estimatedRecords.filter((record) =>
+    record.evidence.some((evidence) => evidence.sourceId === "sec"),
+  ).length;
+
   const snapshot: MoneyMotionSnapshot = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt,
     disclaimer:
       "Money in Motion presents public transaction signals and evidence-linked estimates. It does not claim cash on hand, bank balances, net worth, or disposable wealth, and it must not be used for eligibility, employment, housing, credit, insurance, or other restricted decisions.",
     stats: {
       records: records.length,
-      people: new Set(records.map((record) => record.person).filter(Boolean))
-        .size,
+      people: peopleInMotion.length,
       organizations: new Set(
         records
           .flatMap((record) => [record.company, record.seller, record.buyer])
@@ -708,8 +1270,23 @@ async function main() {
       estimates: records.filter(
         (record) => record.estimate.potentiallyDeployableHigh !== null,
       ).length,
+      privateCompanyEvents: records.filter(
+        (record) => record.marketClass === "PRIVATE",
+      ).length,
+      preCloseSignals: records.filter((record) =>
+        ["WATCHING", "PRE_SALE", "ANNOUNCED", "PENDING_REGULATORY"].includes(
+          record.stage,
+        ),
+      ).length,
+      highConfidenceEstimates: estimatedRecords.filter(
+        (record) => record.confidence.total >= 75,
+      ).length,
+      secEstimateShare: estimatedRecords.length
+        ? Number((secEstimates / estimatedRecords.length).toFixed(4))
+        : 0,
     },
     records,
+    peopleInMotion,
     sourceHealth,
   };
 

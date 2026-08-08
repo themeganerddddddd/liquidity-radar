@@ -36,7 +36,13 @@ export type EventType = (typeof EVENT_TYPES)[number];
 export type EvidenceClassification =
   "KNOWN" | "REPORTED" | "ESTIMATED" | "UNKNOWN";
 
-export type SourceMode = "LIVE" | "IMPORT_ONLY" | "DISABLED";
+export type SourceMode =
+  | "LIVE"
+  | "DEGRADED"
+  | "CONFIGURATION_REQUIRED"
+  | "IMPORT_ONLY"
+  | "DISABLED"
+  | "ERROR";
 
 export type MotionLocation = {
   country: string;
@@ -107,6 +113,27 @@ export type PotentialLiquidityEstimate = {
   uncertainty: string[];
 };
 
+export type LeadTimeMetrics = {
+  firstSignalAt: string;
+  firstPreSaleSignalAt: string;
+  announcedAt: string;
+  regulatoryFilingAt: string;
+  closedAt: string;
+  leadDaysToAnnouncement: number | null;
+  leadDaysToClose: number | null;
+};
+
+export type ActionabilityBreakdown = {
+  magnitude: number;
+  recency: number;
+  preCloseTiming: number;
+  ownershipCertainty: number;
+  privateMarket: number;
+  sourceCorroboration: number;
+  total: number;
+  explanation: string[];
+};
+
 export type MoneyMotionRecord = {
   id: string;
   clusterKey: string;
@@ -124,6 +151,7 @@ export type MoneyMotionRecord = {
   publishedAt: string;
   location: MotionLocation;
   industry: string;
+  personRole: string;
   subjectKind: "PERSON" | "ORGANIZATION" | "UNKNOWN";
   marketClass: "PUBLIC" | "PRIVATE" | "UNKNOWN";
   reportedTransactionValue: number | null;
@@ -131,8 +159,30 @@ export type MoneyMotionRecord = {
   currency: string;
   estimate: PotentialLiquidityEstimate;
   confidence: ConfidenceBreakdown;
+  actionability: ActionabilityBreakdown;
+  leadTime: LeadTimeMetrics;
+  independentSourceCount: number;
+  firstReportedAt: string;
+  latestReportedAt: string;
+  ownershipEvidence: boolean;
   evidence: MotionEvidence[];
   sourceEventIds: string[];
+};
+
+export type SourceValueMetrics = {
+  recordsIngested: number;
+  uniqueTransactionClusters: number;
+  privateCompanyTransactions: number;
+  namedPeopleResolved: number;
+  eventsWithOwnershipEvidence: number;
+  eventsWithReportedValuation: number;
+  liquidityEstimatesGenerated: number;
+  highConfidenceEstimates: number;
+  preLiquiditySignals: number;
+  closedTransactions: number;
+  medianLeadDays: number | null;
+  duplicateRate: number;
+  rejectionRate: number;
 };
 
 export type SourceHealth = {
@@ -148,12 +198,48 @@ export type SourceHealth = {
   recordsRejected: number;
   latencyMs: number | null;
   error: string;
+  errorType: string;
+  watermark: string;
+  nextRetryAt: string;
+  requests: number;
+  cacheHits: number;
+  rateLimitCount: number;
+  successfulQueries: number;
   reason: string;
   sourceUrl: string;
+  value: SourceValueMetrics;
+};
+
+export type PersonLiquiditySummary = {
+  personId: string;
+  name: string;
+  role: string;
+  company: string;
+  location: MotionLocation;
+  industry: string;
+  marketClass: "PUBLIC" | "PRIVATE" | "UNKNOWN";
+  latestEventId: string;
+  latestEventTitle: string;
+  latestStage: EventStage;
+  eventCount: number;
+  firstSignalAt: string;
+  latestSignalAt: string;
+  latestCloseAt: string;
+  estimatedLiquidityLow: number | null;
+  estimatedLiquidityHigh: number | null;
+  currency: string;
+  highestConfidence: number;
+  actionability: ActionabilityBreakdown;
+  sourceCount: number;
+  openPreLiquidityCount: number;
+  closedEventCount: number;
+  leadDaysToClose: number | null;
+  evidence: MotionEvidence[];
+  uncertainties: string[];
 };
 
 export type MoneyMotionSnapshot = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   generatedAt: string;
   disclaimer: string;
   stats: {
@@ -164,8 +250,13 @@ export type MoneyMotionSnapshot = {
     liveSources: number;
     knownOrReportedValues: number;
     estimates: number;
+    privateCompanyEvents: number;
+    preCloseSignals: number;
+    highConfidenceEstimates: number;
+    secEstimateShare: number;
   };
   records: MoneyMotionRecord[];
+  peopleInMotion: PersonLiquiditySummary[];
   sourceHealth: SourceHealth[];
 };
 
@@ -203,6 +294,177 @@ export function scoreConfidence(input: {
     ...result,
     total: Object.values(result).reduce((sum, value) => sum + value, 0),
     explanation: input.explanation ?? [],
+  };
+}
+
+function parseDate(value: string) {
+  const timestamp = Date.parse(`${value.slice(0, 10)}T00:00:00Z`);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function daysBetween(start: string, end: string) {
+  const startTime = parseDate(start);
+  const endTime = parseDate(end);
+  if (startTime === null || endTime === null || endTime < startTime)
+    return null;
+  return Math.round((endTime - startTime) / 86_400_000);
+}
+
+export function calculateLeadTime(input: {
+  firstSignalAt?: string;
+  firstPreSaleSignalAt?: string;
+  announcedAt?: string;
+  regulatoryFilingAt?: string;
+  closedAt?: string;
+}): LeadTimeMetrics {
+  const firstSignalAt = input.firstSignalAt || "";
+  const firstPreSaleSignalAt = input.firstPreSaleSignalAt || "";
+  const announcedAt = input.announcedAt || "";
+  const regulatoryFilingAt = input.regulatoryFilingAt || "";
+  const closedAt = input.closedAt || "";
+  const leadStart = firstPreSaleSignalAt || firstSignalAt;
+  return {
+    firstSignalAt,
+    firstPreSaleSignalAt,
+    announcedAt,
+    regulatoryFilingAt,
+    closedAt,
+    leadDaysToAnnouncement:
+      leadStart && announcedAt ? daysBetween(leadStart, announcedAt) : null,
+    leadDaysToClose:
+      leadStart && closedAt ? daysBetween(leadStart, closedAt) : null,
+  };
+}
+
+export function scoreActionability(input: {
+  potentialLiquidityHigh: number | null;
+  eventDate: string;
+  asOfDate: string;
+  stage: EventStage;
+  ownershipEvidence: boolean;
+  privateCompany: boolean;
+  independentSourceCount: number;
+}): ActionabilityBreakdown {
+  const amount = input.potentialLiquidityHigh || 0;
+  const magnitude =
+    amount >= 100_000_000
+      ? 30
+      : amount >= 50_000_000
+        ? 26
+        : amount >= 25_000_000
+          ? 22
+          : amount >= 10_000_000
+            ? 18
+            : amount >= 5_000_000
+              ? 14
+              : amount >= 1_000_000
+                ? 10
+                : 2;
+  const age = daysBetween(input.eventDate, input.asOfDate);
+  const recency =
+    age === null ? 2 : age <= 30 ? 20 : age <= 90 ? 15 : age <= 365 ? 9 : 3;
+  const preCloseTiming = [
+    "PRE_SALE",
+    "ANNOUNCED",
+    "PENDING_REGULATORY",
+  ].includes(input.stage)
+    ? 15
+    : input.stage === "CLOSED" || input.stage === "POST_LIQUIDITY"
+      ? 8
+      : 3;
+  const ownershipCertainty = input.ownershipEvidence ? 15 : 0;
+  const privateMarket = input.privateCompany ? 10 : 2;
+  const sourceCorroboration = Math.min(
+    10,
+    input.independentSourceCount <= 1
+      ? 2
+      : 4 + input.independentSourceCount * 2,
+  );
+  const values = {
+    magnitude,
+    recency,
+    preCloseTiming,
+    ownershipCertainty,
+    privateMarket,
+    sourceCorroboration,
+  };
+  return {
+    ...values,
+    total: Object.values(values).reduce((sum, value) => sum + value, 0),
+    explanation: [
+      amount
+        ? "Potential-liquidity magnitude"
+        : "No person-level amount established",
+      age === null ? "Event recency unavailable" : `${age} days since event`,
+      input.privateCompany
+        ? "Private-company signal"
+        : "Public or unresolved market",
+      `${input.independentSourceCount} independent source${input.independentSourceCount === 1 ? "" : "s"}`,
+    ],
+  };
+}
+
+export function estimatePrivateCompanyValue(input: {
+  revenue?: number | null;
+  ebitda?: number | null;
+  employeeCount?: number | null;
+  knownValuation?: number | null;
+  revenueMultipleLow?: number | null;
+  revenueMultipleHigh?: number | null;
+  ebitdaMultipleLow?: number | null;
+  ebitdaMultipleHigh?: number | null;
+}) {
+  if (input.knownValuation && input.knownValuation > 0) {
+    return {
+      low: input.knownValuation,
+      high: input.knownValuation,
+      classification: "REPORTED" as const,
+      method: "Known financing or valuation evidence",
+      assumptions: [`Reported valuation ${input.knownValuation}`],
+    };
+  }
+  if (
+    input.ebitda &&
+    input.ebitda > 0 &&
+    input.ebitdaMultipleLow &&
+    input.ebitdaMultipleHigh
+  ) {
+    return {
+      low: Math.round(input.ebitda * input.ebitdaMultipleLow),
+      high: Math.round(input.ebitda * input.ebitdaMultipleHigh),
+      classification: "ESTIMATED" as const,
+      method: "EBITDA multiple model",
+      assumptions: [
+        `Reported EBITDA ${input.ebitda}`,
+        `${input.ebitdaMultipleLow}x–${input.ebitdaMultipleHigh}x comparable range`,
+      ],
+    };
+  }
+  if (
+    input.revenue &&
+    input.revenue > 0 &&
+    input.revenueMultipleLow &&
+    input.revenueMultipleHigh
+  ) {
+    return {
+      low: Math.round(input.revenue * input.revenueMultipleLow),
+      high: Math.round(input.revenue * input.revenueMultipleHigh),
+      classification: "ESTIMATED" as const,
+      method: "Revenue multiple model",
+      assumptions: [
+        `Reported revenue ${input.revenue}`,
+        `${input.revenueMultipleLow}x–${input.revenueMultipleHigh}x comparable range`,
+      ],
+    };
+  }
+  return {
+    low: null,
+    high: null,
+    classification: "UNKNOWN" as const,
+    method: "No defensible private-company valuation",
+    assumptions: input.employeeCount
+      ? ["Employee count alone was rejected as insufficient valuation evidence"]
+      : ["No supported operating or valuation inputs"],
   };
 }
 
@@ -339,6 +601,163 @@ export function dedupeSourceEvents(events: NormalizedSourceEvent[]) {
   );
 }
 
+export function median(values: number[]) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[middle]
+    : Math.round((sorted[middle - 1] + sorted[middle]) / 2);
+}
+
+export function aggregatePeopleInMotion(
+  records: MoneyMotionRecord[],
+): PersonLiquiditySummary[] {
+  const groups = new Map<string, MoneyMotionRecord[]>();
+  for (const record of records) {
+    if (!record.person) continue;
+    const key = normalizeEntityName(record.person);
+    const existing = groups.get(key) || [];
+    if (!existing.some((item) => item.clusterKey === record.clusterKey)) {
+      existing.push(record);
+    }
+    groups.set(key, existing);
+  }
+  return [...groups.entries()]
+    .map(([key, events]) => {
+      const ordered = [...events].sort((left, right) =>
+        right.eventDate.localeCompare(left.eventDate),
+      );
+      const latest = ordered[0];
+      const valued = ordered
+        .filter((event) => event.estimate.potentiallyDeployableHigh !== null)
+        .sort(
+          (left, right) =>
+            (right.estimate.potentiallyDeployableHigh || 0) -
+            (left.estimate.potentiallyDeployableHigh || 0),
+        )[0];
+      const evidence = new Map(
+        ordered
+          .flatMap((event) => event.evidence)
+          .map((item) => [item.id, item]),
+      );
+      const actionability = [...ordered].sort(
+        (left, right) => right.actionability.total - left.actionability.total,
+      )[0].actionability;
+      const signals = ordered
+        .map((event) => event.leadTime.firstSignalAt || event.firstReportedAt)
+        .filter(Boolean)
+        .sort();
+      const closes = ordered
+        .map((event) => event.leadTime.closedAt)
+        .filter(Boolean)
+        .sort();
+      return {
+        personId: `person-motion-${stableId(key)}`,
+        name: latest.person,
+        role: latest.personRole,
+        company: latest.company,
+        location: latest.location,
+        industry: latest.industry,
+        marketClass: latest.marketClass,
+        latestEventId: latest.id,
+        latestEventTitle: latest.title,
+        latestStage: latest.stage,
+        eventCount: ordered.length,
+        firstSignalAt: signals.at(0) || "",
+        latestSignalAt: signals.at(-1) || "",
+        latestCloseAt: closes.at(-1) || "",
+        estimatedLiquidityLow:
+          valued?.estimate.potentiallyDeployableLow ?? null,
+        estimatedLiquidityHigh:
+          valued?.estimate.potentiallyDeployableHigh ?? null,
+        currency: valued?.currency || latest.currency,
+        highestConfidence: Math.max(
+          ...ordered.map((event) => event.confidence.total),
+        ),
+        actionability,
+        sourceCount: new Set(
+          [...evidence.values()].map((item) => item.sourceId),
+        ).size,
+        openPreLiquidityCount: ordered.filter((event) =>
+          ["WATCHING", "PRE_SALE", "ANNOUNCED", "PENDING_REGULATORY"].includes(
+            event.stage,
+          ),
+        ).length,
+        closedEventCount: ordered.filter((event) =>
+          ["CLOSED", "POST_LIQUIDITY"].includes(event.stage),
+        ).length,
+        leadDaysToClose: median(
+          ordered
+            .map((event) => event.leadTime.leadDaysToClose)
+            .filter((value): value is number => value !== null),
+        ),
+        evidence: [...evidence.values()],
+        uncertainties:
+          valued?.estimate.uncertainty || latest.estimate.uncertainty,
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.actionability.total - left.actionability.total ||
+        right.highestConfidence - left.highestConfidence,
+    );
+}
+
+export function sourceValueMetrics(
+  sourceId: string,
+  records: MoneyMotionRecord[],
+  ingested: number,
+  rejected: number,
+): SourceValueMetrics {
+  const represented = records.filter((record) =>
+    record.evidence.some((item) => item.sourceId === sourceId),
+  );
+  const leads = represented
+    .map((record) => record.leadTime.leadDaysToClose)
+    .filter((value): value is number => value !== null);
+  return {
+    recordsIngested: ingested,
+    uniqueTransactionClusters: represented.length,
+    privateCompanyTransactions: represented.filter(
+      (record) => record.marketClass === "PRIVATE",
+    ).length,
+    namedPeopleResolved: new Set(
+      represented.map((record) => record.person).filter(Boolean),
+    ).size,
+    eventsWithOwnershipEvidence: represented.filter(
+      (record) => record.ownershipEvidence,
+    ).length,
+    eventsWithReportedValuation: represented.filter(
+      (record) => record.reportedTransactionValue !== null,
+    ).length,
+    liquidityEstimatesGenerated: represented.filter(
+      (record) => record.estimate.potentiallyDeployableHigh !== null,
+    ).length,
+    highConfidenceEstimates: represented.filter(
+      (record) =>
+        record.estimate.potentiallyDeployableHigh !== null &&
+        record.confidence.total >= 75,
+    ).length,
+    preLiquiditySignals: represented.filter((record) =>
+      ["WATCHING", "PRE_SALE", "ANNOUNCED", "PENDING_REGULATORY"].includes(
+        record.stage,
+      ),
+    ).length,
+    closedTransactions: represented.filter((record) =>
+      ["CLOSED", "POST_LIQUIDITY"].includes(record.stage),
+    ).length,
+    medianLeadDays: median(leads),
+    duplicateRate: ingested
+      ? Number(((ingested - represented.length) / ingested).toFixed(4))
+      : 0,
+    rejectionRate:
+      ingested + rejected
+        ? Number((rejected / (ingested + rejected)).toFixed(4))
+        : 0,
+  };
+}
+
 const transactionPhrases = [
   /\b(?:acquir(?:e[ds]?|ing)|acquisition)\b/i,
   /\bmerg(?:e[ds]?|er|ing)\b/i,
@@ -348,6 +767,10 @@ const transactionPhrases = [
   /\brecapitaliz(?:ed|ation)\b/i,
   /\btender offer\b/i,
   /\bchange of (?:ownership|control)\b/i,
+  /\b(?:majority|minority) stake\b/i,
+  /\bsecondary (?:sale|transaction)\b/i,
+  /\b(?:founder exit|management buyout)\b/i,
+  /\b(?:asset|portfolio) sale\b/i,
 ];
 
 const nonTransactionPhrases = [
@@ -376,11 +799,15 @@ export function classifyNewsTransaction(title: string, text = "") {
       ? "DIVESTITURE"
       : /recapital/i.test(haystack)
         ? "RECAPITALIZATION"
-        : /tender offer/i.test(haystack)
-          ? "TENDER_OFFER"
-          : /asset/i.test(haystack)
-            ? "ASSET_SALE"
-            : "ACQUISITION";
+        : /secondary|minority stake|majority stake/i.test(haystack)
+          ? "SECONDARY_SALE"
+          : /management buyout|founder exit/i.test(haystack)
+            ? "BUSINESS_SALE"
+            : /tender offer/i.test(haystack)
+              ? "TENDER_OFFER"
+              : /asset/i.test(haystack)
+                ? "ASSET_SALE"
+                : "ACQUISITION";
   return { stage, eventType };
 }
 
@@ -396,6 +823,9 @@ export function classifyPatentAssignment(conveyance: string) {
     ? ({ eventType: "PATENT_ASSIGNMENT", stage: "CLOSED" } as const)
     : null;
 }
+
+const usptoConfigured =
+  typeof process !== "undefined" && Boolean(process.env?.USPTO_API_KEY);
 
 export const SOURCE_ADAPTERS: SourceAdapter[] = [
   {
@@ -458,11 +888,12 @@ export const SOURCE_ADAPTERS: SourceAdapter[] = [
     id: "uspto_assignments",
     name: "Patent and trademark assignments",
     publisher: "U.S. Patent and Trademark Office",
-    mode: "IMPORT_ONLY",
+    mode: usptoConfigured ? "IMPORT_ONLY" : "CONFIGURATION_REQUIRED",
     cadence: "Daily import",
     sourceUrl: "https://assignmentcenter.uspto.gov/",
-    reason:
-      "Official Assignment Center export/API credentials must be configured; name changes, security interests, and corrective filings are excluded.",
+    reason: usptoConfigured
+      ? "Current Open Data Portal access is configured. Bounded official assignment exports can be imported and conveyances are classified before use."
+      : "Add USPTO_API_KEY for the current Open Data Portal. Retired Developer Hub endpoints are not used.",
     normalize: () => [],
   },
   {
@@ -480,12 +911,12 @@ export const SOURCE_ADAPTERS: SourceAdapter[] = [
     id: "stb",
     name: "STB rail transaction dockets",
     publisher: "Surface Transportation Board",
-    mode: "IMPORT_ONLY",
-    cadence: "Daily URL/CSV import",
+    mode: "LIVE",
+    cadence: "Every 4 hours",
     sourceUrl:
       "https://www.stb.gov/proceedings-actions/dockets-and-service-lists/",
     reason:
-      "Official docket import is supported; automated discovery remains off without a stable combined machine feed.",
+      "Official STB case-status proceedings are polled incrementally; acquisition/control proceedings remain pre-close until completion evidence appears.",
     normalize: () => [],
   },
   ...["Maryland", "District of Columbia", "Virginia"].map(
