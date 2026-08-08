@@ -19,22 +19,23 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s · Liquidity Radar",
     },
     description:
-      "Official SEC, IRS, Census, and BEA public records in one state-level explorer.",
+      "Evidence-linked public transaction signals from SEC, FTC, CMS, economic data, and configured public-source adapters.",
     icons: {
       icon: "/favicon.svg",
       shortcut: "/favicon.svg",
     },
     openGraph: {
-      title: "Liquidity Radar — Official public capital signals",
+      title: "Liquidity Radar — Money in Motion",
       description:
-        "Explore attributable public capital and economic signals by state.",
+        "Explore business sales, ownership changes, securities transactions, and other evidence-linked Money in Motion signals.",
       type: "website",
       images: [{ url: `${origin}/og.png`, width: 1728, height: 912 }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Liquidity Radar — Official public capital signals",
-      description: "Official public records from SEC, IRS, Census, and BEA.",
+      title: "Liquidity Radar — Money in Motion",
+      description:
+        "Evidence-linked transaction intelligence from public records.",
       images: [`${origin}/og.png`],
     },
   };

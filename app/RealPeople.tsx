@@ -936,7 +936,7 @@ export function RealPeopleDirectory({
           {sortHeading("issuer", "Linked issuer")}
           {sortHeading("location", "Reported location")}
           {sortHeading("gross", "Completed / proposed value")}
-          {sortHeading("liquidity", "Estimated remaining liquidity")}
+          {sortHeading("liquidity", "Estimated potential liquidity")}
           {sortHeading("recent", "Latest evidence")}
         </div>
         {visible.map((person) => (
@@ -1033,7 +1033,7 @@ export function RealPeopleDirectory({
         Completed gross proceeds are calculated from normalized reported shares
         and transaction prices. Amounts repeated across joint filers are not
         allocated to an individual profile or included in personal liquidity
-        estimates. Remaining liquidity is not a bank balance.
+        estimates. Potential liquidity is not a bank balance.
       </p>
     </>
   );
@@ -1113,7 +1113,7 @@ export function RealPersonProfile({
             <span>
               {proposedOnly
                 ? "Proposed sale value"
-                : "Estimated remaining liquidity"}
+                : "Estimated potential liquidity"}
             </span>
             <strong>
               {proposedOnly
@@ -1149,10 +1149,10 @@ export function RealPersonProfile({
             Gross proceeds are observed or calculated from SEC records.
             Completed business-exit amounts are included only when an ownership
             filing or explicit seller disclosure supports attribution. Estimated
-            net and remaining liquidity apply visible tax, fee,
+            net and potential liquidity apply visible tax, fee,
             completed-purchase, and time-based unobserved-deployment
             assumptions. Joint-filing amounts without an allocation are
-            excluded. Actual cash on hand can differ materially.
+            excluded. The subject’s actual financial position is not observed.
           </p>
         </div>
 
@@ -1216,7 +1216,7 @@ export function RealPersonProfile({
             <small>Subtracted as documented cash deployment</small>
           </article>
           <article>
-            <span>Estimated remaining liquidity</span>
+            <span>Estimated potential liquidity</span>
             <strong>
               {person.estimatedNetProceeds.high > 0
                 ? moneyRange(person.estimatedRemainingLiquidity)
@@ -1522,7 +1522,7 @@ export function RealPersonProfile({
 
           <article className="real-profile-panel real-model-card">
             <p className="eyebrow">Current model assumptions</p>
-            <h2>How remaining liquidity is estimated</h2>
+            <h2>How potential liquidity is estimated</h2>
             <dl>
               <div>
                 <dt>Net proceeds retained</dt>

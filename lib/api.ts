@@ -64,10 +64,12 @@ export function publicPerson(person: {
     primary_organization: person.organization,
     industry: person.industry,
     primary_economic_location: person.location,
-    estimated_remaining_liquidity: {
+    estimated_potential_liquidity: {
       ...person.remaining,
       currency: "USD",
       classification: "estimated",
+      limitation:
+        "Evidence-linked planning range; not cash on hand, a bank balance, net worth, or disposable wealth.",
     },
     confidence: person.confidence,
     radar_score: person.radar,

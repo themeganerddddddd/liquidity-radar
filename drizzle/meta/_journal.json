@@ -15,6 +15,13 @@
       "when": 1785165668500,
       "tag": "0001_bored_turbo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786204519290,
+      "tag": "0002_old_king_bedlam",
+      "breakpoints": true
     }
   ]
 }

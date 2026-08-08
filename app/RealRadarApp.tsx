@@ -5,6 +5,7 @@ import type {
   PublicDataSnapshot,
   PublicLiquidityChunk,
 } from "../lib/public-data";
+import type { MoneyMotionSnapshot } from "../lib/money-in-motion";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
 import { normalizePublicLocation } from "../lib/public-locations";
 import { uniqueCompletedSaleGross } from "../lib/valuation-safety";
@@ -15,6 +16,7 @@ import {
   type RealPersonRecord,
 } from "./RealPeople";
 import { PublicStateMap } from "./PublicStateMap";
+import { MoneyInMotionView } from "./MoneyInMotion";
 import { TerritoriesView } from "./TerritoriesView";
 import {
   clearTestSession,
@@ -31,6 +33,10 @@ type WorkspaceView =
   | "territories"
   | "filings"
   | "exits"
+  | "money"
+  | "pre"
+  | "closed"
+  | "monitor"
   | "sources";
 
 const navigation: Array<{
@@ -49,13 +55,19 @@ const navigation: Array<{
   {
     label: "Capital signals",
     items: [
+      { view: "money", label: "Money in Motion", icon: "MIM" },
+      { view: "pre", label: "Pre-liquidity", icon: "PRE" },
+      { view: "closed", label: "Recently closed", icon: "CL" },
       { view: "exits", label: "Business exit watch", icon: "M&A" },
       { view: "filings", label: "SEC filings", icon: "4" },
     ],
   },
   {
     label: "Documentation",
-    items: [{ view: "sources", label: "Sources & methodology", icon: "SRC" }],
+    items: [
+      { view: "monitor", label: "Source monitor", icon: "MON" },
+      { view: "sources", label: "Sources & methodology", icon: "SRC" },
+    ],
   },
 ];
 
@@ -104,6 +116,30 @@ const viewCopy: Record<
     title: "Completed exits and deal watch",
     detail:
       "Separate consummated SEC Item 2.01 transactions from pre-close FTC signals, then inspect consideration and supported owner attribution.",
+  },
+  money: {
+    eyebrow: "Multi-source transaction intelligence",
+    title: "Money in Motion",
+    detail:
+      "Follow evidence-linked business sales, acquisitions, ownership changes, secondary sales, and asset transfers across live public sources.",
+  },
+  pre: {
+    eyebrow: "Emerging transaction signals",
+    title: "Pre-Liquidity",
+    detail:
+      "Review watching, pre-sale, announced, and regulatory-pending events without presenting them as completed proceeds.",
+  },
+  closed: {
+    eyebrow: "Confirmed transaction activity",
+    title: "Recently Closed",
+    detail:
+      "Review closed and post-liquidity events, with transaction, ownership, valuation, and uncertainty evidence kept separate.",
+  },
+  monitor: {
+    eyebrow: "Ingestion operations",
+    title: "Source Monitor",
+    detail:
+      "See which public sources are live, degraded, import-only, or intentionally disabled, plus freshness and record counts.",
   },
   sources: {
     eyebrow: "Evidence policy",
@@ -489,7 +525,7 @@ function Dashboard({
           <b>SEC</b>
         </article>
         <article>
-          <span>Estimated remaining liquidity</span>
+          <span>Estimated potential liquidity</span>
           <strong>{compactCurrency(remainingMedian)}</strong>
           <small>Median across completed-sale profiles</small>
           <b>Modeled</b>
@@ -1186,7 +1222,7 @@ function SourcesView({ data }: { data: PublicDataSnapshot }) {
           consummated significant acquisition or disposition, but a person is
           linked to proceeds only when a separate ownership filing supports the
           attribution. Form 144 proposals remain proposed. Taxes, fees, private
-          deployment, and remaining liquidity are modeled as ranges and never
+          deployment, and potential liquidity are modeled as ranges and never
           presented as observed bank balances.
         </p>
       </div>
@@ -1230,6 +1266,9 @@ export function RealRadarApp() {
   const [query, setQuery] = useState("");
   const [selectedPersonId, setSelectedPersonId] = useState("");
   const [data, setData] = useState<PublicDataSnapshot | null>(null);
+  const [motionData, setMotionData] = useState<MoneyMotionSnapshot | null>(
+    null,
+  );
   const people = useMemo(() => (data ? buildRealPeople(data) : []), [data]);
   const coverage = data
     ? liquidityCoverage(data)
@@ -1307,6 +1346,24 @@ export function RealRadarApp() {
       .then(setData)
       .catch(() => {
         // A reload retries the immutable checked-in public snapshot.
+      });
+    return () => controller.abort();
+  }, [ready, signedIn]);
+
+  useEffect(() => {
+    if (!ready || !signedIn) return;
+    const controller = new AbortController();
+    void fetch("/data/money-in-motion.json", {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Money-in-motion refresh failed.");
+        return response.json() as Promise<MoneyMotionSnapshot>;
+      })
+      .then(setMotionData)
+      .catch(() => {
+        // A reload retries the checked-in source snapshot.
       });
     return () => controller.abort();
   }, [ready, signedIn]);
@@ -1404,6 +1461,32 @@ export function RealRadarApp() {
     );
   } else if (view === "exits") {
     content = <ExitSignalsView data={data} query={query} />;
+  } else if (["money", "pre", "closed", "monitor"].includes(view)) {
+    content = (
+      <>
+        <PageIntro
+          view={view}
+          action={
+            motionData ? (
+              <span className="real-count-pill">
+                {motionData.stats.records.toLocaleString()} transaction signals
+              </span>
+            ) : undefined
+          }
+        />
+        {motionData ? (
+          <MoneyInMotionView
+            key={view}
+            snapshot={motionData}
+            view={view as "money" | "pre" | "closed" | "monitor"}
+          />
+        ) : (
+          <div className="motion-inline-loading">
+            Loading normalized public-source records…
+          </div>
+        )}
+      </>
+    );
   } else {
     content = <SourcesView data={data} />;
   }
