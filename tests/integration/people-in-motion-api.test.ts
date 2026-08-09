@@ -32,7 +32,7 @@ describe("People in Motion API", () => {
       expect(refreshed.generatedAt).toBe(upstream.generatedAt);
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("?refresh="),
-        expect.objectContaining({ cache: "force-cache" }),
+        expect.objectContaining({ cache: "no-store" }),
       );
     } finally {
       global.fetch = originalFetch;
@@ -82,7 +82,7 @@ describe("People in Motion API", () => {
       expect(global.fetch).toHaveBeenCalledTimes(2);
       expect(global.fetch).toHaveBeenLastCalledWith(
         new URL("https://radar.test/data/money-in-motion-client.json.gz"),
-        { cache: "force-cache" },
+        { cache: "no-store" },
       );
     } finally {
       global.fetch = originalFetch;

@@ -56,7 +56,7 @@ async function loadPackagedSnapshot(requestUrl?: string) {
   if (!requestUrl) throw new Error("No packaged snapshot URL is available.");
   const response = await fetch(
     new URL("/data/money-in-motion-client.json.gz", requestUrl),
-    { cache: "force-cache" },
+    { cache: "no-store" },
   );
   return parseSnapshotResponse(response);
 }
@@ -70,9 +70,7 @@ export async function loadCurrentMotionSnapshot(requestUrl?: string) {
   try {
     const refreshBucket = Math.floor(now / refreshIntervalMs);
     const response = await fetch(`${upstreamUrl}?refresh=${refreshBucket}`, {
-      cache: "force-cache",
-      headers: { "User-Agent": "LiquidityRadar/0.2 snapshot-reader" },
-      signal: AbortSignal.timeout(45_000),
+      cache: "no-store",
     });
     const upstream = await parseSnapshotResponse(response);
     memoizedSnapshot = upstream;
