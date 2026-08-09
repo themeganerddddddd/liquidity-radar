@@ -28,8 +28,16 @@ export function sites(): Plugin {
       const outputDirectory = resolve(root, "dist", ".openai");
       const hostingConfig = resolve(root, ".openai", "hosting.json");
       const drizzleSource = resolve(root, "drizzle");
+      const serverOnlySnapshot = resolve(
+        root,
+        "dist",
+        "client",
+        "data",
+        "money-in-motion.json",
+      );
 
       await rm(outputDirectory, { recursive: true, force: true });
+      await rm(serverOnlySnapshot, { force: true });
       await mkdir(outputDirectory, { recursive: true });
 
       if (await exists(hostingConfig)) {
