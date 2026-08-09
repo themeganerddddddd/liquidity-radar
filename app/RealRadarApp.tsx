@@ -11,7 +11,6 @@ import { normalizePublicLocation } from "../lib/public-locations";
 import { uniqueCompletedSaleGross } from "../lib/valuation-safety";
 import {
   buildRealPeople,
-  RealPeopleDirectory,
   RealPersonProfile,
   type RealPersonRecord,
 } from "./RealPeople";
@@ -50,26 +49,23 @@ const navigation: Array<{
     items: [
       { view: "dashboard", label: "Dashboard", icon: "DB" },
       { view: "people", label: "Search directory", icon: "DIR" },
+      { view: "money", label: "Capital events", icon: "EV" },
       { view: "territories", label: "Territories & alerts", icon: "AL" },
-      { view: "map", label: "State signals", icon: "US" },
+      { view: "map", label: "State map", icon: "US" },
     ],
   },
   {
-    label: "Capital signals",
+    label: "Records",
     items: [
-      { view: "people_motion", label: "People in Motion", icon: "PIM" },
-      { view: "money", label: "Money in Motion", icon: "MIM" },
-      { view: "pre", label: "Pre-liquidity", icon: "PRE" },
-      { view: "closed", label: "Recently closed", icon: "CL" },
-      { view: "exits", label: "Business exit watch", icon: "M&A" },
+      { view: "exits", label: "Business sales", icon: "M&A" },
       { view: "filings", label: "SEC filings", icon: "4" },
     ],
   },
   {
-    label: "Documentation",
+    label: "Sources",
     items: [
-      { view: "monitor", label: "Source monitor", icon: "MON" },
-      { view: "sources", label: "Sources & methodology", icon: "SRC" },
+      { view: "monitor", label: "Source status", icon: "MON" },
+      { view: "sources", label: "Methodology", icon: "SRC" },
     ],
   },
 ];
@@ -91,10 +87,10 @@ const viewCopy: Record<
       "Compare official business-formation and economic-growth records as market context, without treating them as personal liquidity.",
   },
   people: {
-    eyebrow: "Searchable capital database",
+    eyebrow: "Unified public-record directory",
     title: "Capital directory",
     detail:
-      "Search people, firms, issuers, completed sales, proposed sales, and reported holdings from one directory.",
+      "Search people and companies from SEC, CMS, USPTO, FTC, STB, and other active public sources with one set of filters and one profile format.",
   },
   territories: {
     eyebrow: "Local business development",
@@ -121,32 +117,32 @@ const viewCopy: Record<
       "Separate consummated SEC Item 2.01 transactions from pre-close FTC signals, then inspect consideration and supported owner attribution.",
   },
   money: {
-    eyebrow: "Multi-source transaction intelligence",
-    title: "Money in Motion",
+    eyebrow: "All public transaction records",
+    title: "Capital events",
     detail:
-      "Follow evidence-linked business sales, acquisitions, ownership changes, secondary sales, and asset transfers across live public sources.",
+      "Search business sales, acquisitions, ownership changes, share sales, patent transfers, and other evidence-linked events in one directory.",
   },
   people_motion: {
-    eyebrow: "Person-first private-market intelligence",
-    title: "People in Motion",
+    eyebrow: "Unified public-record directory",
+    title: "Capital directory",
     detail:
-      "Find named owners and sellers connected to public transaction signals, then separate supported liquidity estimates from events where value is not established.",
+      "Search named people across every active public source, with unsupported amounts left undisclosed.",
   },
   pre: {
-    eyebrow: "Emerging transaction signals",
-    title: "Pre-Liquidity",
+    eyebrow: "Upcoming public records",
+    title: "Upcoming events",
     detail:
       "Review watching, pre-sale, announced, and regulatory-pending events without presenting them as completed proceeds.",
   },
   closed: {
-    eyebrow: "Confirmed transaction activity",
-    title: "Recently Closed",
+    eyebrow: "Completed public records",
+    title: "Completed events",
     detail:
       "Review closed and post-liquidity events, with transaction, ownership, valuation, and uncertainty evidence kept separate.",
   },
   monitor: {
     eyebrow: "Ingestion operations",
-    title: "Source Monitor",
+    title: "Source status",
     detail:
       "See which public sources are live, degraded, import-only, or intentionally disabled, plus freshness and record counts.",
   },
@@ -311,18 +307,22 @@ function WorkspaceHeader({
   view,
   session,
   people,
+  motionPeople,
   query,
   onQuery,
   onPerson,
+  onDirectorySearch,
   onMenu,
   onLogout,
 }: {
   view: WorkspaceView;
   session: TestSession;
   people: RealPersonRecord[];
+  motionPeople: MoneyMotionSnapshot["peopleInMotion"];
   query: string;
   onQuery: (query: string) => void;
   onPerson: (person: RealPersonRecord) => void;
+  onDirectorySearch: (query: string) => void;
   onMenu: () => void;
   onLogout: () => void;
 }) {
@@ -350,6 +350,36 @@ function WorkspaceHeader({
           )
           .slice(0, 6)
       : [];
+  const secNames = new Set(
+    peopleResults.map((person) => person.name.toLowerCase()),
+  );
+  const motionResults =
+    query.trim().length > 1
+      ? motionPeople
+          .filter(
+            (person) =>
+              !secNames.has(person.name.toLowerCase()) &&
+              [
+                person.name,
+                person.company,
+                person.role,
+                person.industry,
+                person.latestEventTitle,
+                person.location.country,
+                person.location.state,
+                person.location.city,
+                ...person.evidence.flatMap((evidence) => [
+                  evidence.publisher,
+                  evidence.title,
+                ]),
+              ]
+                .join(" ")
+                .toLowerCase()
+                .includes(query.trim().toLowerCase()),
+          )
+          .slice(0, Math.max(0, 6 - peopleResults.length))
+      : [];
+  const resultCount = peopleResults.length + motionResults.length;
 
   return (
     <header className="app-header">
@@ -371,6 +401,12 @@ function WorkspaceHeader({
               if (event.key === "Enter" && peopleResults[0]) {
                 event.preventDefault();
                 onPerson(peopleResults[0]);
+              } else if (event.key === "Enter" && motionResults[0]) {
+                event.preventDefault();
+                onDirectorySearch(motionResults[0].name);
+              } else if (event.key === "Enter" && query.trim()) {
+                event.preventDefault();
+                onDirectorySearch(query.trim());
               }
             }}
             placeholder={
@@ -381,18 +417,16 @@ function WorkspaceHeader({
                   : "Search the directory by person, firm, or issuer…"
             }
             aria-label="Search people and public records"
-            aria-controls={
-              peopleResults.length ? "global-people-results" : undefined
-            }
+            aria-controls={resultCount ? "global-people-results" : undefined}
           />
           <kbd>/</kbd>
         </label>
-        {peopleResults.length > 0 && (
+        {resultCount > 0 && (
           <div
             className="real-global-search-results"
             id="global-people-results"
             role="listbox"
-            aria-label="Matching SEC reporting parties"
+            aria-label="Matching directory profiles"
           >
             <p>Directory profiles</p>
             {peopleResults.map((person) => (
@@ -408,6 +442,32 @@ function WorkspaceHeader({
                   <strong>{person.name}</strong>
                   <small>
                     {person.issuers[0]} · {person.forms.join(", ")}
+                  </small>
+                </span>
+                <b>→</b>
+              </button>
+            ))}
+            {motionResults.map((person) => (
+              <button
+                type="button"
+                role="option"
+                aria-selected="false"
+                key={person.personId}
+                onClick={() => onDirectorySearch(person.name)}
+              >
+                <i>
+                  {person.name
+                    .split(/\s+/)
+                    .map((part) => part[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase() || "PR"}
+                </i>
+                <span>
+                  <strong>{person.name}</strong>
+                  <small>
+                    {person.company || "Company not established"} ·{" "}
+                    {person.evidence[0]?.publisher || "Public record"}
                   </small>
                 </span>
                 <b>→</b>
@@ -435,11 +495,13 @@ function WorkspaceHeader({
 function Dashboard({
   data,
   people,
+  directoryCount,
   onNavigate,
   onPerson,
 }: {
   data: PublicDataSnapshot;
   people: RealPersonRecord[];
+  directoryCount: number;
   onNavigate: (view: WorkspaceView) => void;
   onPerson: (person: RealPersonRecord) => void;
 }) {
@@ -526,12 +588,12 @@ function Dashboard({
         </article>
         <article>
           <span>Profiles in capital directory</span>
-          <strong>{people.length.toLocaleString()}</strong>
+          <strong>{directoryCount.toLocaleString()}</strong>
           <small>
-            {liquidPeople.length.toLocaleString()} people with completed-sale
-            evidence
+            {liquidPeople.length.toLocaleString()} with supported completed-sale
+            estimates; other sources remain searchable without invented amounts
           </small>
-          <b>SEC</b>
+          <b>All sources</b>
         </article>
         <article>
           <span>Estimated potential liquidity</span>
@@ -1390,6 +1452,12 @@ export function RealRadarApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const openDirectorySearch = (nextQuery: string) => {
+    setQuery(nextQuery);
+    setView("people");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (!ready) {
     return (
       <main className="test-auth-loading" aria-label="Loading test access">
@@ -1424,6 +1492,7 @@ export function RealRadarApp() {
       <Dashboard
         data={data}
         people={people}
+        directoryCount={motionData?.peopleInMotion.length || people.length}
         onNavigate={navigate}
         onPerson={openPerson}
       />
@@ -1437,17 +1506,24 @@ export function RealRadarApp() {
           view="people"
           action={
             <span className="real-count-pill">
-              {people.length.toLocaleString()} searchable profiles
+              {(
+                motionData?.peopleInMotion.length || people.length
+              ).toLocaleString()}{" "}
+              searchable profiles
             </span>
           }
         />
-        <RealPeopleDirectory
-          people={people}
-          geography={data.geography}
-          query={query}
-          onQuery={setQuery}
-          onPerson={openPerson}
-        />
+        {motionData ? (
+          <PeopleInMotionView
+            snapshot={motionData}
+            query={query}
+            onQuery={setQuery}
+          />
+        ) : (
+          <div className="motion-inline-loading">
+            Loading the unified public-record directory…
+          </div>
+        )}
       </>
     );
   } else if (view === "profile" && selectedPerson) {
@@ -1474,7 +1550,7 @@ export function RealRadarApp() {
     content = (
       <>
         <PageIntro
-          view="people_motion"
+          view="people"
           action={
             motionData ? (
               <span className="real-count-pill">
@@ -1484,7 +1560,11 @@ export function RealRadarApp() {
           }
         />
         {motionData ? (
-          <PeopleInMotionView snapshot={motionData} />
+          <PeopleInMotionView
+            snapshot={motionData}
+            query={query}
+            onQuery={setQuery}
+          />
         ) : (
           <div className="motion-inline-loading">
             Loading person-first public records…
@@ -1527,7 +1607,7 @@ export function RealRadarApp() {
       <WorkspaceSidebar
         view={view}
         open={mobileNav}
-        profileCount={people.length}
+        profileCount={motionData?.peopleInMotion.length || people.length}
         coverageLabel={coverage.label}
         onNavigate={navigate}
         onClose={() => setMobileNav(false)}
@@ -1536,9 +1616,11 @@ export function RealRadarApp() {
         view={view}
         session={effectiveSession}
         people={people}
+        motionPeople={motionData?.peopleInMotion || []}
         query={query}
         onQuery={setQuery}
         onPerson={openPerson}
+        onDirectorySearch={openDirectorySearch}
         onMenu={() => setMobileNav((current) => !current)}
         onLogout={() => {
           clearTestSession();

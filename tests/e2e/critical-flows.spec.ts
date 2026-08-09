@@ -43,7 +43,7 @@ test("the restored workspace shell loads its official dashboard", async ({
     page.getByRole("heading", { name: "Current public filings" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Sources & methodology" }).click();
+  await page.getByRole("button", { name: "Methodology", exact: true }).click();
   await expect(
     page.getByText("EDGAR insider transactions", { exact: true }).first(),
   ).toBeVisible();
@@ -87,11 +87,6 @@ test("real SEC names are searchable and open evidence-linked profiles", async ({
   await page
     .getByLabel("Search people and reporting parties")
     .fill(person.name);
-  if (person.kind === "Entity") {
-    await page
-      .getByLabel("Filter by reporting party type")
-      .selectOption("All reporting parties");
-  }
   await expect(
     page.getByRole("button", {
       name: `Open profile for ${person.name}`,
@@ -132,7 +127,7 @@ test("confirmed exits, owner attribution, and saved metro alerts are usable", as
   await signInWithDummy(page);
   await page
     .locator(".side-nav")
-    .getByRole("button", { name: "Business exit watch" })
+    .getByRole("button", { name: "Business sales" })
     .click();
   await expect(
     page.getByRole("heading", { name: "Completed exits and deal watch" }),
@@ -161,24 +156,24 @@ test("confirmed exits, owner attribution, and saved metro alerts are usable", as
   await expect(page.getByText("Stored on this device")).toBeVisible();
 });
 
-test("Money in Motion exposes multi-source filters, evidence, and source health", async ({
+test("Capital events exposes multi-source filters, evidence, and source health", async ({
   page,
 }) => {
   await signInWithDummy(page);
   await page
     .locator(".side-nav")
-    .getByRole("button", { name: "Money in Motion" })
+    .getByRole("button", { name: "Capital events" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Money in Motion" }),
+    page.getByRole("heading", { name: "Capital events" }),
   ).toBeVisible();
-  await expect(page.getByText("Estimate, not bank balance.")).toBeVisible();
-  await expect(page.getByLabel("Money in Motion filters")).toBeVisible();
+  await expect(page.getByText("Estimate, not a bank balance.")).toBeVisible();
+  await expect(page.getByLabel("Capital event filters")).toBeVisible();
   await expect(page.locator(".motion-card").first()).toBeVisible();
   await page
     .locator(".motion-card")
     .first()
-    .getByRole("button", { name: "Review evidence →" })
+    .getByRole("button", { name: "View profile →" })
     .click();
   await expect(
     page.getByRole("heading", { name: "Transaction" }),
@@ -190,36 +185,42 @@ test("Money in Motion exposes multi-source filters, evidence, and source health"
 
   await page
     .locator(".side-nav")
-    .getByRole("button", { name: "Source monitor" })
+    .getByRole("button", { name: "Source status" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Source Monitor" }),
+    page.getByRole("heading", { name: "Source status" }),
   ).toBeVisible();
   await expect(page.getByText("CMS change of ownership")).toBeVisible();
   await expect(page.getByText("FCC Universal Licensing System")).toBeVisible();
 });
 
-test("People in Motion supports person-first filtering and evidence profiles", async ({
+test("the capital directory searches every source with one profile UI", async ({
   page,
 }) => {
   await signInWithDummy(page);
   await page
     .locator(".side-nav")
-    .getByRole("button", { name: "People in Motion" })
+    .getByRole("button", { name: "Search directory" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "People in Motion" }),
+    page.getByRole("heading", { name: "Capital directory" }),
   ).toBeVisible();
-  await expect(page.getByLabel("People in Motion filters")).toBeVisible();
-  await page.getByLabel("Market").selectOption("PRIVATE");
-  await page.getByLabel("Date window").selectOption("");
+  const filters = page.getByLabel("Capital directory filters");
+  await expect(filters).toBeVisible();
+  await filters.getByLabel("Date", { exact: true }).selectOption("");
+  await filters
+    .getByLabel("Source", { exact: true })
+    .selectOption("uspto_assignments");
   await expect(page.locator("button.people-motion-row").first()).toBeVisible();
+  await expect(page.locator("button.people-motion-row").first()).toContainText(
+    "USPTO patent transfers",
+  );
   await page.locator("button.people-motion-row").first().click();
   await expect(
-    page.getByRole("heading", { name: "Supported summary" }),
+    page.getByRole("heading", { name: "Profile summary" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Actionability is not confidence" }),
+    page.getByRole("heading", { name: "How the score works" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Close profile" }).click();
 });

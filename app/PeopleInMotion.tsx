@@ -33,6 +33,50 @@ function titleCase(value: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+const sourceLabels: Record<string, string> = {
+  sec: "SEC transactions",
+  cms_chow: "CMS ownership changes",
+  uspto_assignments: "USPTO patent transfers",
+  ftc_hsr: "FTC deal notices",
+  stb: "STB transportation deals",
+  gdelt: "Transaction news",
+};
+
+function sourceLabel(value: string) {
+  return sourceLabels[value] || titleCase(value);
+}
+
+function stageLabel(value: string) {
+  return (
+    {
+      WATCHING: "Watching",
+      PRE_SALE: "Proposed",
+      ANNOUNCED: "Announced",
+      PENDING_REGULATORY: "Pending review",
+      CLOSED: "Completed",
+      POST_LIQUIDITY: "Completed",
+      UNKNOWN: "Unclear",
+    }[value] || titleCase(value)
+  );
+}
+
+function eventLabel(value: string) {
+  return (
+    {
+      SECONDARY_SALE: "Share sale",
+      BUSINESS_SALE: "Business sale",
+      BUSINESS_FOR_SALE: "Business listed for sale",
+      MERGER: "Merger",
+      ACQUISITION: "Acquisition",
+      PATENT_ASSIGNMENT: "Patent transfer",
+      OWNERSHIP_CHANGE: "Ownership change",
+      LICENSE_TRANSFER: "License transfer",
+      TRANSPORT_ASSET_TRANSFER: "Transportation asset transfer",
+      ENERGY_ASSET_TRANSFER: "Energy asset transfer",
+    }[value] || titleCase(value)
+  );
+}
+
 function place(person: PersonLiquiditySummary) {
   return (
     [person.location.country, person.location.state, person.location.city]
@@ -68,7 +112,7 @@ function PersonDrawer({
       >
         <header>
           <div>
-            <span>Person-first public-record summary</span>
+            <span>Directory profile</span>
             <h2>{person.name}</h2>
             <p>{[person.role, person.company].filter(Boolean).join(" · ")}</p>
           </div>
@@ -78,10 +122,10 @@ function PersonDrawer({
         </header>
 
         <section className="motion-drawer-section">
-          <h3>Supported summary</h3>
+          <h3>Profile summary</h3>
           <dl className="motion-facts">
             <div>
-              <dt>Estimated potential liquidity</dt>
+              <dt>Estimated proceeds</dt>
               <dd>
                 {person.estimatedLiquidityLow === null
                   ? "Not established"
@@ -89,11 +133,11 @@ function PersonDrawer({
               </dd>
             </div>
             <div>
-              <dt>Actionability</dt>
+              <dt>Priority score</dt>
               <dd>{person.actionability.total}/100</dd>
             </div>
             <div>
-              <dt>Evidence confidence</dt>
+              <dt>Confidence</dt>
               <dd>{person.highestConfidence}/100</dd>
             </div>
             <div>
@@ -119,7 +163,7 @@ function PersonDrawer({
         </section>
 
         <section className="motion-drawer-section">
-          <h3>Actionability is not confidence</h3>
+          <h3>How the score works</h3>
           <div className="motion-confidence-grid">
             <span>
               Magnitude <b>{person.actionability.magnitude}/30</b>
@@ -141,9 +185,9 @@ function PersonDrawer({
             </span>
           </div>
           <p>
-            Actionability prioritizes outreach timing and relevance. Confidence
-            measures how strongly the underlying identity, transaction,
-            ownership, and value are supported.
+            Priority measures timing and relevance. Confidence measures how
+            strongly the identity, transaction, ownership, and value are
+            supported by public records.
           </p>
         </section>
 
@@ -153,8 +197,8 @@ function PersonDrawer({
             {events.map((event) => (
               <article key={event.id}>
                 <span>
-                  {titleCase(event.stage)} · {dateLabel(event.eventDate)} ·{" "}
-                  {event.actionability.total} actionability
+                  {stageLabel(event.stage)} · {dateLabel(event.eventDate)} ·{" "}
+                  {event.actionability.total} priority
                 </span>
                 <strong>{event.title}</strong>
                 <p>{event.summary}</p>
@@ -209,22 +253,33 @@ function PersonDrawer({
 
 export function PeopleInMotionView({
   snapshot,
+  query: controlledQuery,
+  onQuery,
 }: {
   snapshot: MoneyMotionSnapshot;
+  query?: string;
+  onQuery?: (value: string) => void;
 }) {
-  const [query, setQuery] = useState("");
+  const [localQuery, setLocalQuery] = useState("");
   const [marketClass, setMarketClass] = useState("");
   const [location, setLocation] = useState("");
   const [industry, setIndustry] = useState("");
   const [stage, setStage] = useState("");
   const [eventType, setEventType] = useState("");
-  const [dateWindow, setDateWindow] = useState("365");
+  const [dateWindow, setDateWindow] = useState("");
   const [minimum, setMinimum] = useState("");
   const [confidence, setConfidence] = useState("0");
   const [source, setSource] = useState("");
   const [ownershipOnly, setOwnershipOnly] = useState(false);
   const [sort, setSort] = useState("actionability");
   const [selected, setSelected] = useState<PersonLiquiditySummary | null>(null);
+  const [visibleCount, setVisibleCount] = useState(50);
+  const query = controlledQuery ?? localQuery;
+  const setQuery = (value: string) => {
+    setVisibleCount(50);
+    if (onQuery) onQuery(value);
+    else setLocalQuery(value);
+  };
 
   const recordsById = useMemo(
     () => new Map(snapshot.records.map((record) => [record.id, record])),
@@ -283,6 +338,12 @@ export function PeopleInMotionView({
             person.role,
             person.industry,
             person.latestEventTitle,
+            place(person),
+            ...person.evidence.flatMap((evidence) => [
+              evidence.publisher,
+              evidence.sourceId,
+              evidence.title,
+            ]),
           ]
             .join(" ")
             .toLowerCase()
@@ -348,19 +409,30 @@ export function PeopleInMotionView({
     ownershipOnly,
     sort,
   ]);
+  const visiblePeople = people.slice(0, visibleCount);
 
   return (
     <>
       <section
         className="people-motion-summary"
-        aria-label="People in Motion summary"
+        aria-label="Capital directory summary"
       >
         <div>
-          <span>Named people</span>
+          <span>Directory profiles</span>
           <strong>{snapshot.peopleInMotion.length.toLocaleString()}</strong>
         </div>
         <div>
-          <span>Private-market people</span>
+          <span>SEC profiles</span>
+          <strong>
+            {snapshot.peopleInMotion
+              .filter((person) =>
+                person.evidence.some((evidence) => evidence.sourceId === "sec"),
+              )
+              .length.toLocaleString()}
+          </strong>
+        </div>
+        <div>
+          <span>Private-market profiles</span>
           <strong>
             {snapshot.peopleInMotion
               .filter((person) => person.marketClass === "PRIVATE")
@@ -368,15 +440,7 @@ export function PeopleInMotionView({
           </strong>
         </div>
         <div>
-          <span>Pre-liquidity people</span>
-          <strong>
-            {snapshot.peopleInMotion
-              .filter((person) => person.openPreLiquidityCount > 0)
-              .length.toLocaleString()}
-          </strong>
-        </div>
-        <div>
-          <span>With supported estimates</span>
+          <span>With estimated proceeds</span>
           <strong>
             {snapshot.peopleInMotion
               .filter((person) => person.estimatedLiquidityHigh !== null)
@@ -386,20 +450,22 @@ export function PeopleInMotionView({
       </section>
 
       <section
-        className="people-motion-controls"
-        aria-label="People in Motion filters"
+        className="people-motion-controls real-people-controls unified-directory-controls"
+        aria-label="Capital directory filters"
       >
         <label className="people-motion-search">
-          <span>Search people, companies, roles, or events</span>
+          <span>Search names, companies, locations, events, or sources</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search the person-first database"
+            placeholder="Search a person, company, city, event, or public source…"
+            aria-label="Search people and reporting parties"
           />
         </label>
         <label>
           <span>Market</span>
           <select
+            aria-label="Market"
             value={marketClass}
             onChange={(event) => setMarketClass(event.target.value)}
           >
@@ -412,6 +478,7 @@ export function PeopleInMotionView({
         <label>
           <span>Location</span>
           <select
+            aria-label="Location"
             value={location}
             onChange={(event) => setLocation(event.target.value)}
           >
@@ -424,6 +491,7 @@ export function PeopleInMotionView({
         <label>
           <span>Industry</span>
           <select
+            aria-label="Industry"
             value={industry}
             onChange={(event) => setIndustry(event.target.value)}
           >
@@ -434,8 +502,9 @@ export function PeopleInMotionView({
           </select>
         </label>
         <label>
-          <span>Latest stage</span>
+          <span>Status</span>
           <select
+            aria-label="Status"
             value={stage}
             onChange={(event) => setStage(event.target.value)}
           >
@@ -449,28 +518,30 @@ export function PeopleInMotionView({
               "POST_LIQUIDITY",
             ].map((item) => (
               <option key={item} value={item}>
-                {titleCase(item)}
+                {stageLabel(item)}
               </option>
             ))}
           </select>
         </label>
         <label>
-          <span>Event type</span>
+          <span>Event</span>
           <select
+            aria-label="Event"
             value={eventType}
             onChange={(event) => setEventType(event.target.value)}
           >
             <option value="">All event types</option>
             {options.eventTypes.map((item) => (
               <option key={item} value={item}>
-                {titleCase(item!)}
+                {eventLabel(item!)}
               </option>
             ))}
           </select>
         </label>
         <label>
-          <span>Date window</span>
+          <span>Date</span>
           <select
+            aria-label="Date"
             value={dateWindow}
             onChange={(event) => setDateWindow(event.target.value)}
           >
@@ -482,12 +553,13 @@ export function PeopleInMotionView({
           </select>
         </label>
         <label>
-          <span>Minimum estimate</span>
+          <span>Amount</span>
           <select
+            aria-label="Amount"
             value={minimum}
             onChange={(event) => setMinimum(event.target.value)}
           >
-            <option value="">Any / undisclosed</option>
+            <option value="">Any or undisclosed</option>
             <option value="1000000">$1M+</option>
             <option value="5000000">$5M+</option>
             <option value="25000000">$25M+</option>
@@ -497,6 +569,7 @@ export function PeopleInMotionView({
         <label>
           <span>Confidence</span>
           <select
+            aria-label="Confidence"
             value={confidence}
             onChange={(event) => setConfidence(event.target.value)}
           >
@@ -509,23 +582,27 @@ export function PeopleInMotionView({
         <label>
           <span>Source</span>
           <select
+            aria-label="Source"
             value={source}
             onChange={(event) => setSource(event.target.value)}
           >
             <option value="">All sources</option>
             {options.sources.map((item) => (
-              <option key={item}>{item}</option>
+              <option key={item} value={item}>
+                {sourceLabel(item)}
+              </option>
             ))}
           </select>
         </label>
         <label>
           <span>Sort by</span>
           <select
+            aria-label="Sort by"
             value={sort}
             onChange={(event) => setSort(event.target.value)}
           >
-            <option value="actionability">Actionability</option>
-            <option value="amount">Estimated amount</option>
+            <option value="actionability">Priority</option>
+            <option value="amount">Estimated proceeds</option>
             <option value="recent">Most recent</option>
             <option value="confidence">Confidence</option>
             <option value="lead">Observed lead time</option>
@@ -537,35 +614,35 @@ export function PeopleInMotionView({
             checked={ownershipOnly}
             onChange={(event) => setOwnershipOnly(event.target.checked)}
           />
-          <span>Ownership evidence only</span>
+          <span>Ownership evidence</span>
         </label>
       </section>
 
-      <div className="people-motion-result-bar">
-        <strong>{people.length.toLocaleString()} people match</strong>
+      <div className="people-motion-result-bar unified-result-bar">
+        <strong>{people.length.toLocaleString()} directory matches</strong>
         <span>
-          One person may have multiple deduplicated events; ranges are never
-          summed into a cash balance.
+          All public sources use the same filters, rows, and evidence profile.
         </span>
       </div>
 
       <section
-        className="people-motion-table"
-        aria-label="People in Motion results"
+        className="people-motion-table real-people-directory unified-directory-table"
+        aria-label="Capital directory results"
       >
-        <div className="people-motion-row heading">
-          <span>Person / company</span>
-          <span>Latest signal</span>
-          <span>Potential liquidity</span>
-          <span>Actionability</span>
-          <span>Evidence</span>
+        <div className="people-motion-row real-people-row heading unified-directory-row">
+          <span>Person and company</span>
+          <span>Latest event</span>
+          <span>Estimated proceeds</span>
+          <span>Priority</span>
+          <span>Source and confidence</span>
         </div>
-        {people.map((person) => (
+        {visiblePeople.map((person) => (
           <button
-            className="people-motion-row"
+            className="people-motion-row real-people-row unified-directory-row"
             type="button"
             key={person.personId}
             onClick={() => setSelected(person)}
+            aria-label={`Open profile for ${person.name}`}
           >
             <span>
               <strong>{person.name}</strong>
@@ -576,14 +653,14 @@ export function PeopleInMotionView({
               <small>{place(person)}</small>
             </span>
             <span>
-              <b>{titleCase(person.latestStage)}</b>
+              <b>{stageLabel(person.latestStage)}</b>
               <small>{dateLabel(person.latestSignalAt)}</small>
               <small>{person.latestEventTitle}</small>
             </span>
             <span>
               <strong>
                 {person.estimatedLiquidityLow === null
-                  ? "Not established"
+                  ? "Amount not disclosed"
                   : `${compactMoney(person.estimatedLiquidityLow, person.currency)}–${compactMoney(person.estimatedLiquidityHigh, person.currency)}`}
               </strong>
               <small>
@@ -592,7 +669,7 @@ export function PeopleInMotionView({
               </small>
             </span>
             <span>
-              <strong>{person.actionability.total}/100</strong>
+              <strong>{person.actionability.total}/100 priority</strong>
               <small>
                 {person.leadDaysToClose === null
                   ? "Lead time not yet measurable"
@@ -600,9 +677,20 @@ export function PeopleInMotionView({
               </small>
             </span>
             <span>
-              <strong>{person.highestConfidence}/100</strong>
+              <strong>
+                {[
+                  ...new Set(
+                    person.evidence.map((evidence) => evidence.sourceId),
+                  ),
+                ]
+                  .slice(0, 2)
+                  .map(sourceLabel)
+                  .join(" + ") || "Public record"}
+              </strong>
               <small>
-                {person.sourceCount} source{person.sourceCount === 1 ? "" : "s"}
+                {person.highestConfidence}/100 confidence · {person.sourceCount}{" "}
+                source
+                {person.sourceCount === 1 ? "" : "s"}
               </small>
               <small>View profile →</small>
             </span>
@@ -618,6 +706,26 @@ export function PeopleInMotionView({
           </div>
         )}
       </section>
+
+      {visiblePeople.length < people.length && (
+        <button
+          type="button"
+          className="real-directory-more"
+          onClick={() => setVisibleCount((current) => current + 50)}
+        >
+          Load 50 more profiles
+          <span>
+            Showing {visiblePeople.length.toLocaleString()} of{" "}
+            {people.length.toLocaleString()}
+          </span>
+        </button>
+      )}
+
+      <p className="real-workspace-footnote">
+        Records come from public sources. Amounts appear only when supported;
+        patent transfers and ownership changes do not become cash estimates
+        unless consideration and personal attribution are established.
+      </p>
 
       {selected && (
         <PersonDrawer

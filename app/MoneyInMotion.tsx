@@ -13,12 +13,12 @@ type Mode = "high" | "all" | "pre" | "confirmed";
 
 const stageLabels: Record<MoneyMotionRecord["stage"], string> = {
   WATCHING: "Watching",
-  PRE_SALE: "Pre-sale",
+  PRE_SALE: "Proposed",
   ANNOUNCED: "Announced",
-  PENDING_REGULATORY: "Pending regulatory",
-  CLOSED: "Closed",
-  POST_LIQUIDITY: "Post-liquidity",
-  UNKNOWN: "Unknown",
+  PENDING_REGULATORY: "Pending review",
+  CLOSED: "Completed",
+  POST_LIQUIDITY: "Completed",
+  UNKNOWN: "Unclear",
 };
 
 function titleCase(value: string) {
@@ -26,6 +26,36 @@ function titleCase(value: string) {
     .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+const sourceLabels: Record<string, string> = {
+  sec: "SEC transactions",
+  cms_chow: "CMS ownership changes",
+  uspto_assignments: "USPTO patent transfers",
+  ftc_hsr: "FTC deal notices",
+  stb: "STB transportation deals",
+  gdelt: "Transaction news",
+};
+
+function sourceLabel(value: string) {
+  return sourceLabels[value] || titleCase(value);
+}
+
+function eventLabel(value: string) {
+  return (
+    {
+      SECONDARY_SALE: "Share sale",
+      BUSINESS_SALE: "Business sale",
+      BUSINESS_FOR_SALE: "Business listed for sale",
+      MERGER: "Merger",
+      ACQUISITION: "Acquisition",
+      PATENT_ASSIGNMENT: "Patent transfer",
+      OWNERSHIP_CHANGE: "Ownership change",
+      LICENSE_TRANSFER: "License transfer",
+      TRANSPORT_ASSET_TRANSFER: "Transportation asset transfer",
+      ENERGY_ASSET_TRANSFER: "Energy asset transfer",
+    }[value] || titleCase(value)
+  );
 }
 
 function money(value: number, currency = "USD") {
@@ -68,7 +98,7 @@ function amountLabel(record: MoneyMotionRecord) {
   const high = record.estimate.potentiallyDeployableHigh;
   if (low !== null && high !== null) {
     return {
-      eyebrow: "Estimated potential liquidity",
+      eyebrow: "Estimated proceeds",
       amount:
         low === high
           ? money(low, record.currency)
@@ -78,13 +108,13 @@ function amountLabel(record: MoneyMotionRecord) {
   }
   if (record.reportedTransactionValue !== null) {
     return {
-      eyebrow: "Reported transaction value",
+      eyebrow: "Reported value",
       amount: money(record.reportedTransactionValue, record.currency),
       kind: record.transactionValueClassification,
     };
   }
   return {
-    eyebrow: "Transaction value",
+    eyebrow: "Amount",
     amount: "Not disclosed",
     kind: "UNKNOWN",
   };
@@ -556,7 +586,7 @@ export function MoneyInMotionView({
   return (
     <>
       <div className="motion-disclaimer">
-        <strong>Estimate, not bank balance.</strong> {snapshot.disclaimer}
+        <strong>Estimate, not a bank balance.</strong> {snapshot.disclaimer}
       </div>
       <div
         className="motion-modes"
@@ -565,14 +595,14 @@ export function MoneyInMotionView({
       >
         {(
           [
-            ["high", "High confidence", "75+ score"],
+            ["high", "Best matches", "75+ confidence"],
             [
               "all",
-              "All signals",
+              "All events",
               `${snapshot.stats.records.toLocaleString()} records`,
             ],
-            ["pre", "Pre-liquidity", "Watching through pending"],
-            ["confirmed", "Confirmed only", "Closed and post-liquidity"],
+            ["pre", "Upcoming", "Watching through pending"],
+            ["confirmed", "Completed", "Closed public records"],
           ] as Array<[Mode, string, string]>
         ).map(([value, label, detail]) => (
           <button
@@ -588,15 +618,15 @@ export function MoneyInMotionView({
       </div>
 
       <section
-        className="motion-filter-panel"
-        aria-label="Money in Motion filters"
+        className="motion-filter-panel real-people-controls unified-directory-controls unified-event-controls"
+        aria-label="Capital event filters"
       >
         <label className="motion-search">
-          <span>Search people, companies, buyers, sellers, assets</span>
+          <span>Search people, companies, buyers, sellers, or assets</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search transaction intelligence…"
+            placeholder="Search all capital events…"
           />
         </label>
         <label>
@@ -622,7 +652,7 @@ export function MoneyInMotionView({
             <option value="">All types</option>
             {EVENT_TYPES.map((value) => (
               <option key={value} value={value}>
-                {titleCase(value)}
+                {eventLabel(value)}
               </option>
             ))}
           </select>
@@ -652,12 +682,12 @@ export function MoneyInMotionView({
           </select>
         </label>
         <label>
-          <span>Minimum signal value</span>
+          <span>Amount</span>
           <select
             value={minimum}
             onChange={(event) => setMinimum(event.target.value)}
           >
-            <option value="">Any / undisclosed</option>
+            <option value="">Any or undisclosed</option>
             <option value="1000000">$1M+</option>
             <option value="10000000">$10M+</option>
             <option value="100000000">$100M+</option>
@@ -695,12 +725,14 @@ export function MoneyInMotionView({
           >
             <option value="">All live sources</option>
             {options.sources.map((value) => (
-              <option key={value}>{value}</option>
+              <option key={value} value={value}>
+                {sourceLabel(value)}
+              </option>
             ))}
           </select>
         </label>
         <label>
-          <span>Subject</span>
+          <span>Record type</span>
           <select
             value={subjectKind}
             onChange={(event) => setSubjectKind(event.target.value)}
@@ -725,20 +757,28 @@ export function MoneyInMotionView({
         </label>
       </section>
 
-      <div className="motion-results-heading">
-        <strong>{records.length.toLocaleString()} records</strong>
-        <span>Sorted by event date · source evidence retained</span>
+      <div className="motion-results-heading unified-result-bar">
+        <strong>{records.length.toLocaleString()} event matches</strong>
+        <span>Same directory layout · public evidence retained</span>
       </div>
-      <section className="motion-card-grid">
+      <section className="motion-card-grid real-people-directory unified-event-directory">
+        <div className="real-people-row heading unified-event-heading">
+          <span>Person or company</span>
+          <span>Status</span>
+          <span>Event</span>
+          <span>Amount</span>
+          <span>Location</span>
+          <span>Evidence</span>
+        </div>
         {records.slice(0, 300).map((record) => {
           const amount = amountLabel(record);
           return (
-            <article className="motion-card" key={record.id}>
+            <article className="motion-card unified-event-row" key={record.id}>
               <div className="motion-card-top">
                 <span className={`motion-stage ${record.stage.toLowerCase()}`}>
                   {stageLabels[record.stage]}
                 </span>
-                <span>{titleCase(record.eventType)}</span>
+                <span>{eventLabel(record.eventType)}</span>
               </div>
               <h2>
                 {record.person ||
@@ -772,7 +812,7 @@ export function MoneyInMotionView({
                   <b>{record.confidence.total}</b>/100 confidence
                 </span>
                 <button type="button" onClick={() => setSelected(record)}>
-                  Review evidence →
+                  View profile →
                 </button>
               </footer>
             </article>
