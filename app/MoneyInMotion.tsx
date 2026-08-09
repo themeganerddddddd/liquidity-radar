@@ -120,7 +120,7 @@ function amountLabel(record: MoneyMotionRecord) {
   };
 }
 
-function EvidenceDrawer({
+export function EvidenceDrawer({
   record,
   onClose,
 }: {

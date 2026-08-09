@@ -84,13 +84,12 @@ test("real SEC names are searchable and open evidence-linked profiles", async ({
   await expect(
     page.getByRole("heading", { name: "Capital directory" }),
   ).toBeVisible();
-  await page
-    .getByLabel("Search people and reporting parties")
-    .fill(person.name);
+  await page.getByLabel("Search capital events").fill(person.name);
   await expect(
-    page.getByRole("button", {
-      name: `Open profile for ${person.name}`,
-    }),
+    page
+      .locator("button.sales-directory-row")
+      .filter({ hasText: person.name })
+      .first(),
   ).toBeVisible();
 });
 
@@ -156,25 +155,38 @@ test("confirmed exits, owner attribution, and saved metro alerts are usable", as
   await expect(page.getByText("Stored on this device")).toBeVisible();
 });
 
-test("Capital events exposes multi-source filters, evidence, and source health", async ({
+test("the combined capital directory exposes event details and source health", async ({
   page,
 }) => {
   await signInWithDummy(page);
   await page
     .locator(".side-nav")
-    .getByRole("button", { name: "Capital events" })
+    .getByRole("button", { name: "Search directory" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Capital events" }),
+    page.getByRole("heading", { name: "Capital directory" }),
   ).toBeVisible();
-  await expect(page.getByText("Estimate, not a bank balance.")).toBeVisible();
-  await expect(page.getByLabel("Capital event filters")).toBeVisible();
-  await expect(page.locator(".motion-card").first()).toBeVisible();
-  await page
-    .locator(".motion-card")
-    .first()
-    .getByRole("button", { name: "View profile →" })
-    .click();
+  await expect(
+    page.locator(".side-nav").getByRole("button", { name: "Capital events" }),
+  ).toHaveCount(0);
+  const headings = page.locator(".sales-directory-row.heading");
+  await expect(headings).toContainText("Name");
+  await expect(headings).toContainText("Proceeds");
+  await expect(headings).toContainText("Location");
+  await expect(headings).toContainText("Date");
+  await expect(headings).toContainText("Type");
+  await expect(headings).toContainText("Event description");
+  const rows = page.locator("button.sales-directory-row");
+  await expect(rows.first()).toBeVisible();
+  const dates = await rows.evaluateAll((items) =>
+    items
+      .slice(0, 20)
+      .map((item) => item.getAttribute("data-event-date") || ""),
+  );
+  expect(dates).toEqual(
+    [...dates].sort((left, right) => right.localeCompare(left)),
+  );
+  await rows.first().click();
   await expect(
     page.getByRole("heading", { name: "Transaction" }),
   ).toBeVisible();
@@ -194,7 +206,7 @@ test("Capital events exposes multi-source filters, evidence, and source health",
   await expect(page.getByText("FCC Universal Licensing System")).toBeVisible();
 });
 
-test("the capital directory searches every source with one profile UI", async ({
+test("the capital directory searches every source with one event UI", async ({
   page,
 }) => {
   await signInWithDummy(page);
@@ -207,22 +219,23 @@ test("the capital directory searches every source with one profile UI", async ({
   ).toBeVisible();
   const filters = page.getByLabel("Capital directory filters");
   await expect(filters).toBeVisible();
-  await filters.getByLabel("Date", { exact: true }).selectOption("");
   await filters
-    .getByLabel("Source", { exact: true })
-    .selectOption("uspto_assignments");
-  await expect(page.locator("button.people-motion-row").first()).toBeVisible();
-  await expect(page.locator("button.people-motion-row").first()).toContainText(
-    "USPTO patent transfers",
-  );
-  await page.locator("button.people-motion-row").first().click();
+    .getByLabel("Type", { exact: true })
+    .selectOption("PATENT_ASSIGNMENT");
   await expect(
-    page.getByRole("heading", { name: "Profile summary" }),
+    page.locator("button.sales-directory-row").first(),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "How the score works" }),
+    page.locator("button.sales-directory-row").first(),
+  ).toContainText("Patent sale or transfer");
+  await page.locator("button.sales-directory-row").first().click();
+  await expect(
+    page.getByRole("heading", { name: "Transaction" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Close profile" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Source timeline" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close evidence" }).click();
 });
 
 test("legacy fictional workspace routes are unavailable", async ({ page }) => {

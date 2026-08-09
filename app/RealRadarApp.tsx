@@ -67,7 +67,6 @@ const navigation: Array<{
     items: [
       { view: "dashboard", label: "Dashboard", icon: "DB" },
       { view: "people", label: "Search directory", icon: "DIR" },
-      { view: "money", label: "Capital events", icon: "EV" },
       { view: "territories", label: "Territories & alerts", icon: "AL" },
       { view: "map", label: "State map", icon: "US" },
     ],
@@ -108,7 +107,7 @@ const viewCopy: Record<
     eyebrow: "Unified public-record directory",
     title: "Capital directory",
     detail:
-      "Search people and companies from SEC, CMS, USPTO, FTC, STB, and other active public sources with one set of filters and one profile format.",
+      "Search every capital event from SEC, CMS, USPTO, FTC, STB, and other active public sources in one simple, evidence-linked directory.",
   },
   territories: {
     eyebrow: "Local business development",
@@ -1545,10 +1544,8 @@ export function RealRadarApp() {
           view="people"
           action={
             <span className="real-count-pill">
-              {(
-                motionData?.peopleInMotion.length || people.length
-              ).toLocaleString()}{" "}
-              searchable profiles
+              {(motionData?.records.length || people.length).toLocaleString()}{" "}
+              capital events
             </span>
           }
         />
