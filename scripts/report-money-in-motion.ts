@@ -87,7 +87,7 @@ ${sourceRows}
 - CMS owner records add named people only when the official all-owners dataset supplies a name. A personal liquidity estimate is not produced without transaction consideration.
 - GDELT supplies discovery and timing evidence. A headline never creates a named-person estimate, and syndicated exact-title copies count once for corroboration.
 - STB case-status records remain pending-regulatory until completion evidence is available.
-- USPTO remains CONFIGURATION_REQUIRED unless \`USPTO_API_KEY\` is configured for the current Open Data Portal.
+- USPTO is LIVE when \`USPTO_API_KEY\` is configured: the current ODP PASDL daily XML release is bounded, cached, and filtered to exclude name changes, corrective records, and security interests. No cash consideration is inferred.
 - FCC, FERC, state registries, commercial property, and broker feeds remain import-only until a documented public or licensed machine-readable feed is configured.
 - No residential address is used for lead generation.
 `;

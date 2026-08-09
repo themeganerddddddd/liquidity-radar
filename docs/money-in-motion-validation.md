@@ -1,11 +1,11 @@
 # Money in Motion validation report
 
-Generated: 2026-08-09T02:32:25.089Z
+Generated: 2026-08-09T04:36:39.348Z
 
 ## Outcome
 
-- 3,046 deduplicated transaction signals
-- 2,143 named people in the person-first view
+- 5,381 deduplicated transaction signals
+- 4,426 named people in the person-first view
 - 1,563 private-company events
 - 155 pre-close signals
 - 1,482 known or reported transaction values
@@ -25,7 +25,7 @@ Generated: 2026-08-09T02:32:25.089Z
 | GDELT transaction news | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | CMS change of ownership | LIVE | 2,381 | 1,450 | 663 | 173 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Patent and trademark assignments | CONFIGURATION_REQUIRED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| USPTO patent assignments | LIVE | 2,500 | 2,335 | 2,283 | 2,335 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 19 | 13 | 0 | 0 | 0 | 0 | 13 | — |
 | Maryland business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
@@ -47,6 +47,6 @@ Generated: 2026-08-09T02:32:25.089Z
 - CMS owner records add named people only when the official all-owners dataset supplies a name. A personal liquidity estimate is not produced without transaction consideration.
 - GDELT supplies discovery and timing evidence. A headline never creates a named-person estimate, and syndicated exact-title copies count once for corroboration.
 - STB case-status records remain pending-regulatory until completion evidence is available.
-- USPTO remains CONFIGURATION_REQUIRED unless `USPTO_API_KEY` is configured for the current Open Data Portal.
+- USPTO is LIVE when `USPTO_API_KEY` is configured: the current ODP PASDL daily XML release is bounded, cached, and filtered to exclude name changes, corrective records, and security interests. No cash consideration is inferred.
 - FCC, FERC, state registries, commercial property, and broker feeds remain import-only until a documented public or licensed machine-readable feed is configured.
 - No residential address is used for lead generation.

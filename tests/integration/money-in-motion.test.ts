@@ -84,9 +84,13 @@ describe("Money in Motion public snapshot contracts", () => {
       expect(sources.get(id)?.reason).toBeTruthy();
     }
     expect(["LIVE", "DEGRADED"]).toContain(sources.get("cms_chow")?.mode);
-    expect(sources.get("uspto_assignments")?.mode).toBe(
-      process.env.USPTO_API_KEY ? "IMPORT_ONLY" : "CONFIGURATION_REQUIRED",
-    );
+    const uspto = sources.get("uspto_assignments");
+    expect(uspto).toBeTruthy();
+    expect(
+      uspto && uspto.recordsAccepted > 0
+        ? ["LIVE", "DEGRADED"]
+        : ["LIVE", "ERROR", "CONFIGURATION_REQUIRED"],
+    ).toContain(uspto?.mode);
     expect(["LIVE", "DEGRADED", "ERROR"]).toContain(sources.get("stb")?.mode);
     for (const source of sources.values()) {
       expect(source.value).toBeTruthy();

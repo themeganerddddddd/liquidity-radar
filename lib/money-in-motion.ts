@@ -886,13 +886,13 @@ export const SOURCE_ADAPTERS: SourceAdapter[] = [
   },
   {
     id: "uspto_assignments",
-    name: "Patent and trademark assignments",
+    name: "USPTO patent assignments",
     publisher: "U.S. Patent and Trademark Office",
-    mode: usptoConfigured ? "IMPORT_ONLY" : "CONFIGURATION_REQUIRED",
-    cadence: "Daily import",
-    sourceUrl: "https://assignmentcenter.uspto.gov/",
+    mode: usptoConfigured ? "LIVE" : "CONFIGURATION_REQUIRED",
+    cadence: "Daily",
+    sourceUrl: "https://data.uspto.gov/apis/bulk-data/search",
     reason: usptoConfigured
-      ? "Current Open Data Portal access is configured. Bounded official assignment exports can be imported and conveyances are classified before use."
+      ? "Current Open Data Portal PASDL daily XML is active with bounded retention and conveyance classification."
       : "Add USPTO_API_KEY for the current Open Data Portal. Retired Developer Hub endpoints are not used.",
     normalize: () => [],
   },

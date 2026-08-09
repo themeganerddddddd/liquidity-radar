@@ -28,6 +28,11 @@ import {
   type GdeltArticle,
   type GdeltPersistentState,
 } from "../lib/gdelt-client";
+import {
+  emptyUsptoOdpState,
+  runUsptoOdpSync,
+  type UsptoOdpState,
+} from "../lib/uspto-odp";
 
 const root = process.cwd();
 const publicDataPath = path.join(root, "public", "data", "public-signals.json");
@@ -45,6 +50,12 @@ const cmsOwnerCachePath = path.join(
   "cms-owner-cache.json",
 );
 const stbStatePath = path.join(root, "public", "data", "stb-sync-state.json");
+const usptoStatePath = path.join(
+  root,
+  "public",
+  "data",
+  "uspto-sync-state.json",
+);
 const generatedAt = new Date().toISOString();
 
 async function readJson<T>(filePath: string, fallback: T): Promise<T> {
@@ -1167,11 +1178,25 @@ async function main() {
   ) as PublicDataSnapshot;
   const sec = secEvents(publicData);
   const ftc = ftcEvents(publicData);
-  const [cms, gdelt, stb] = await Promise.all([
+  const usptoState = await readJson<UsptoOdpState>(
+    usptoStatePath,
+    emptyUsptoOdpState(),
+  );
+  const [cms, gdelt, stb, uspto] = await Promise.all([
     fetchCmsChow(),
     fetchGdelt(),
     fetchStb(),
+    runUsptoOdpSync({
+      apiKey: process.env.USPTO_API_KEY?.trim() || "",
+      state: usptoState,
+      now: generatedAt,
+    }),
   ]);
+  await fs.writeFile(
+    usptoStatePath,
+    `${JSON.stringify(uspto.state)}\n`,
+    "utf8",
+  );
   const cmsOwners = await enrichCmsOwners(cms.rows);
   const allEvents = dedupeSourceEvents([
     ...sec,
@@ -1180,6 +1205,7 @@ async function main() {
     ...cmsOwners.events,
     ...gdelt.events,
     ...stb.events,
+    ...uspto.events,
   ]);
   const records = mergeClusters(allEvents.map(recordFor));
   const activeCounts = new Map<string, number>();
@@ -1228,6 +1254,8 @@ async function main() {
       health = baseHealth(adapter.id, gdelt.health);
     } else if (adapter.id === "stb") {
       health = baseHealth(adapter.id, stb.health);
+    } else if (adapter.id === "uspto_assignments") {
+      health = baseHealth(adapter.id, uspto.health);
     } else {
       health = baseHealth(adapter.id);
     }
