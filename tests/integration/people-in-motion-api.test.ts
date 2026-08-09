@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { gzipSync } from "node:zlib";
 import { GET } from "../../app/api/v1/people-in-motion/route";
 import { GET as getPublicSnapshot } from "../../app/api/money-in-motion-snapshot/route";
 
@@ -32,6 +33,56 @@ describe("People in Motion API", () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("?refresh="),
         expect.objectContaining({ cache: "force-cache" }),
+      );
+    } finally {
+      global.fetch = originalFetch;
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("falls back to the packaged snapshot when the live source is unavailable", async () => {
+    const originalFetch = global.fetch;
+    const fallback = {
+      schemaVersion: 2,
+      generatedAt: "2099-02-01T00:00:00.000Z",
+      disclaimer: "Public-record fallback",
+      stats: {
+        records: 0,
+        people: 0,
+        organizations: 0,
+        sources: 0,
+        liveSources: 0,
+        knownOrReportedValues: 0,
+        estimates: 0,
+        privateCompanyEvents: 0,
+        preCloseSignals: 0,
+        highConfidenceEstimates: 0,
+        secEstimateShare: 0,
+      },
+      records: [],
+      peopleInMotion: [],
+      sourceHealth: [],
+    };
+    vi.stubEnv("NODE_ENV", "");
+    vi.stubEnv("VITEST", "");
+    global.fetch = vi.fn(async (input) => {
+      if (String(input).includes("raw.githubusercontent.com")) {
+        return new Response(null, { status: 503 });
+      }
+      return new Response(gzipSync(JSON.stringify(fallback)), { status: 200 });
+    }) as typeof fetch;
+
+    try {
+      vi.resetModules();
+      const { loadCurrentMotionSnapshot } =
+        await import("../../lib/server-motion-snapshot");
+      const snapshot = await loadCurrentMotionSnapshot("https://radar.test/");
+
+      expect(snapshot.generatedAt).toBe(fallback.generatedAt);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        new URL("https://radar.test/data/money-in-motion.json.gz"),
+        { cache: "force-cache" },
       );
     } finally {
       global.fetch = originalFetch;

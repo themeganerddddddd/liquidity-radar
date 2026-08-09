@@ -1,5 +1,6 @@
-import { access, cp, mkdir, rm } from "node:fs/promises";
+import { access, cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 import type { Plugin } from "vite";
 
 async function exists(path: string): Promise<boolean> {
@@ -35,8 +36,24 @@ export function sites(): Plugin {
         "data",
         "money-in-motion.json",
       );
+      const packagedSnapshot = `${serverOnlySnapshot}.gz`;
+      const snapshotSource = resolve(
+        root,
+        "public",
+        "data",
+        "money-in-motion.json",
+      );
 
       await rm(outputDirectory, { recursive: true, force: true });
+      if (await exists(snapshotSource)) {
+        await mkdir(resolve(root, "dist", "client", "data"), {
+          recursive: true,
+        });
+        await writeFile(
+          packagedSnapshot,
+          gzipSync(await readFile(snapshotSource), { level: 9 }),
+        );
+      }
       await rm(serverOnlySnapshot, { force: true });
       await mkdir(outputDirectory, { recursive: true });
 

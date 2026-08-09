@@ -35,7 +35,33 @@ function isValidSnapshot(value: unknown): value is MoneyMotionSnapshot {
   );
 }
 
-export async function loadCurrentMotionSnapshot() {
+async function loadPackagedSnapshot(requestUrl?: string) {
+  if (!requestUrl) throw new Error("No packaged snapshot URL is available.");
+  const response = await fetch(
+    new URL("/data/money-in-motion.json.gz", requestUrl),
+    { cache: "force-cache" },
+  );
+  if (!response.ok) {
+    throw new Error(`Packaged snapshot request failed: ${response.status}`);
+  }
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  let contents: string;
+  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+    const decompressed = new Blob([bytes])
+      .stream()
+      .pipeThrough(new DecompressionStream("gzip"));
+    contents = await new Response(decompressed).text();
+  } else {
+    contents = new TextDecoder().decode(bytes);
+  }
+  const packaged: unknown = JSON.parse(contents);
+  if (!isValidSnapshot(packaged)) {
+    throw new Error("Invalid packaged snapshot payload");
+  }
+  return packaged;
+}
+
+export async function loadCurrentMotionSnapshot(requestUrl?: string) {
   if (process.env.NODE_ENV === "test" || process.env.VITEST) {
     return loadTestSnapshot();
   }
@@ -57,8 +83,9 @@ export async function loadCurrentMotionSnapshot() {
     return memoizedSnapshot;
   } catch {
     if (memoizedSnapshot) return memoizedSnapshot;
-    throw new Error(
-      "The live public-record snapshot is temporarily unavailable.",
-    );
+    const packaged = await loadPackagedSnapshot(requestUrl);
+    memoizedSnapshot = packaged;
+    memoizedUntil = now + refreshIntervalMs;
+    return memoizedSnapshot;
   }
 }

@@ -323,7 +323,7 @@ function EvidenceDrawer({
                   {evidence.publisher} · {dateLabel(evidence.publishedAt)}
                 </span>
                 <strong>{evidence.title}</strong>
-                <p>{evidence.excerpt}</p>
+                {evidence.excerpt && <p>{evidence.excerpt}</p>}
                 <small>{evidence.classification} · Open evidence ↗</small>
               </a>
             ))}
