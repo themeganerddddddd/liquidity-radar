@@ -601,6 +601,21 @@ export function dedupeSourceEvents(events: NormalizedSourceEvent[]) {
   );
 }
 
+/**
+ * Rail dockets are useful here only when the official record identifies a
+ * subject and reports consideration. Status-only proceedings are operational
+ * regulatory data, not evidence of attributable liquidity.
+ */
+export function isQualifiedTransportationRecord(record: MoneyMotionRecord) {
+  if (record.eventType !== "TRANSPORT_ASSET_TRANSFER") return true;
+  return (
+    record.reportedTransactionValue !== null &&
+    record.reportedTransactionValue > 0 &&
+    record.subjectKind !== "UNKNOWN" &&
+    Boolean(record.person || record.company || record.seller)
+  );
+}
+
 export function median(values: number[]) {
   if (!values.length) return null;
   const sorted = [...values].sort((left, right) => left - right);
@@ -916,7 +931,7 @@ export const SOURCE_ADAPTERS: SourceAdapter[] = [
     sourceUrl:
       "https://www.stb.gov/proceedings-actions/dockets-and-service-lists/",
     reason:
-      "Official STB case-status proceedings are polled incrementally; acquisition/control proceedings remain pre-close until completion evidence appears.",
+      "Official STB proceedings are retained only when the record identifies a subject and reports transaction consideration; status-only dockets are excluded.",
     normalize: () => [],
   },
   ...["Maryland", "District of Columbia", "Virginia"].map(

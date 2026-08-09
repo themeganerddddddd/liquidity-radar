@@ -9,6 +9,7 @@ import {
   dedupeSourceEvents,
   estimatePotentialLiquidity,
   eventClusterKey,
+  isQualifiedTransportationRecord,
   normalizeEntityName,
   scoreActionability,
   scoreConfidence,
@@ -1205,16 +1206,25 @@ async function main() {
     "utf8",
   );
   const cmsOwners = await enrichCmsOwners(cms.rows);
+  const qualifiedStbEvents = stb.events.filter(
+    (event) =>
+      event.reported_transaction_value !== null &&
+      event.reported_transaction_value > 0 &&
+      Boolean(event.subject_person || event.subject_company),
+  );
+  const rejectedStbEvents = stb.events.length - qualifiedStbEvents.length;
   const allEvents = dedupeSourceEvents([
     ...sec,
     ...ftc,
     ...cms.events,
     ...cmsOwners.events,
     ...gdelt.events,
-    ...stb.events,
+    ...qualifiedStbEvents,
     ...uspto.events,
   ]);
-  const records = mergeClusters(allEvents.map(recordFor));
+  const records = mergeClusters(allEvents.map(recordFor)).filter(
+    isQualifiedTransportationRecord,
+  );
   const activeCounts = new Map<string, number>();
   for (const event of allEvents) {
     activeCounts.set(
@@ -1260,7 +1270,11 @@ async function main() {
     } else if (adapter.id === "gdelt") {
       health = baseHealth(adapter.id, gdelt.health);
     } else if (adapter.id === "stb") {
-      health = baseHealth(adapter.id, stb.health);
+      health = baseHealth(adapter.id, {
+        ...stb.health,
+        recordsAccepted: qualifiedStbEvents.length,
+        recordsRejected: (stb.health.recordsRejected || 0) + rejectedStbEvents,
+      });
     } else if (adapter.id === "uspto_assignments") {
       health = baseHealth(adapter.id, uspto.health);
     } else {

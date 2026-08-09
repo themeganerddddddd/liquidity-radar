@@ -8,6 +8,7 @@ import {
   estimatePotentialLiquidity,
   eventClusterKey,
   estimatePrivateCompanyValue,
+  isQualifiedTransportationRecord,
   scoreActionability,
   scoreConfidence,
   type NormalizedSourceEvent,
@@ -52,6 +53,30 @@ function event(
 }
 
 describe("Money in Motion evidence rules", () => {
+  it("keeps only transportation records with a subject and reported value", () => {
+    const base = {
+      eventType: "TRANSPORT_ASSET_TRANSFER",
+      reportedTransactionValue: null,
+      subjectKind: "ORGANIZATION",
+      person: "",
+      company: "Rail Company",
+      seller: "",
+    } as MoneyMotionRecord;
+    expect(isQualifiedTransportationRecord(base)).toBe(false);
+    expect(
+      isQualifiedTransportationRecord({
+        ...base,
+        reportedTransactionValue: 25_000_000,
+      }),
+    ).toBe(true);
+    expect(
+      isQualifiedTransportationRecord({
+        ...base,
+        reportedTransactionValue: 25_000_000,
+        subjectKind: "UNKNOWN",
+      }),
+    ).toBe(false);
+  });
   it("does not create a personal estimate without a transaction value", () => {
     const estimate = estimatePotentialLiquidity({
       transactionValue: null,

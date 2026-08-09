@@ -52,6 +52,17 @@ describe("Money in Motion public snapshot contracts", () => {
     }
   });
 
+  it("excludes transportation dockets without attributable monetary figures", () => {
+    for (const record of snapshot.records.filter(
+      (item) => item.eventType === "TRANSPORT_ASSET_TRANSFER",
+    )) {
+      expect(record.reportedTransactionValue).not.toBeNull();
+      expect(record.reportedTransactionValue).toBeGreaterThan(0);
+      expect(record.subjectKind).not.toBe("UNKNOWN");
+      expect(record.person || record.company || record.seller).toBeTruthy();
+    }
+  });
+
   it("requires value and attribution evidence for every personal estimate", () => {
     for (const record of snapshot.records) {
       if (record.estimate.potentiallyDeployableHigh === null) continue;

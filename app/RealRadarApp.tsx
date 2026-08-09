@@ -9,6 +9,7 @@ import type {
   MoneyMotionRecord,
   MoneyMotionSnapshot,
 } from "../lib/money-in-motion";
+import { isQualifiedTransportationRecord } from "../lib/money-in-motion";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
 import { normalizePublicLocation } from "../lib/public-locations";
 import { uniqueCompletedSaleGross } from "../lib/valuation-safety";
@@ -1585,7 +1586,10 @@ export function RealRadarApp() {
           view="people"
           action={
             <span className="real-count-pill">
-              {(motionData?.records.length || people.length).toLocaleString()}{" "}
+              {(
+                motionData?.records.filter(isQualifiedTransportationRecord)
+                  .length || people.length
+              ).toLocaleString()}{" "}
               capital events
             </span>
           }

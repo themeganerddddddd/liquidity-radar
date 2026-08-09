@@ -179,6 +179,11 @@ test("the combined capital directory exposes event details and source health", a
   await expect(filters.getByLabel("Search event locations")).toBeVisible();
   await expect(filters.getByLabel("Date range")).toBeVisible();
   await expect(filters.getByLabel("Minimum proceeds")).toBeVisible();
+  await expect(
+    filters
+      .getByLabel("Type")
+      .locator('option[value="TRANSPORT_ASSET_TRANSFER"]'),
+  ).toHaveCount(0);
   const headings = page.locator(".sales-directory-row.heading");
   await expect(headings).toContainText("Name");
   await expect(headings).toContainText("Proceeds");
@@ -200,6 +205,20 @@ test("the combined capital directory exposes event details and source health", a
   }
   const rows = page.locator(".sales-directory-row:not(.heading)");
   await expect(rows.first()).toBeVisible();
+  const cellBoxes = await rows
+    .first()
+    .locator(":scope > span")
+    .evaluateAll((cells) =>
+      cells.map((cell) => {
+        const box = cell.getBoundingClientRect();
+        return { left: box.left, right: box.right };
+      }),
+    );
+  for (let index = 0; index < cellBoxes.length - 1; index += 1) {
+    expect(cellBoxes[index].right).toBeLessThanOrEqual(
+      cellBoxes[index + 1].left + 0.5,
+    );
+  }
   const dates = await rows.evaluateAll((items) =>
     items
       .slice(0, 20)

@@ -5,6 +5,7 @@ import type {
   MoneyMotionRecord,
   MoneyMotionSnapshot,
 } from "../lib/money-in-motion";
+import { isQualifiedTransportationRecord } from "../lib/money-in-motion";
 
 type SortKey = "name" | "proceeds" | "location" | "date" | "type" | "event";
 type SortDirection = "asc" | "desc";
@@ -231,8 +232,14 @@ export function PeopleInMotionView({
 
   const eventTypes = useMemo(
     () =>
-      [...new Set(snapshot.records.map((record) => record.eventType))].sort(
-        (left, right) => eventLabel(left).localeCompare(eventLabel(right)),
+      [
+        ...new Set(
+          snapshot.records
+            .filter(isQualifiedTransportationRecord)
+            .map((record) => record.eventType),
+        ),
+      ].sort((left, right) =>
+        eventLabel(left).localeCompare(eventLabel(right)),
       ),
     [snapshot.records],
   );
@@ -244,6 +251,7 @@ export function PeopleInMotionView({
       ? Date.parse(snapshot.generatedAt) - Number(dateWindow) * 86_400_000
       : 0;
     return snapshot.records
+      .filter(isQualifiedTransportationRecord)
       .filter((record) => {
         const recordDate = Date.parse(
           `${(record.eventDate || record.publishedAt).slice(0, 10)}T00:00:00Z`,
