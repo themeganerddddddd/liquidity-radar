@@ -32,7 +32,7 @@ export async function loadCurrentMotionSnapshot() {
     const response = await fetch(`${upstreamUrl}?refresh=${refreshBucket}`, {
       cache: "force-cache",
       headers: { "User-Agent": "LiquidityRadar/0.2 snapshot-reader" },
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(45_000),
     });
     if (!response.ok) return localSnapshot;
     const upstream: unknown = await response.json();
