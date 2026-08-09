@@ -1,8 +1,44 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { GET } from "../../app/api/v1/people-in-motion/route";
 import { GET as getPublicSnapshot } from "../../app/api/money-in-motion-snapshot/route";
 
 describe("People in Motion API", () => {
+  it("keeps live refreshes enabled when a hosted runtime omits NODE_ENV", async () => {
+    const originalFetch = global.fetch;
+    const upstream = {
+      schemaVersion: 2,
+      generatedAt: "2099-01-01T00:00:00.000Z",
+      records: [],
+      peopleInMotion: [],
+      sourceHealth: [],
+    };
+    vi.stubEnv("NODE_ENV", "");
+    vi.stubEnv("VITEST", "");
+    global.fetch = vi.fn(
+      async () =>
+        new Response(JSON.stringify(upstream), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    ) as typeof fetch;
+
+    try {
+      vi.resetModules();
+      const { loadCurrentMotionSnapshot } =
+        await import("../../lib/server-motion-snapshot");
+      const refreshed = await loadCurrentMotionSnapshot();
+
+      expect(refreshed.generatedAt).toBe(upstream.generatedAt);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("?refresh="),
+        expect.objectContaining({ cache: "force-cache" }),
+      );
+    } finally {
+      global.fetch = originalFetch;
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("serves the current v2 snapshot through the same-origin refresh endpoint", async () => {
     const response = await getPublicSnapshot();
     const payload = (await response.json()) as {
