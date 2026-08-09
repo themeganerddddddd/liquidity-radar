@@ -1,12 +1,12 @@
 # Money in Motion validation report
 
-Generated: 2026-08-09T18:45:54.926Z
+Generated: 2026-08-09T20:55:02.966Z
 
 ## Outcome
 
-- 6,751 deduplicated transaction signals
-- 5,112 named people in the person-first view
-- 2,933 private-company events
+- 6,924 deduplicated transaction signals
+- 5,169 named people in the person-first view
+- 3,106 private-company events
 - 155 pre-close signals
 - 1,482 known or reported transaction values
 - 737 evidence-linked personal liquidity estimates
@@ -23,9 +23,9 @@ Generated: 2026-08-09T18:45:54.926Z
 | SEC EDGAR transactions | LIVE | 1,487 | 1,483 | 1,480 | 737 | 1,482 | 737 | 42 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| CMS change of ownership | LIVE | 4,975 | 2,820 | 1,349 | 524 | 0 | 0 | 0 | — |
+| CMS change of ownership | LIVE | 5,231 | 2,993 | 1,406 | 573 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| USPTO patent assignments | DEGRADED | 2,500 | 2,335 | 2,283 | 2,335 | 0 | 0 | 0 | — |
+| USPTO patent assignments | LIVE | 2,500 | 2,335 | 2,283 | 2,335 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 19 | 13 | 0 | 0 | 0 | 0 | 13 | — |
 | Maryland business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
