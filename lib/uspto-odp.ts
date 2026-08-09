@@ -64,6 +64,24 @@ export function emptyUsptoOdpState(): UsptoOdpState {
   };
 }
 
+export function retainRecentUsptoEvents(
+  current: NormalizedSourceEvent[],
+  cached: NormalizedSourceEvent[],
+) {
+  const events = new Map<string, NormalizedSourceEvent>();
+  for (const event of [...current, ...cached]) {
+    const key = `${event.source_id}:${event.external_record_id}`;
+    if (!events.has(key)) events.set(key, event);
+  }
+  return [...events.values()]
+    .sort(
+      (left, right) =>
+        right.event_date.localeCompare(left.event_date) ||
+        right.published_at.localeCompare(left.published_at),
+    )
+    .slice(0, MAX_EVENTS);
+}
+
 function decodeXml(value: string) {
   return value
     .replaceAll("&amp;", "&")
@@ -464,15 +482,25 @@ export async function runUsptoOdpSync(input: {
         events: [] as NormalizedSourceEvent[],
       },
     );
-    parsed.events = parsed.events.slice(0, MAX_EVENTS);
+    const retainedEvents = retainRecentUsptoEvents(
+      parsed.events,
+      input.state.events,
+    );
+    const uniqueEventCount = new Set(
+      [...parsed.events, ...input.state.events].map(
+        (event) => `${event.source_id}:${event.external_record_id}`,
+      ),
+    ).size;
     const state: UsptoOdpState = {
       version: 1,
       updatedAt: input.now,
       fileName: latest.fileName,
       fileReleaseDate: publishedAt,
-      recordsSeen: parsed.recordsSeen,
-      recordsRejected: parsed.recordsRejected,
-      events: parsed.events,
+      recordsSeen: Math.max(parsed.recordsSeen, retainedEvents.length),
+      recordsRejected:
+        parsed.recordsRejected +
+        Math.max(0, uniqueEventCount - retainedEvents.length),
+      events: retainedEvents,
     };
     return {
       state,
@@ -490,7 +518,7 @@ export async function runUsptoOdpSync(input: {
         watermark: publishedAt,
         requests,
         successfulQueries: requests,
-        reason: `Current ODP PASDL daily XML is active. Up to ${MAX_EVENTS.toLocaleString("en-US")} events from the latest release are retained; name changes, corrective records, and security interests are excluded, and no cash value is inferred.`,
+        reason: `Current ODP PASDL daily XML is active. Up to ${MAX_EVENTS.toLocaleString("en-US")} recent events are retained across daily releases; name changes, corrective records, and security interests are excluded, and no cash value is inferred.`,
       } satisfies UsptoOdpHealth,
     };
   } catch (error) {

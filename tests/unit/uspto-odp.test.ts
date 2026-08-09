@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { parseUsptoAssignmentXml } from "../../lib/uspto-odp";
+import {
+  parseUsptoAssignmentXml,
+  retainRecentUsptoEvents,
+} from "../../lib/uspto-odp";
 
 const context = {
   retrievedAt: "2026-08-09T04:00:00.000Z",
@@ -56,5 +59,13 @@ describe("USPTO current ODP assignment parser", () => {
     expect(result.recordsSeen).toBe(2);
     expect(result.recordsAccepted).toBe(0);
     expect(result.recordsRejected).toBe(2);
+  });
+
+  it("retains prior accepted assignments when a new daily file has no qualifying transfers", () => {
+    const xml = `<us-patent-assignments>${assignment("ASSIGNMENT OF ASSIGNOR&apos;S INTEREST", "70016", "DOE, JANE A.")}</us-patent-assignments>`;
+    const cached = parseUsptoAssignmentXml(xml, context).events;
+
+    expect(retainRecentUsptoEvents([], cached)).toEqual(cached);
+    expect(retainRecentUsptoEvents(cached, cached)).toHaveLength(1);
   });
 });

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { gzipSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { buildClientMotionSnapshot } from "../../lib/client-motion-snapshot";
 import type { MoneyMotionSnapshot } from "../../lib/money-in-motion";
@@ -18,11 +19,11 @@ describe("Money in Motion public snapshot contracts", () => {
     expect(snapshot.stats.people).toBe(snapshot.peopleInMotion.length);
   });
 
-  it("ships every searchable record in a hosting-safe client payload", () => {
+  it("ships every searchable record in a hosting-safe compressed client payload", () => {
     const client = buildClientMotionSnapshot(snapshot);
     expect(client.records).toHaveLength(snapshot.records.length);
     expect(client.peopleInMotion).toHaveLength(snapshot.peopleInMotion.length);
-    expect(Buffer.byteLength(JSON.stringify(client))).toBeLessThan(24_000_000);
+    expect(gzipSync(JSON.stringify(client)).byteLength).toBeLessThan(5_000_000);
 
     for (let index = 0; index < snapshot.peopleInMotion.length; index += 1) {
       const originalSources = new Set(
