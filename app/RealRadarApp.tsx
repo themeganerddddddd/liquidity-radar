@@ -40,6 +40,24 @@ type WorkspaceView =
   | "monitor"
   | "sources";
 
+const liveMotionSnapshotUrl =
+  "https://raw.githubusercontent.com/themeganerddddddd/liquidity-radar/main/public/data/money-in-motion-client.json.gz";
+
+async function decodeMotionSnapshot(response: Response) {
+  if (!response.ok) throw new Error("Money-in-motion refresh failed.");
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  let contents: string;
+  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+    const decompressed = new Blob([bytes])
+      .stream()
+      .pipeThrough(new DecompressionStream("gzip"));
+    contents = await new Response(decompressed).text();
+  } else {
+    contents = new TextDecoder().decode(bytes);
+  }
+  return JSON.parse(contents) as MoneyMotionSnapshot;
+}
+
 const navigation: Array<{
   label: string;
   items: Array<{ view: WorkspaceView; label: string; icon: string }>;
@@ -1424,14 +1442,26 @@ export function RealRadarApp() {
   useEffect(() => {
     if (!ready || !signedIn) return;
     const controller = new AbortController();
-    void fetch("/api/money-in-motion-snapshot", {
-      signal: controller.signal,
-      cache: "no-store",
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Money-in-motion refresh failed.");
-        return response.json() as Promise<MoneyMotionSnapshot>;
-      })
+    const refreshBucket = Math.floor(Date.now() / (5 * 60 * 1000));
+    const loadSnapshot = async () => {
+      const candidates = [
+        `${liveMotionSnapshotUrl}?refresh=${refreshBucket}`,
+        "/data/money-in-motion-client.json.gz",
+      ];
+      for (const candidate of candidates) {
+        try {
+          const response = await fetch(candidate, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+          return await decodeMotionSnapshot(response);
+        } catch {
+          if (controller.signal.aborted) throw new Error("Request aborted.");
+        }
+      }
+      throw new Error("Money-in-motion refresh failed.");
+    };
+    void loadSnapshot()
       .then(setMotionData)
       .catch(() => {
         // A reload retries the checked-in source snapshot.

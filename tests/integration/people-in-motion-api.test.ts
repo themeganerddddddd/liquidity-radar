@@ -81,7 +81,7 @@ describe("People in Motion API", () => {
       expect(snapshot.generatedAt).toBe(fallback.generatedAt);
       expect(global.fetch).toHaveBeenCalledTimes(2);
       expect(global.fetch).toHaveBeenLastCalledWith(
-        new URL("https://radar.test/data/money-in-motion.json.gz"),
+        new URL("https://radar.test/data/money-in-motion-client.json.gz"),
         { cache: "force-cache" },
       );
     } finally {

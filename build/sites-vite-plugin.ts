@@ -1,7 +1,7 @@
-import { access, cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, rm } from "node:fs/promises";
 import { resolve } from "node:path";
-import { gzipSync } from "node:zlib";
 import type { Plugin } from "vite";
+import { writeClientMotionSnapshot } from "../scripts/write-client-motion-snapshot";
 
 async function exists(path: string): Promise<boolean> {
   try {
@@ -36,7 +36,13 @@ export function sites(): Plugin {
         "data",
         "money-in-motion.json",
       );
-      const packagedSnapshot = `${serverOnlySnapshot}.gz`;
+      const packagedSnapshot = resolve(
+        root,
+        "dist",
+        "client",
+        "data",
+        "money-in-motion-client.json.gz",
+      );
       const snapshotSource = resolve(
         root,
         "public",
@@ -49,10 +55,7 @@ export function sites(): Plugin {
         await mkdir(resolve(root, "dist", "client", "data"), {
           recursive: true,
         });
-        await writeFile(
-          packagedSnapshot,
-          gzipSync(await readFile(snapshotSource), { level: 9 }),
-        );
+        await writeClientMotionSnapshot(snapshotSource, packagedSnapshot);
       }
       await rm(serverOnlySnapshot, { force: true });
       await mkdir(outputDirectory, { recursive: true });

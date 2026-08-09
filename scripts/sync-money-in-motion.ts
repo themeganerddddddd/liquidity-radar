@@ -33,10 +33,17 @@ import {
   runUsptoOdpSync,
   type UsptoOdpState,
 } from "../lib/uspto-odp";
+import { writeClientMotionSnapshot } from "./write-client-motion-snapshot";
 
 const root = process.cwd();
 const publicDataPath = path.join(root, "public", "data", "public-signals.json");
 const outputPath = path.join(root, "public", "data", "money-in-motion.json");
+const clientOutputPath = path.join(
+  root,
+  "public",
+  "data",
+  "money-in-motion-client.json.gz",
+);
 const gdeltStatePath = path.join(
   root,
   "public",
@@ -1320,6 +1327,7 @@ async function main() {
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, `${JSON.stringify(snapshot)}\n`, "utf8");
+  await writeClientMotionSnapshot(outputPath, clientOutputPath);
   console.log(
     `Money in Motion: ${records.length} clustered records from ${activeCounts.size} active sources (${snapshot.stats.estimates} evidence-linked estimates).`,
   );

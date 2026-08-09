@@ -1,7 +1,7 @@
 import type { MoneyMotionSnapshot } from "./money-in-motion";
 
 const upstreamUrl =
-  "https://raw.githubusercontent.com/themeganerddddddd/liquidity-radar/main/public/data/money-in-motion.json";
+  "https://raw.githubusercontent.com/themeganerddddddd/liquidity-radar/main/public/data/money-in-motion-client.json.gz";
 const refreshIntervalMs = 5 * 60 * 1000;
 
 let memoizedSnapshot: MoneyMotionSnapshot | null = null;
@@ -35,14 +35,9 @@ function isValidSnapshot(value: unknown): value is MoneyMotionSnapshot {
   );
 }
 
-async function loadPackagedSnapshot(requestUrl?: string) {
-  if (!requestUrl) throw new Error("No packaged snapshot URL is available.");
-  const response = await fetch(
-    new URL("/data/money-in-motion.json.gz", requestUrl),
-    { cache: "force-cache" },
-  );
+async function parseSnapshotResponse(response: Response) {
   if (!response.ok) {
-    throw new Error(`Packaged snapshot request failed: ${response.status}`);
+    throw new Error(`Snapshot request failed: ${response.status}`);
   }
   const bytes = new Uint8Array(await response.arrayBuffer());
   let contents: string;
@@ -54,11 +49,20 @@ async function loadPackagedSnapshot(requestUrl?: string) {
   } else {
     contents = new TextDecoder().decode(bytes);
   }
-  const packaged: unknown = JSON.parse(contents);
-  if (!isValidSnapshot(packaged)) {
-    throw new Error("Invalid packaged snapshot payload");
+  const snapshot: unknown = JSON.parse(contents);
+  if (!isValidSnapshot(snapshot)) {
+    throw new Error("Invalid snapshot payload");
   }
-  return packaged;
+  return snapshot;
+}
+
+async function loadPackagedSnapshot(requestUrl?: string) {
+  if (!requestUrl) throw new Error("No packaged snapshot URL is available.");
+  const response = await fetch(
+    new URL("/data/money-in-motion-client.json.gz", requestUrl),
+    { cache: "force-cache" },
+  );
+  return parseSnapshotResponse(response);
 }
 
 export async function loadCurrentMotionSnapshot(requestUrl?: string) {
@@ -74,10 +78,7 @@ export async function loadCurrentMotionSnapshot(requestUrl?: string) {
       headers: { "User-Agent": "LiquidityRadar/0.2 snapshot-reader" },
       signal: AbortSignal.timeout(45_000),
     });
-    if (!response.ok)
-      throw new Error(`Snapshot request failed: ${response.status}`);
-    const upstream: unknown = await response.json();
-    if (!isValidSnapshot(upstream)) throw new Error("Invalid snapshot payload");
+    const upstream = await parseSnapshotResponse(response);
     memoizedSnapshot = upstream;
     memoizedUntil = now + refreshIntervalMs;
     return memoizedSnapshot;
