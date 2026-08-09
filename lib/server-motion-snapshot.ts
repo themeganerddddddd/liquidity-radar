@@ -1,3 +1,4 @@
+import { gunzipSync, strFromU8 } from "fflate";
 import type { MoneyMotionSnapshot } from "./money-in-motion";
 
 const upstreamUrl =
@@ -40,15 +41,10 @@ async function parseSnapshotResponse(response: Response) {
     throw new Error(`Snapshot request failed: ${response.status}`);
   }
   const bytes = new Uint8Array(await response.arrayBuffer());
-  let contents: string;
-  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
-    const decompressed = new Blob([bytes])
-      .stream()
-      .pipeThrough(new DecompressionStream("gzip"));
-    contents = await new Response(decompressed).text();
-  } else {
-    contents = new TextDecoder().decode(bytes);
-  }
+  const contents =
+    bytes[0] === 0x1f && bytes[1] === 0x8b
+      ? strFromU8(gunzipSync(bytes))
+      : strFromU8(bytes);
   const snapshot: unknown = JSON.parse(contents);
   if (!isValidSnapshot(snapshot)) {
     throw new Error("Invalid snapshot payload");

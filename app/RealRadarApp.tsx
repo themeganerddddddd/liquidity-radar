@@ -1443,29 +1443,38 @@ export function RealRadarApp() {
     if (!ready || !signedIn) return;
     const controller = new AbortController();
     const refreshBucket = Math.floor(Date.now() / (5 * 60 * 1000));
-    const loadSnapshot = async () => {
-      const candidates = [
-        `${liveMotionSnapshotUrl}?refresh=${refreshBucket}`,
-        "/data/money-in-motion-client.json.gz",
-      ];
-      for (const candidate of candidates) {
-        try {
-          const response = await fetch(candidate, {
-            signal: controller.signal,
-            cache: "no-store",
-          });
-          return await decodeMotionSnapshot(response);
-        } catch {
-          if (controller.signal.aborted) throw new Error("Request aborted.");
-        }
+    const loadCandidate = async (url: string) =>
+      decodeMotionSnapshot(
+        await fetch(url, {
+          signal: controller.signal,
+          cache: "no-store",
+        }),
+      );
+    const loadSnapshots = async () => {
+      let packaged: MoneyMotionSnapshot | null = null;
+      try {
+        packaged = await loadCandidate("/data/money-in-motion-client.json.gz");
+        setMotionData(packaged);
+      } catch {
+        if (controller.signal.aborted) throw new Error("Request aborted.");
       }
+      try {
+        const live = await loadCandidate(
+          `${liveMotionSnapshotUrl}?refresh=${refreshBucket}`,
+        );
+        if (!packaged || live.generatedAt > packaged.generatedAt) {
+          setMotionData(live);
+        }
+        return;
+      } catch {
+        if (controller.signal.aborted) throw new Error("Request aborted.");
+      }
+      if (packaged) return;
       throw new Error("Money-in-motion refresh failed.");
     };
-    void loadSnapshot()
-      .then(setMotionData)
-      .catch(() => {
-        // A reload retries the checked-in source snapshot.
-      });
+    void loadSnapshots().catch(() => {
+      // A reload retries the checked-in source snapshot.
+    });
     return () => controller.abort();
   }, [ready, signedIn]);
 
