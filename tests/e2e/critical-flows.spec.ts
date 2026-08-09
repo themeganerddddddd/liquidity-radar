@@ -38,10 +38,9 @@ test("the restored workspace shell loads its official dashboard", async ({
     page.getByRole("heading", { name: "State activity pulse" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "SEC filings" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Current public filings" }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "SEC filings" })).toHaveCount(
+    0,
+  );
 
   await page.getByRole("button", { name: "Methodology", exact: true }).click();
   await expect(
@@ -85,12 +84,16 @@ test("real SEC names are searchable and open evidence-linked profiles", async ({
     page.getByRole("heading", { name: "Capital directory" }),
   ).toBeVisible();
   await page.getByLabel("Search capital events").fill(person.name);
-  await expect(
-    page
-      .locator("button.sales-directory-row")
-      .filter({ hasText: person.name })
-      .first(),
-  ).toBeVisible();
+  const directoryMatch = page
+    .locator(".sales-directory-row:not(.heading)")
+    .filter({ hasText: person.name })
+    .first();
+  await expect(directoryMatch).toBeVisible();
+  await directoryMatch
+    .getByRole("button", { name: `Open profile for ${person.name}` })
+    .click();
+  await expect(page.getByRole("heading", { name: person.name })).toBeVisible();
+  await expect(page.getByText("Estimate, not bank balance")).toBeVisible();
 });
 
 test("a browser-local test account can register and retain its session", async ({
@@ -169,6 +172,13 @@ test("the combined capital directory exposes event details and source health", a
   await expect(
     page.locator(".side-nav").getByRole("button", { name: "Capital events" }),
   ).toHaveCount(0);
+  await expect(
+    page.locator(".side-nav").getByRole("button", { name: "SEC filings" }),
+  ).toHaveCount(0);
+  const filters = page.getByLabel("Capital directory filters");
+  await expect(filters.getByLabel("Search event locations")).toBeVisible();
+  await expect(filters.getByLabel("Date range")).toBeVisible();
+  await expect(filters.getByLabel("Minimum proceeds")).toBeVisible();
   const headings = page.locator(".sales-directory-row.heading");
   await expect(headings).toContainText("Name");
   await expect(headings).toContainText("Proceeds");
@@ -176,7 +186,19 @@ test("the combined capital directory exposes event details and source health", a
   await expect(headings).toContainText("Date");
   await expect(headings).toContainText("Type");
   await expect(headings).toContainText("Event description");
-  const rows = page.locator("button.sales-directory-row");
+  for (const label of [
+    "Name",
+    "Proceeds",
+    "Location",
+    "Date",
+    "Type",
+    "Event description",
+  ]) {
+    await expect(
+      headings.getByRole("button", { name: new RegExp(`Sort by ${label}`) }),
+    ).toBeVisible();
+  }
+  const rows = page.locator(".sales-directory-row:not(.heading)");
   await expect(rows.first()).toBeVisible();
   const dates = await rows.evaluateAll((items) =>
     items
@@ -186,14 +208,26 @@ test("the combined capital directory exposes event details and source health", a
   expect(dates).toEqual(
     [...dates].sort((left, right) => right.localeCompare(left)),
   );
-  await rows.first().click();
+  await headings
+    .getByRole("button", { name: "Sort by Date ascending" })
+    .click();
+  const ascendingDates = await rows.evaluateAll((items) =>
+    items
+      .slice(0, 20)
+      .map((item) => item.getAttribute("data-event-date") || ""),
+  );
+  expect(ascendingDates).toEqual(
+    [...ascendingDates].sort((left, right) => left.localeCompare(right)),
+  );
+  await rows
+    .first()
+    .getByRole("button", { name: /Open event details/ })
+    .click();
   await expect(
-    page.getByRole("heading", { name: "Transaction" }),
+    page.getByRole("heading", { name: "Public capital events" }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Source timeline" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Close evidence" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("button", { name: "← Capital directory" }).click();
 
   await page
     .locator(".side-nav")
@@ -223,19 +257,23 @@ test("the capital directory searches every source with one event UI", async ({
     .getByLabel("Type", { exact: true })
     .selectOption("PATENT_ASSIGNMENT");
   await expect(
-    page.locator("button.sales-directory-row").first(),
+    page.locator(".sales-directory-row:not(.heading)").first(),
   ).toBeVisible();
   await expect(
-    page.locator("button.sales-directory-row").first(),
+    page.locator(".sales-directory-row:not(.heading)").first(),
   ).toContainText("Patent sale or transfer");
-  await page.locator("button.sales-directory-row").first().click();
   await expect(
-    page.getByRole("heading", { name: "Transaction" }),
-  ).toBeVisible();
+    page.locator(".sales-directory-row:not(.heading)").first(),
+  ).toContainText("USPTO assignment record does not state consideration");
+  await page
+    .locator(".sales-directory-row:not(.heading)")
+    .first()
+    .getByRole("button", { name: /Open profile for/ })
+    .click();
   await expect(
-    page.getByRole("heading", { name: "Source timeline" }),
+    page.getByRole("heading", { name: "Public capital events" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Close evidence" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
 test("legacy fictional workspace routes are unavailable", async ({ page }) => {

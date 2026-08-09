@@ -5,7 +5,10 @@ import type {
   PublicDataSnapshot,
   PublicLiquidityChunk,
 } from "../lib/public-data";
-import type { MoneyMotionSnapshot } from "../lib/money-in-motion";
+import type {
+  MoneyMotionRecord,
+  MoneyMotionSnapshot,
+} from "../lib/money-in-motion";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
 import { normalizePublicLocation } from "../lib/public-locations";
 import { uniqueCompletedSaleGross } from "../lib/valuation-safety";
@@ -16,7 +19,7 @@ import {
 } from "./RealPeople";
 import { PublicStateMap } from "./PublicStateMap";
 import { MoneyInMotionView } from "./MoneyInMotion";
-import { PeopleInMotionView } from "./PeopleInMotion";
+import { MotionRecordProfile, PeopleInMotionView } from "./PeopleInMotion";
 import { TerritoriesView } from "./TerritoriesView";
 import {
   clearTestSession,
@@ -30,6 +33,7 @@ type WorkspaceView =
   | "map"
   | "people"
   | "profile"
+  | "event_profile"
   | "territories"
   | "filings"
   | "exits"
@@ -58,6 +62,17 @@ async function decodeMotionSnapshot(response: Response) {
   return JSON.parse(contents) as MoneyMotionSnapshot;
 }
 
+function profileNameKey(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .replace(/\b(jr|sr|ii|iii|iv)\b/g, " ")
+      .match(/[a-z0-9]+/g)
+      ?.sort()
+      .join(" ") || ""
+  );
+}
+
 const navigation: Array<{
   label: string;
   items: Array<{ view: WorkspaceView; label: string; icon: string }>;
@@ -73,10 +88,7 @@ const navigation: Array<{
   },
   {
     label: "Records",
-    items: [
-      { view: "exits", label: "Business sales", icon: "M&A" },
-      { view: "filings", label: "SEC filings", icon: "4" },
-    ],
+    items: [{ view: "exits", label: "Business sales", icon: "M&A" }],
   },
   {
     label: "Sources",
@@ -120,6 +132,12 @@ const viewCopy: Record<
     title: "Evidence-linked profile",
     detail:
       "Review the public records and issuer relationships attached to this reporting party.",
+  },
+  event_profile: {
+    eyebrow: "Evidence-linked capital profile",
+    title: "Capital event profile",
+    detail:
+      "Review the public transaction, value coverage, related events, location, and source evidence attached to this record.",
   },
   filings: {
     eyebrow: "SEC EDGAR",
@@ -1353,6 +1371,7 @@ export function RealRadarApp() {
   const [mobileNav, setMobileNav] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedPersonId, setSelectedPersonId] = useState("");
+  const [selectedMotionRecordId, setSelectedMotionRecordId] = useState("");
   const [data, setData] = useState<PublicDataSnapshot | null>(null);
   const [motionData, setMotionData] = useState<MoneyMotionSnapshot | null>(
     null,
@@ -1363,6 +1382,9 @@ export function RealRadarApp() {
     : { startDate: "", endDate: "", days: 0, label: "Loading coverage…" };
   const selectedPerson =
     people.find((person) => person.id === selectedPersonId) ?? people[0];
+  const selectedMotionRecord = motionData?.records.find(
+    (record) => record.id === selectedMotionRecordId,
+  );
   const ready = useSyncExternalStore(
     subscribeToHydration,
     () => true,
@@ -1490,6 +1512,25 @@ export function RealRadarApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const openMotionRecord = (record: MoneyMotionRecord) => {
+    const linkedSecPerson = record.evidence.some(
+      (evidence) => evidence.sourceId === "sec",
+    )
+      ? people.find(
+          (person) =>
+            profileNameKey(person.name) === profileNameKey(record.person),
+        )
+      : undefined;
+    if (linkedSecPerson) {
+      openPerson(linkedSecPerson);
+      return;
+    }
+    setSelectedMotionRecordId(record.id);
+    setView("event_profile");
+    setQuery("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const openDirectorySearch = (nextQuery: string) => {
     setQuery(nextQuery);
     setView("people");
@@ -1554,6 +1595,7 @@ export function RealRadarApp() {
             snapshot={motionData}
             query={query}
             onQuery={setQuery}
+            onOpenRecord={openMotionRecord}
           />
         ) : (
           <div className="motion-inline-loading">
@@ -1569,6 +1611,14 @@ export function RealRadarApp() {
         people={people}
         onBack={() => navigate("people")}
         onPerson={openPerson}
+      />
+    );
+  } else if (view === "event_profile" && motionData && selectedMotionRecord) {
+    content = (
+      <MotionRecordProfile
+        snapshot={motionData}
+        record={selectedMotionRecord}
+        onBack={() => navigate("people")}
       />
     );
   } else if (view === "filings") {
@@ -1600,6 +1650,7 @@ export function RealRadarApp() {
             snapshot={motionData}
             query={query}
             onQuery={setQuery}
+            onOpenRecord={openMotionRecord}
           />
         ) : (
           <div className="motion-inline-loading">
