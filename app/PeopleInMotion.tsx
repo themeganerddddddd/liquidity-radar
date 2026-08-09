@@ -88,10 +88,21 @@ function recordName(record: MoneyMotionRecord) {
   );
 }
 
+function placePart(value: string) {
+  const trimmed = value.trim();
+  if (trimmed.length > 3 && /[A-Z]/.test(trimmed) && !/[a-z]/.test(trimmed)) {
+    return trimmed
+      .toLowerCase()
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+  return trimmed;
+}
+
 function place(record: MoneyMotionRecord) {
   return (
     [record.location.country, record.location.state, record.location.city]
       .filter(Boolean)
+      .map(placePart)
       .join(" · ") || "Location not established"
   );
 }
