@@ -1,29 +1,29 @@
 # Money in Motion validation report
 
-Generated: 2026-08-10T09:52:25.979Z
+Generated: 2026-08-10T13:48:58.160Z
 
 ## Outcome
 
-- 8,053 deduplicated transaction signals
-- 5,501 named people in the person-first view
-- 4,235 private-company events
+- 8,253 deduplicated transaction signals
+- 5,611 named people in the person-first view
+- 4,432 private-company events
 - 142 pre-close signals
-- 1,482 known or reported transaction values
-- 737 evidence-linked personal liquidity estimates
-- 737 high-confidence estimates
+- 1,485 known or reported transaction values
+- 738 evidence-linked personal liquidity estimates
+- 738 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 737 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 738 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,487 | 1,483 | 1,480 | 737 | 1,482 | 737 | 42 | 0 |
+| SEC EDGAR transactions | LIVE | 1,490 | 1,486 | 1,483 | 738 | 1,485 | 738 | 42 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| CMS change of ownership | LIVE | 7,191 | 4,135 | 1,739 | 725 | 0 | 0 | 0 | — |
+| CMS change of ownership | LIVE | 7,547 | 4,332 | 1,846 | 773 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | USPTO patent assignments | LIVE | 2,500 | 2,335 | 2,283 | 2,335 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
