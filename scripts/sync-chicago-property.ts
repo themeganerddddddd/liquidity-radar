@@ -47,6 +47,10 @@ const legacyStatePath = path.join(
   "chicago-property-sync-state.json",
 );
 const motionSnapshotPath = path.join(dataDirectory, "money-in-motion.json");
+const motionClientSnapshotPath = path.join(
+  dataDirectory,
+  "money-in-motion-client.json.gz",
+);
 const generatedAt = new Date().toISOString();
 const backfillStart =
   process.env.CHICAGO_PROPERTY_BACKFILL_START || "2022-01-01";
@@ -813,14 +817,17 @@ async function main() {
     legacyState,
     existingSnapshot,
     existingArchive,
-    motionSnapshot,
+    rawMotionSnapshot,
+    clientMotionSnapshot,
   ] = await Promise.all([
     readGzipJson<SyncState | null>(statePath, null),
     readJson<SyncState | null>(legacyStatePath, null),
     readGzipJson<ChicagoPropertySnapshot | null>(clientPath, null),
     readGzipJson<SourceArchive | null>(sourceArchivePath, null),
     readJson<MoneyMotionSnapshot | null>(motionSnapshotPath, null),
+    readGzipJson<MoneyMotionSnapshot | null>(motionClientSnapshotPath, null),
   ]);
+  const motionSnapshot = rawMotionSnapshot || clientMotionSnapshot;
   const state = compressedState || legacyState || emptyState();
   if (state.backfillStart !== backfillStart) {
     Object.assign(state, emptyState());

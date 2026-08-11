@@ -1,15 +1,21 @@
 import fs from "node:fs";
 import path from "node:path";
-import { gzipSync } from "node:zlib";
+import { gunzipSync, gzipSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { buildClientMotionSnapshot } from "../../lib/client-motion-snapshot";
 import type { MoneyMotionSnapshot } from "../../lib/money-in-motion";
 
 const snapshot = JSON.parse(
-  fs.readFileSync(
-    path.join(process.cwd(), "public", "data", "money-in-motion.json"),
-    "utf8",
-  ),
+  gunzipSync(
+    fs.readFileSync(
+      path.join(
+        process.cwd(),
+        "public",
+        "data",
+        "money-in-motion-client.json.gz",
+      ),
+    ),
+  ).toString("utf8"),
 ) as MoneyMotionSnapshot;
 
 describe("Money in Motion public snapshot contracts", () => {

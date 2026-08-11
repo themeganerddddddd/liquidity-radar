@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { gunzipSync, gzipSync } from "node:zlib";
 import { strFromU8, unzipSync } from "fflate";
 import type { PublicDataSnapshot } from "../lib/public-data";
 import type { ChicagoPropertySnapshot } from "../lib/chicago-property";
@@ -76,23 +77,32 @@ const cmsOwnerCachePath = path.join(
   root,
   "public",
   "data",
-  "cms-owner-cache.json",
+  "cms-owner-cache.json.gz",
 );
 const stbStatePath = path.join(root, "public", "data", "stb-sync-state.json");
 const usptoStatePath = path.join(
   root,
   "public",
   "data",
-  "uspto-sync-state.json",
+  "uspto-sync-state.json.gz",
 );
 const generatedAt = new Date().toISOString();
 
 async function readJson<T>(filePath: string, fallback: T): Promise<T> {
   try {
-    return JSON.parse(await fs.readFile(filePath, "utf8")) as T;
+    const bytes = await fs.readFile(filePath);
+    const text = filePath.endsWith(".gz")
+      ? gunzipSync(bytes).toString("utf8")
+      : bytes.toString("utf8");
+    return JSON.parse(text) as T;
   } catch {
     return fallback;
   }
+}
+
+async function writeGzipJson(filePath: string, value: unknown) {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, gzipSync(JSON.stringify(value), { level: 9 }));
 }
 
 const stateNames: Record<string, string> = {
@@ -545,7 +555,7 @@ async function enrichCmsOwners(rows: CmsChowRow[]) {
     }
   }
   cache.updatedAt = generatedAt;
-  await fs.writeFile(cmsOwnerCachePath, `${JSON.stringify(cache)}\n`, "utf8");
+  await writeGzipJson(cmsOwnerCachePath, cache);
 
   const events = rows.flatMap((row) => {
     const enrollmentId = row["ENROLLMENT ID - BUYER"];
@@ -1474,11 +1484,7 @@ async function main() {
       fetchBankruptcySales(),
       fetchOfficialTransactionNews(),
     ]);
-  await fs.writeFile(
-    usptoStatePath,
-    `${JSON.stringify(uspto.state)}\n`,
-    "utf8",
-  );
+  await writeGzipJson(usptoStatePath, uspto.state);
   const cmsOwners = await enrichCmsOwners(cms.rows);
   const qualifiedStbEvents = stb.events.filter(
     (event) =>

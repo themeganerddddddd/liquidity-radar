@@ -51,3 +51,10 @@ next-env.d.ts
 /public/data/chicago-property.json
 /public/data/chicago-property-motion-events.json
 /public/data/chicago-property-sync-state.json
+
+# Uncompressed sync working files are regenerated locally. Persist their
+# compressed equivalents so automated refreshes retain incremental state
+# without exceeding production source-hosting limits.
+/public/data/money-in-motion.json
+/public/data/cms-owner-cache.json
+/public/data/uspto-sync-state.json
