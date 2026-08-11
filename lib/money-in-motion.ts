@@ -842,6 +842,63 @@ export function classifyPatentAssignment(conveyance: string) {
 const usptoConfigured =
   typeof process !== "undefined" && Boolean(process.env?.USPTO_API_KEY);
 
+const chicagoPropertySources = [
+  [
+    "chicago_property",
+    "Chicago Property transactions",
+    "Cook County and Illinois public records",
+    "https://datacatalog.cookcountyil.gov/d/wvhk-k5uv",
+  ],
+  [
+    "cook_property_sales",
+    "Cook County parcel sales",
+    "Cook County Assessor's Office",
+    "https://datacatalog.cookcountyil.gov/d/wvhk-k5uv",
+  ],
+  [
+    "illinois_ptax",
+    "Illinois PTAX-203 transfer declarations",
+    "Illinois Department of Revenue",
+    "https://data.illinois.gov/d/it54-y4c6",
+  ],
+  [
+    "cook_transfer_forms",
+    "Cook County and Chicago transfer forms",
+    "Illinois Department of Revenue",
+    "https://data.illinois.gov/d/vbnw-q5s8",
+  ],
+  [
+    "cook_parcel_addresses",
+    "Cook County parcel situs addresses",
+    "Cook County Assessor's Office",
+    "https://datacatalog.cookcountyil.gov/d/3723-97qp",
+  ],
+  [
+    "cook_commercial_valuation",
+    "Cook County commercial valuation",
+    "Cook County Assessor's Office",
+    "https://datacatalog.cookcountyil.gov/d/csik-bsws",
+  ],
+  [
+    "cook_parcel_universe",
+    "Cook County parcel geography",
+    "Cook County Assessor's Office",
+    "https://datacatalog.cookcountyil.gov/d/nj4t-kc8j",
+  ],
+  [
+    "chicago_business_licenses",
+    "Chicago business licenses",
+    "City of Chicago",
+    "https://data.cityofchicago.org/d/r5kz-chrr",
+  ],
+  [
+    "chicago_business_owners",
+    "Chicago business owners",
+    "City of Chicago",
+    "https://data.cityofchicago.org/d/ezma-pppn",
+  ],
+] as const;
+
 export const SOURCE_ADAPTERS: SourceAdapter[] = [
   {
     id: "sec",
@@ -891,12 +948,12 @@ export const SOURCE_ADAPTERS: SourceAdapter[] = [
     id: "fcc_uls",
     name: "FCC Universal Licensing System",
     publisher: "Federal Communications Commission",
-    mode: "IMPORT_ONLY",
-    cadence: "Daily file adapter",
+    mode: "LIVE",
+    cadence: "Daily",
     sourceUrl:
       "https://www.fcc.gov/wireless/data/public-access-files-database-downloads",
     reason:
-      "Parser is available for official ULS assignment files; automated bulk download is held until a bounded transfer feed is configured.",
+      "Official bounded daily assignment/transfer files are downloaded and retained as filing-stage signals without inferred consideration.",
     normalize: () => [],
   },
   {
@@ -934,6 +991,43 @@ export const SOURCE_ADAPTERS: SourceAdapter[] = [
       "Official STB proceedings are retained only when the record identifies a subject and reports transaction consideration; status-only dockets are excluded.",
     normalize: () => [],
   },
+  {
+    id: "bankruptcy_recap",
+    name: "Bankruptcy asset-sale dockets",
+    publisher: "Free Law Project CourtListener / RECAP",
+    mode: "LIVE",
+    cadence: "Every 4 hours",
+    sourceUrl: "https://www.courtlistener.com/recap/",
+    reason:
+      "Public federal bankruptcy docket search; records are accepted only when the indexed text explicitly discloses purchase or sale consideration.",
+    normalize: () => [],
+  },
+  {
+    id: "official_transaction_news",
+    name: "DOJ and FTC transaction notices",
+    publisher: "U.S. Department of Justice / Federal Trade Commission",
+    mode: "LIVE",
+    cadence: "Every 4 hours",
+    sourceUrl: "https://www.justice.gov/atr/press-releases",
+    reason:
+      "Official public press-release feeds are filtered for transaction language and treated as regulatory signals unless completion is explicit.",
+    normalize: () => [],
+  },
+  ...chicagoPropertySources.map(
+    ([id, name, publisher, sourceUrl]): SourceAdapter => ({
+      id,
+      name,
+      publisher,
+      mode: "LIVE",
+      cadence: "Daily",
+      sourceUrl,
+      reason:
+        id === "chicago_property"
+          ? "Significant recorded property dispositions are clustered and quality-filtered before directory promotion."
+          : "Official enrichment source for the Chicago Property workspace.",
+      normalize: () => [],
+    }),
+  ),
   ...["Maryland", "District of Columbia", "Virginia"].map(
     (jurisdiction): SourceAdapter => ({
       id: `registry_${jurisdiction.toLowerCase().replace(/\W+/g, "_")}`,

@@ -46,3 +46,8 @@ next-env.d.ts
 /outputs/
 /work/
 *.tsbuildinfo
+
+# Large Chicago sync intermediates are regenerated before each normalization run.
+/public/data/chicago-property.json
+/public/data/chicago-property-motion-events.json
+/public/data/chicago-property-sync-state.json

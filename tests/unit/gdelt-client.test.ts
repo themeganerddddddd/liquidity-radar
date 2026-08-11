@@ -100,6 +100,33 @@ describe("resilient GDELT ingestion", () => {
     );
   });
 
+  it("skips a backed-off family before spending the one-query production budget", async () => {
+    const now = Date.parse("2026-08-08T12:00:00Z");
+    const state = emptyGdeltState();
+    state.queries.closed_announced = {
+      watermark: "",
+      nextRetryAt: "2026-08-08T13:00:00.000Z",
+      consecutiveFailures: 1,
+      lastSuccessAt: "",
+      lastAttemptAt: "2026-08-08T11:00:00.000Z",
+      lastErrorType: "RATE_LIMITED",
+    };
+    const fetcher = vi.fn(async () =>
+      response(200, { articles: [] }),
+    ) as FetchLike;
+    const result = await runGdeltIncremental({
+      state,
+      fetcher,
+      now,
+      minimumDelayMs: 0,
+      maximumQueries: 1,
+    });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(result.state.queries.pre_liquidity.lastSuccessAt).toBe(
+      "2026-08-08T12:00:00.000Z",
+    );
+  });
+
   it("parses numeric and date Retry-After forms", () => {
     const now = Date.parse("2026-08-08T12:00:00Z");
     expect(parseRetryAfter("60", now)).toBe(now + 60_000);

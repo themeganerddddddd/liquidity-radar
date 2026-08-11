@@ -197,6 +197,8 @@ export async function runGdeltIncremental(input: {
   minimumDelayMs?: number;
   initialWindowMs?: number;
   maximumWindowMs?: number;
+  maximumQueries?: number;
+  familyOffset?: number;
 }) {
   const state = structuredClone(input.state || emptyGdeltState());
   const fetcher = input.fetcher || (fetch as FetchLike);
@@ -208,7 +210,16 @@ export async function runGdeltIncremental(input: {
   let lastRequestAt = 0;
   let stoppedForRateLimit = false;
 
-  for (const family of GDELT_QUERY_FAMILIES) {
+  const queryFamilies = [...GDELT_QUERY_FAMILIES];
+  const familyOffset = Math.abs(input.familyOffset || 0) % queryFamilies.length;
+  const orderedFamilies = [
+    ...queryFamilies.slice(familyOffset),
+    ...queryFamilies.slice(0, familyOffset),
+  ];
+  const maximumQueries = input.maximumQueries || queryFamilies.length;
+  let processedQueries = 0;
+
+  for (const family of orderedFamilies) {
     const current = state.queries[family.id] || {
       watermark: "",
       nextRetryAt: "",
@@ -218,6 +229,8 @@ export async function runGdeltIncremental(input: {
       lastErrorType: "",
     };
     if (current.nextRetryAt && Date.parse(current.nextRetryAt) > now) continue;
+    if (processedQueries >= maximumQueries) break;
+    processedQueries += 1;
     const window = queryWindow(
       now,
       current.watermark,

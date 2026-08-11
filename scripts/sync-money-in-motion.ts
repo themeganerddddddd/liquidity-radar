@@ -1,6 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { strFromU8, unzipSync } from "fflate";
 import type { PublicDataSnapshot } from "../lib/public-data";
+import type { ChicagoPropertySnapshot } from "../lib/chicago-property";
+import {
+  courtListenerSaleEvents,
+  officialTransactionNewsEvents,
+  parseFccDailyAssignments,
+  parseOfficialRss,
+  type CourtListenerSearchResult,
+} from "../lib/free-source-signals";
 import {
   SOURCE_ADAPTERS,
   aggregatePeopleInMotion,
@@ -44,6 +53,18 @@ const clientOutputPath = path.join(
   "public",
   "data",
   "money-in-motion-client.json.gz",
+);
+const chicagoPropertyPath = path.join(
+  root,
+  "public",
+  "data",
+  "chicago-property.json",
+);
+const chicagoPropertyEventsPath = path.join(
+  root,
+  "public",
+  "data",
+  "chicago-property-motion-events.json",
 );
 const gdeltStatePath = path.join(
   root,
@@ -346,17 +367,46 @@ async function fetchCmsChow(): Promise<{
   health: Partial<SourceHealth>;
 }> {
   const started = Date.now();
-  const datasetId = "1022caeb-1af9-4420-8bb1-e2cc355bc5b5";
-  const apiUrl = `https://data.cms.gov/data-api/v1/dataset/${datasetId}/data?size=5000&offset=0`;
-  const sourceUrl =
-    "https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/skilled-nursing-facility-change-of-ownership";
+  const feeds = [
+    {
+      datasetId: "f557a6ed-95b3-4a22-8433-4175db2dec1c",
+      ownerDatasetId: "afe44b85-cc6d-40d7-b5df-00ae8910d1d2",
+      label: "Skilled nursing facility",
+      sourceUrl:
+        "https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/skilled-nursing-facility-change-of-ownership",
+    },
+    {
+      datasetId: "c04031db-54ce-461c-85d1-d2613d71f167",
+      ownerDatasetId: "029c119f-f79c-49be-9100-344d31d10344",
+      label: "Hospital",
+      sourceUrl:
+        "https://data.cms.gov/provider-characteristics/hospitals-and-other-facilities/hospital-change-of-ownership",
+    },
+  ];
   try {
-    const response = await fetch(apiUrl, {
-      headers: { "User-Agent": "LiquidityRadar/0.1 public-record-sync" },
-      signal: AbortSignal.timeout(30_000),
-    });
-    if (!response.ok) throw new Error(`CMS API returned ${response.status}`);
-    const rows = (await response.json()) as CmsChowRow[];
+    const payloads = await Promise.all(
+      feeds.map(async (feed) => {
+        const response = await fetch(
+          `https://data.cms.gov/data-api/v1/dataset/${feed.datasetId}/data?size=5000&offset=0`,
+          {
+            headers: { "User-Agent": "LiquidityRadar/0.3 public-record-sync" },
+            signal: AbortSignal.timeout(30_000),
+          },
+        );
+        if (!response.ok)
+          throw new Error(`${feed.label} CMS API returned ${response.status}`);
+        return ((await response.json()) as CmsChowRow[]).map(
+          (row): CmsChowRow => ({
+            ...row,
+            __DATASET_ID: feed.datasetId,
+            __OWNER_DATASET_ID: feed.ownerDatasetId,
+            __PROVIDER_FAMILY: feed.label,
+            __SOURCE_URL: feed.sourceUrl,
+          }),
+        );
+      }),
+    );
+    const rows: CmsChowRow[] = payloads.flat();
     const eligible = rows.filter((row) => row["EFFECTIVE DATE"]);
     const accepted = eligible
       .sort((left, right) =>
@@ -365,6 +415,8 @@ async function fetchCmsChow(): Promise<{
       .slice(0, 500);
     return {
       events: accepted.map((row) => {
+        const datasetId = row.__DATASET_ID;
+        const sourceUrl = row.__SOURCE_URL;
         const buyer =
           row["ORGANIZATION NAME - BUYER"] ||
           row["DOING BUSINESS AS NAME - BUYER"] ||
@@ -381,7 +433,7 @@ async function fetchCmsChow(): Promise<{
         ].join(":");
         return sourceEvent({
           source_id: "cms_chow",
-          source_type: row["CHOW TYPE TEXT"] || "CHANGE OF OWNERSHIP",
+          source_type: `${row.__PROVIDER_FAMILY || "CMS provider"}: ${row["CHOW TYPE TEXT"] || "CHANGE OF OWNERSHIP"}`,
           external_record_id: externalId,
           source_url: sourceUrl,
           retrieved_at: generatedAt,
@@ -390,7 +442,7 @@ async function fetchCmsChow(): Promise<{
           event_type: "HEALTHCARE_CHOW",
           event_stage: "CLOSED",
           raw_title: `${row["DOING BUSINESS AS NAME - BUYER"] || buyer} — CMS change of ownership`,
-          raw_text: `${seller} to ${buyer}; ${row["PROVIDER TYPE TEXT - BUYER"] || "CMS-enrolled provider"}.`,
+          raw_text: `${seller} to ${buyer}; ${row["PROVIDER TYPE TEXT - BUYER"] || row.__PROVIDER_FAMILY || "CMS-enrolled provider"}.`,
           seller_entity: seller,
           buyer_entity: buyer,
           subject_person: "",
@@ -429,6 +481,8 @@ async function fetchCmsChow(): Promise<{
         recordsAccepted: accepted.length,
         recordsRejected: rows.length - eligible.length,
         latencyMs: Date.now() - started,
+        requests: feeds.length,
+        successfulQueries: feeds.length,
       },
     };
   } catch (error) {
@@ -452,16 +506,24 @@ async function enrichCmsOwners(rows: CmsChowRow[]) {
     updatedAt: "",
     ownersByEnrollment: {},
   });
-  const enrollmentIds = [
-    ...new Set(rows.map((row) => row["ENROLLMENT ID - BUYER"]).filter(Boolean)),
+  const enrollmentKeys = [
+    ...new Set(
+      rows
+        .filter((row) => row["ENROLLMENT ID - BUYER"])
+        .map(
+          (row) => `${row.__OWNER_DATASET_ID}:${row["ENROLLMENT ID - BUYER"]}`,
+        ),
+    ),
   ];
-  const missing = enrollmentIds
-    .filter((enrollmentId) => !(enrollmentId in cache.ownersByEnrollment))
+  const missing = enrollmentKeys
+    .filter((key) => !(key in cache.ownersByEnrollment))
     .slice(0, 25);
   let requests = 0;
   let errors = 0;
-  const datasetId = "d8402c90-3f46-4590-90a9-c3e510269b38";
-  for (const enrollmentId of missing) {
+  for (const key of missing) {
+    const separator = key.indexOf(":");
+    const datasetId = key.slice(0, separator);
+    const enrollmentId = key.slice(separator + 1);
     const parameters = new URLSearchParams({
       size: "500",
       offset: "0",
@@ -477,8 +539,7 @@ async function enrichCmsOwners(rows: CmsChowRow[]) {
         },
       );
       if (!response.ok) throw new Error(`HTTP_${response.status}`);
-      cache.ownersByEnrollment[enrollmentId] =
-        (await response.json()) as CmsOwnerRow[];
+      cache.ownersByEnrollment[key] = (await response.json()) as CmsOwnerRow[];
     } catch {
       errors += 1;
     }
@@ -488,7 +549,9 @@ async function enrichCmsOwners(rows: CmsChowRow[]) {
 
   const events = rows.flatMap((row) => {
     const enrollmentId = row["ENROLLMENT ID - BUYER"];
-    const ownerRows = cache.ownersByEnrollment[enrollmentId] || [];
+    const datasetId = row.__OWNER_DATASET_ID;
+    const cacheKey = `${datasetId}:${enrollmentId}`;
+    const ownerRows = cache.ownersByEnrollment[cacheKey] || [];
     return ownerRows.flatMap((owner) => {
       if (owner["TYPE - OWNER"] !== "I") return [];
       const person = [
@@ -566,12 +629,14 @@ async function enrichCmsOwners(rows: CmsChowRow[]) {
     });
   });
   const ownerRowsSeen = [
-    ...new Set(rows.map((row) => row["ENROLLMENT ID - BUYER"]).filter(Boolean)),
-  ].reduce(
-    (sum, enrollmentId) =>
-      sum + (cache.ownersByEnrollment[enrollmentId] || []).length,
-    0,
-  );
+    ...new Set(
+      rows
+        .filter((row) => row["ENROLLMENT ID - BUYER"])
+        .map(
+          (row) => `${row.__OWNER_DATASET_ID}:${row["ENROLLMENT ID - BUYER"]}`,
+        ),
+    ),
+  ].reduce((sum, key) => sum + (cache.ownersByEnrollment[key] || []).length, 0);
   return { events, requests, errors, cache, ownerRowsSeen };
 }
 
@@ -695,7 +760,11 @@ async function fetchGdelt(): Promise<{
     emptyGdeltState(),
   );
   const before = { ...previous.metrics };
-  const result = await runGdeltIncremental({ state: previous });
+  const result = await runGdeltIncremental({
+    state: previous,
+    maximumQueries: 1,
+    familyOffset: Math.floor(Date.now() / (4 * 60 * 60 * 1000)),
+  });
   await fs.writeFile(
     gdeltStatePath,
     `${JSON.stringify(result.state)}\n`,
@@ -716,13 +785,17 @@ async function fetchGdelt(): Promise<{
     .filter(Boolean)
     .sort()
     .at(0);
-  const errorType =
-    queryStates.find((query) => query.lastErrorType)?.lastErrorType || "";
+  const succeededThisRun =
+    result.state.metrics.successfulQueries - before.successfulQueries > 0;
+  const errorType = succeededThisRun
+    ? ""
+    : queryStates.find((query) => query.lastErrorType)?.lastErrorType || "";
+  const effectiveNextRetry = succeededThisRun ? "" : nextRetry || "";
   return {
     events,
     health: {
       mode:
-        result.stoppedForRateLimit || nextRetry || errorType
+        result.stoppedForRateLimit || effectiveNextRetry || errorType
           ? "DEGRADED"
           : "LIVE",
       lastSuccessAt: latestSuccess || "",
@@ -737,14 +810,202 @@ async function fetchGdelt(): Promise<{
           .map((query) => query.watermark)
           .filter(Boolean)
           .sort()
-          .at(0) || "",
-      nextRetryAt: nextRetry || "",
+          .at(-1) || "",
+      nextRetryAt: effectiveNextRetry,
       requests: result.state.metrics.requests - before.requests,
       cacheHits: result.state.metrics.cacheHits - before.cacheHits,
       rateLimitCount:
         result.state.metrics.rateLimitCount - before.rateLimitCount,
       successfulQueries:
         result.state.metrics.successfulQueries - before.successfulQueries,
+    },
+  };
+}
+
+async function fetchFccAssignments(): Promise<{
+  events: NormalizedSourceEvent[];
+  health: Partial<SourceHealth>;
+}> {
+  const started = Date.now();
+  const names = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  const day = names[new Date(generatedAt).getUTCDay()];
+  const sourceUrl = `https://data.fcc.gov/download/pub/uls/daily/a_aa_${day}.zip`;
+  try {
+    const response = await fetch(sourceUrl, {
+      headers: { "User-Agent": "LiquidityRadar/0.3 public-record-sync" },
+      signal: AbortSignal.timeout(60_000),
+    });
+    if (!response.ok)
+      throw new Error(`FCC daily file returned ${response.status}`);
+    const archive = unzipSync(new Uint8Array(await response.arrayBuffer()));
+    const en = archive["EN.dat"] ? strFromU8(archive["EN.dat"]) : "";
+    const hd = archive["HD.dat"] ? strFromU8(archive["HD.dat"]) : "";
+    const events = parseFccDailyAssignments({
+      en,
+      hd,
+      retrievedAt: generatedAt,
+      sourceUrl,
+    });
+    return {
+      events,
+      health: {
+        lastSuccessAt: generatedAt,
+        recordsSeen: en.split(/\r?\n/).filter(Boolean).length,
+        recordsAccepted: events.length,
+        recordsRejected: 0,
+        latencyMs: Date.now() - started,
+        requests: 1,
+        successfulQueries: 1,
+        watermark:
+          events
+            .map((event) => event.event_date)
+            .sort()
+            .at(-1) || generatedAt.slice(0, 10),
+      },
+    };
+  } catch (error) {
+    return {
+      events: [],
+      health: {
+        mode: "DEGRADED",
+        recordsSeen: 0,
+        recordsAccepted: 0,
+        recordsRejected: 0,
+        latencyMs: Date.now() - started,
+        requests: 1,
+        successfulQueries: 0,
+        error: error instanceof Error ? error.message : String(error),
+        errorType: "FETCH_OR_PARSE_ERROR",
+      },
+    };
+  }
+}
+
+async function fetchBankruptcySales(): Promise<{
+  events: NormalizedSourceEvent[];
+  health: Partial<SourceHealth>;
+}> {
+  const started = Date.now();
+  const searchUrl = new URL(
+    "https://www.courtlistener.com/api/rest/v4/search/",
+  );
+  searchUrl.searchParams.set("q", '"363 sale" "purchase price"');
+  searchUrl.searchParams.set("court_type", "FB");
+  searchUrl.searchParams.set("type", "r");
+  searchUrl.searchParams.set("order_by", "dateFiled desc");
+  try {
+    const response = await fetch(searchUrl, {
+      headers: { "User-Agent": "LiquidityRadar/0.3 public-record-sync" },
+      signal: AbortSignal.timeout(60_000),
+    });
+    if (!response.ok)
+      throw new Error(`CourtListener search returned ${response.status}`);
+    const payload = (await response.json()) as {
+      count?: number;
+      results?: CourtListenerSearchResult[];
+    };
+    const results = payload.results || [];
+    const events = courtListenerSaleEvents(results, generatedAt);
+    return {
+      events,
+      health: {
+        lastSuccessAt: generatedAt,
+        recordsSeen: results.reduce(
+          (sum, result) => sum + (result.recap_documents?.length || 0),
+          0,
+        ),
+        recordsAccepted: events.length,
+        recordsRejected: Math.max(0, results.length - events.length),
+        latencyMs: Date.now() - started,
+        requests: 1,
+        successfulQueries: 1,
+        watermark:
+          events
+            .map((event) => event.event_date)
+            .sort()
+            .at(-1) || "",
+      },
+    };
+  } catch (error) {
+    return {
+      events: [],
+      health: {
+        mode: "DEGRADED",
+        recordsSeen: 0,
+        recordsAccepted: 0,
+        recordsRejected: 0,
+        latencyMs: Date.now() - started,
+        requests: 1,
+        successfulQueries: 0,
+        error: error instanceof Error ? error.message : String(error),
+        errorType: "FETCH_OR_PARSE_ERROR",
+      },
+    };
+  }
+}
+
+async function fetchOfficialTransactionNews(): Promise<{
+  events: NormalizedSourceEvent[];
+  health: Partial<SourceHealth>;
+}> {
+  const started = Date.now();
+  const feeds = [
+    {
+      publisher: "Federal Trade Commission",
+      url: "https://www.ftc.gov/feeds/press-release.xml",
+    },
+    {
+      publisher: "U.S. Department of Justice Antitrust Division",
+      url: "https://www.justice.gov/news/rss?type=press_release&groupname=56&field_component=376&search_api_language=en&show_public_archived=0&require_all=0",
+    },
+  ];
+  const events: NormalizedSourceEvent[] = [];
+  let seen = 0;
+  let successfulQueries = 0;
+  const errors: string[] = [];
+  await Promise.all(
+    feeds.map(async (feed) => {
+      try {
+        const response = await fetch(feed.url, {
+          headers: { "User-Agent": "LiquidityRadar/0.3 public-record-sync" },
+          signal: AbortSignal.timeout(20_000),
+        });
+        if (!response.ok) throw new Error(`HTTP_${response.status}`);
+        const entries = parseOfficialRss(await response.text());
+        seen += entries.length;
+        events.push(
+          ...officialTransactionNewsEvents({
+            entries,
+            publisher: feed.publisher,
+            retrievedAt: generatedAt,
+          }),
+        );
+        successfulQueries += 1;
+      } catch (error) {
+        errors.push(
+          `${feed.publisher}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }),
+  );
+  return {
+    events: [
+      ...new Map(
+        events.map((event) => [event.external_record_id, event]),
+      ).values(),
+    ],
+    health: {
+      mode: errors.length ? "DEGRADED" : "LIVE",
+      lastSuccessAt: successfulQueries ? generatedAt : "",
+      recordsSeen: seen,
+      recordsAccepted: events.length,
+      recordsRejected: Math.max(0, seen - events.length),
+      latencyMs: Date.now() - started,
+      requests: feeds.length,
+      successfulQueries,
+      error: errors.join("; "),
+      errorType: errors.length ? "PARTIAL_FEED_ERROR" : "",
+      watermark: generatedAt.slice(0, 10),
     },
   };
 }
@@ -911,6 +1172,7 @@ function confidenceFor(event: NormalizedSourceEvent) {
     "fcc_uls",
     "ferc",
     "uspto_assignments",
+    "chicago_property",
   ].includes(event.source_id);
   const completed = ["CLOSED", "POST_LIQUIDITY"].includes(event.event_stage);
   const identity = Boolean(
@@ -1186,20 +1448,32 @@ async function main() {
   ) as PublicDataSnapshot;
   const sec = secEvents(publicData);
   const ftc = ftcEvents(publicData);
+  const chicagoProperty = await readJson<ChicagoPropertySnapshot | null>(
+    chicagoPropertyPath,
+    null,
+  );
+  const chicagoPropertyEvents = await readJson<{
+    generatedAt: string;
+    events: NormalizedSourceEvent[];
+  }>(chicagoPropertyEventsPath, { generatedAt: "", events: [] });
   const usptoState = await readJson<UsptoOdpState>(
     usptoStatePath,
     emptyUsptoOdpState(),
   );
-  const [cms, gdelt, stb, uspto] = await Promise.all([
-    fetchCmsChow(),
-    fetchGdelt(),
-    fetchStb(),
-    runUsptoOdpSync({
-      apiKey: process.env.USPTO_API_KEY?.trim() || "",
-      state: usptoState,
-      now: generatedAt,
-    }),
-  ]);
+  const [cms, gdelt, stb, uspto, fcc, bankruptcy, officialNews] =
+    await Promise.all([
+      fetchCmsChow(),
+      fetchGdelt(),
+      fetchStb(),
+      runUsptoOdpSync({
+        apiKey: process.env.USPTO_API_KEY?.trim() || "",
+        state: usptoState,
+        now: generatedAt,
+      }),
+      fetchFccAssignments(),
+      fetchBankruptcySales(),
+      fetchOfficialTransactionNews(),
+    ]);
   await fs.writeFile(
     usptoStatePath,
     `${JSON.stringify(uspto.state)}\n`,
@@ -1221,6 +1495,10 @@ async function main() {
     ...gdelt.events,
     ...qualifiedStbEvents,
     ...uspto.events,
+    ...chicagoPropertyEvents.events,
+    ...fcc.events,
+    ...bankruptcy.events,
+    ...officialNews.events,
   ]);
   const records = mergeClusters(allEvents.map(recordFor)).filter(
     isQualifiedTransportationRecord,
@@ -1259,8 +1537,11 @@ async function main() {
         recordsRejected:
           (cms.health.recordsRejected || 0) +
           Math.max(0, cmsOwners.ownerRowsSeen - cmsOwners.events.length),
-        requests: 1 + cmsOwners.requests,
-        successfulQueries: 1 + cmsOwners.requests - cmsOwners.errors,
+        requests: (cms.health.requests || 0) + cmsOwners.requests,
+        successfulQueries:
+          (cms.health.successfulQueries || 0) +
+          cmsOwners.requests -
+          cmsOwners.errors,
         error: cmsOwners.errors
           ? `${cmsOwners.errors} owner-enrichment request${cmsOwners.errors === 1 ? "" : "s"} failed; CHOW records remain available.`
           : cms.health.error || "",
@@ -1277,6 +1558,45 @@ async function main() {
       });
     } else if (adapter.id === "uspto_assignments") {
       health = baseHealth(adapter.id, uspto.health);
+    } else if (adapter.id === "fcc_uls") {
+      health = baseHealth(adapter.id, fcc.health);
+    } else if (adapter.id === "bankruptcy_recap") {
+      health = baseHealth(adapter.id, bankruptcy.health);
+    } else if (adapter.id === "official_transaction_news") {
+      health = baseHealth(adapter.id, officialNews.health);
+    } else if (adapter.id === "chicago_property") {
+      health = baseHealth(adapter.id, {
+        lastAttemptAt: chicagoProperty?.generatedAt || "",
+        lastSuccessAt: chicagoProperty?.generatedAt || "",
+        recordsSeen: chicagoProperty?.stats.significantSales || 0,
+        recordsAccepted: chicagoPropertyEvents.events.length,
+        recordsRejected: 0,
+        requests: chicagoProperty ? 1 : 0,
+        successfulQueries: chicagoProperty ? 1 : 0,
+        error: chicagoProperty ? "" : "Chicago Property snapshot unavailable.",
+        errorType: chicagoProperty ? "" : "SNAPSHOT_UNAVAILABLE",
+        mode: chicagoProperty ? "LIVE" : "DEGRADED",
+        watermark: chicagoProperty?.coverage.endDate || "",
+      });
+    } else if (
+      chicagoProperty?.sourceHealth.some((source) => source.id === adapter.id)
+    ) {
+      const source = chicagoProperty.sourceHealth.find(
+        (item) => item.id === adapter.id,
+      )!;
+      health = baseHealth(adapter.id, {
+        lastAttemptAt: source.lastAttemptAt,
+        lastSuccessAt: source.lastSuccessAt,
+        recordsSeen: source.rowsFetched,
+        recordsAccepted: source.matches,
+        recordsRejected: Math.max(0, source.rowsFetched - source.matches),
+        requests: 1,
+        successfulQueries: source.status === "ERROR" ? 0 : 1,
+        error: source.errors.join("; "),
+        errorType: source.errors.length ? "FETCH_OR_MATCH_ERROR" : "",
+        mode: source.status === "LIVE" ? "LIVE" : "DEGRADED",
+        watermark: source.watermark,
+      });
     } else {
       health = baseHealth(adapter.id);
     }

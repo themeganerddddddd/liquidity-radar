@@ -11736,3 +11736,659 @@ a.real-holdings-row:hover {
     grid-column: 1 / -1;
   }
 }
+/* Chicago Property workspace */
+.chicago-property-workspace {
+  display: grid;
+  gap: 18px;
+}
+
+.chicago-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--border, #d9dfeb);
+  border-radius: 14px;
+  background: var(--panel, #fff);
+}
+
+.chicago-summary > div {
+  min-width: 0;
+  padding: 17px 18px;
+  border-right: 1px solid var(--border, #d9dfeb);
+}
+
+.chicago-summary > div:last-child {
+  border-right: 0;
+}
+.chicago-summary span,
+.chicago-summary strong {
+  display: block;
+}
+.chicago-summary span {
+  color: var(--muted, #677188);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+.chicago-summary strong {
+  margin-top: 8px;
+  color: var(--ink, #172033);
+  font-size: clamp(18px, 1.7vw, 25px);
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.chicago-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.chicago-search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  max-width: 720px;
+  min-width: 260px;
+  padding: 0 14px;
+  border: 1px solid var(--border, #d9dfeb);
+  border-radius: 10px;
+  background: #fff;
+}
+.chicago-search span {
+  color: #68748a;
+  font-size: 20px;
+}
+.chicago-search input {
+  width: 100%;
+  height: 44px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #172033;
+  font: inherit;
+}
+
+.chicago-toolbar-actions,
+.chicago-mode-toggle,
+.chicago-quick-filters,
+.chicago-filters fieldset > div {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.chicago-toolbar-actions > button,
+.chicago-mode-toggle button,
+.chicago-quick-filters button,
+.chicago-filters button,
+.chicago-pagination button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid #ccd4e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #354157;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.chicago-toolbar-actions button:hover,
+.chicago-mode-toggle button:hover,
+.chicago-quick-filters button:hover,
+.chicago-filters button:hover,
+.chicago-toolbar-actions button.active,
+.chicago-mode-toggle button.active,
+.chicago-quick-filters button.active,
+.chicago-filters button.active {
+  border-color: #345de8;
+  background: #f0f4ff;
+  color: #2349c9;
+}
+.chicago-mode-toggle {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid #ccd4e1;
+  border-radius: 8px;
+}
+.chicago-mode-toggle button {
+  border: 0;
+  border-radius: 0;
+}
+.chicago-mode-toggle button + button {
+  border-left: 1px solid #ccd4e1;
+}
+.chicago-quick-filters {
+  padding-bottom: 2px;
+}
+
+.chicago-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid #d9dfeb;
+  border-radius: 12px;
+  background: #f8fafe;
+}
+.chicago-filters fieldset {
+  grid-column: span 2;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.chicago-filters legend,
+.chicago-filters label {
+  color: #566176;
+  font-size: 12px;
+  font-weight: 750;
+}
+.chicago-filters legend {
+  margin-bottom: 8px;
+}
+.chicago-filters label {
+  display: grid;
+  gap: 7px;
+}
+.chicago-filters select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #ccd4e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #263149;
+  font: inherit;
+}
+.chicago-clear {
+  align-self: end;
+  justify-self: start;
+}
+
+.chicago-results-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  color: #677188;
+  font-size: 13px;
+}
+.chicago-results-meta strong {
+  color: #25314a;
+  font-size: 14px;
+}
+
+.chicago-results-table {
+  overflow: hidden;
+  border: 1px solid #d9dfeb;
+  border-radius: 12px;
+  background: #fff;
+}
+.chicago-results-head,
+.chicago-result-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.35fr) minmax(190px, 0.75fr) minmax(
+      260px,
+      1fr
+    );
+  gap: 18px;
+  align-items: center;
+}
+.chicago-results-head {
+  padding: 11px 18px;
+  border-bottom: 1px solid #d9dfeb;
+  background: #f7f9fc;
+  color: #616c81;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.chicago-result-row {
+  width: 100%;
+  padding: 15px 18px;
+  border: 0;
+  border-bottom: 1px solid #e6eaf1;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.chicago-result-row:last-of-type {
+  border-bottom: 0;
+}
+.chicago-result-row:hover,
+.chicago-result-row:focus-visible {
+  background: #f8faff;
+  outline: none;
+}
+.chicago-result-row > span {
+  min-width: 0;
+}
+.chicago-result-row strong,
+.chicago-result-row small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.chicago-result-row strong {
+  color: #1a2438;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.chicago-result-row small {
+  margin-top: 4px;
+  color: #6c7588;
+  font-size: 12px;
+  line-height: 1.42;
+}
+.chicago-seller em {
+  display: inline-block;
+  margin-top: 7px;
+  padding: 3px 7px;
+  border-radius: 99px;
+  background: #e8f7ef;
+  color: #167349;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.chicago-value strong {
+  color: #155b43;
+  font-size: 16px;
+}
+.chicago-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 13px;
+  border-top: 1px solid #d9dfeb;
+  color: #667085;
+  font-size: 13px;
+}
+.chicago-pagination button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+.chicago-empty {
+  display: grid;
+  gap: 5px;
+  padding: 48px 20px;
+  text-align: center;
+}
+.chicago-empty span {
+  color: #6c7588;
+}
+.chicago-disclaimer {
+  margin: 0;
+  color: #697386;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.chicago-map-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  min-height: 600px;
+  overflow: hidden;
+  border: 1px solid #d9dfeb;
+  border-radius: 14px;
+  background: #fff;
+}
+.chicago-map-canvas {
+  position: relative;
+  min-height: 600px;
+  background: #e9f2f7;
+}
+.chicago-map-canvas svg {
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+}
+.chicago-map-land {
+  fill: #f5f3e9;
+  stroke: #b9c4cd;
+  stroke-width: 0.5;
+}
+.chicago-map-water {
+  fill: #cfe8f4;
+}
+.chicago-map-city {
+  fill: #e4e8de;
+  stroke: #bdc7bb;
+  stroke-width: 0.3;
+}
+.chicago-map-canvas circle {
+  stroke: #fff;
+  stroke-width: 0.28;
+  cursor: pointer;
+  opacity: 0.76;
+}
+.chicago-map-canvas circle:hover,
+.chicago-map-canvas circle:focus {
+  opacity: 1;
+  stroke: #162c50;
+  stroke-width: 0.5;
+  outline: 0;
+}
+.chicago-map-canvas .commercial,
+.chicago-map-key i.commercial {
+  fill: #315ee8;
+  background: #315ee8;
+}
+.chicago-map-canvas .residential,
+.chicago-map-key i.residential {
+  fill: #d77a38;
+  background: #d77a38;
+}
+.chicago-map-canvas .strong,
+.chicago-map-key i.strong {
+  fill: #18895b;
+  background: #18895b;
+}
+.chicago-map-key {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid #d2dae4;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #4d586d;
+  font-size: 11px;
+}
+.chicago-map-key span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.chicago-map-key i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.chicago-map-note {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 20px;
+  border-left: 1px solid #d9dfeb;
+}
+.chicago-map-note strong {
+  color: #1e2a40;
+}
+.chicago-map-note span {
+  color: #697386;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.chicago-detail-overlay {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(2px);
+}
+.chicago-detail {
+  width: min(620px, 100%);
+  height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  box-shadow: -16px 0 50px rgba(20, 30, 50, 0.2);
+}
+.chicago-detail > header,
+.chicago-detail > section {
+  padding: 24px 28px;
+  border-bottom: 1px solid #e1e6ee;
+}
+.chicago-detail > header {
+  position: relative;
+  background: #f7f9fd;
+}
+.chicago-detail > header > button {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #ccd4e1;
+  border-radius: 50%;
+  background: #fff;
+  color: #344057;
+  font-size: 21px;
+  cursor: pointer;
+}
+.chicago-detail h2 {
+  max-width: 500px;
+  margin: 3px 0 4px;
+  color: #162137;
+  font-size: 27px;
+  letter-spacing: -0.025em;
+}
+.chicago-detail h3 {
+  margin: 0 0 14px;
+  color: #202b40;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+}
+.chicago-detail p {
+  color: #606b7f;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.chicago-detail-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 20px;
+}
+.chicago-detail-hero strong {
+  color: #155b43;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+.chicago-detail-hero span {
+  color: #657086;
+  font-size: 12px;
+}
+.chicago-detail-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px 22px;
+  margin: 0;
+}
+.chicago-detail-list div {
+  min-width: 0;
+}
+.chicago-detail-list dt {
+  color: #717b8f;
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+}
+.chicago-detail-list dd {
+  margin: 5px 0 0;
+  color: #273248;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.chicago-warning,
+.chicago-caution {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff8e8;
+  color: #765b1c !important;
+}
+.chicago-score {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chicago-score strong {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e9f6ef;
+  color: #147047;
+  font-size: 20px;
+}
+.chicago-score span {
+  color: #263248;
+  font-weight: 750;
+}
+.chicago-signal-list,
+.chicago-owner-list,
+.chicago-source-list {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.chicago-signal-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: 7px;
+  background: #f4f7fb;
+  color: #455167;
+  font-size: 12px;
+}
+.chicago-signal-list strong {
+  color: #147047;
+}
+.chicago-owner-list li,
+.chicago-source-list li {
+  display: grid;
+  gap: 3px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e7eaf0;
+}
+.chicago-owner-list span,
+.chicago-source-list span {
+  color: #687388;
+  font-size: 12px;
+}
+.chicago-source-list a {
+  color: #2f55c7;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+@media (max-width: 1120px) {
+  .chicago-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .chicago-summary > div:nth-child(3) {
+    border-right: 0;
+  }
+  .chicago-summary > div:nth-child(-n + 3) {
+    border-bottom: 1px solid #d9dfeb;
+  }
+}
+
+@media (max-width: 820px) {
+  .chicago-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .chicago-search {
+    max-width: none;
+  }
+  .chicago-toolbar-actions {
+    justify-content: space-between;
+  }
+  .chicago-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chicago-results-head {
+    display: none;
+  }
+  .chicago-result-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .chicago-location {
+    grid-column: 1 / -1;
+  }
+  .chicago-map-panel {
+    grid-template-columns: 1fr;
+    min-height: 460px;
+  }
+  .chicago-map-canvas,
+  .chicago-map-canvas svg {
+    min-height: 460px;
+  }
+  .chicago-map-note {
+    border-top: 1px solid #d9dfeb;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .chicago-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .chicago-summary > div {
+    border-right: 1px solid #d9dfeb !important;
+    border-bottom: 1px solid #d9dfeb;
+  }
+  .chicago-summary > div:nth-child(2n) {
+    border-right: 0 !important;
+  }
+  .chicago-summary > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+  .chicago-filters {
+    grid-template-columns: 1fr;
+  }
+  .chicago-filters fieldset {
+    grid-column: auto;
+  }
+  .chicago-results-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .chicago-result-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .chicago-location {
+    grid-column: auto;
+  }
+  .chicago-detail > header,
+  .chicago-detail > section {
+    padding: 21px 18px;
+  }
+  .chicago-detail-list {
+    grid-template-columns: 1fr;
+  }
+  .chicago-detail-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .chicago-map-key {
+    right: 10px;
+    left: 10px;
+    flex-wrap: wrap;
+  }
+}

@@ -9,6 +9,7 @@ import type {
   MoneyMotionRecord,
   MoneyMotionSnapshot,
 } from "../lib/money-in-motion";
+import type { ChicagoPropertySnapshot } from "../lib/chicago-property";
 import { isQualifiedTransportationRecord } from "../lib/money-in-motion";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
 import { normalizePublicLocation } from "../lib/public-locations";
@@ -22,6 +23,7 @@ import { PublicStateMap } from "./PublicStateMap";
 import { MoneyInMotionView } from "./MoneyInMotion";
 import { MotionRecordProfile, PeopleInMotionView } from "./PeopleInMotion";
 import { TerritoriesView } from "./TerritoriesView";
+import { ChicagoPropertyView } from "./ChicagoProperty";
 import {
   clearTestSession,
   readTestSession,
@@ -35,6 +37,7 @@ type WorkspaceView =
   | "people"
   | "profile"
   | "event_profile"
+  | "chicago_property"
   | "territories"
   | "filings"
   | "exits"
@@ -47,6 +50,8 @@ type WorkspaceView =
 
 const liveMotionSnapshotUrl =
   "https://raw.githubusercontent.com/themeganerddddddd/liquidity-radar/main/public/data/money-in-motion-client.json.gz";
+const liveChicagoPropertySnapshotUrl =
+  "https://raw.githubusercontent.com/themeganerddddddd/liquidity-radar/main/public/data/chicago-property-client.json.gz";
 
 async function decodeMotionSnapshot(response: Response) {
   if (!response.ok) throw new Error("Money-in-motion refresh failed.");
@@ -61,6 +66,21 @@ async function decodeMotionSnapshot(response: Response) {
     contents = new TextDecoder().decode(bytes);
   }
   return JSON.parse(contents) as MoneyMotionSnapshot;
+}
+
+async function decodeChicagoPropertySnapshot(response: Response) {
+  if (!response.ok) throw new Error("Chicago Property refresh failed.");
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  let contents: string;
+  if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+    const decompressed = new Blob([bytes])
+      .stream()
+      .pipeThrough(new DecompressionStream("gzip"));
+    contents = await new Response(decompressed).text();
+  } else {
+    contents = new TextDecoder().decode(bytes);
+  }
+  return JSON.parse(contents) as ChicagoPropertySnapshot;
 }
 
 function profileNameKey(value: string) {
@@ -83,6 +103,7 @@ const navigation: Array<{
     items: [
       { view: "dashboard", label: "Dashboard", icon: "DB" },
       { view: "people", label: "Search directory", icon: "DIR" },
+      { view: "chicago_property", label: "Chicago Property", icon: "CHI" },
       { view: "territories", label: "Territories & alerts", icon: "AL" },
       { view: "map", label: "State map", icon: "US" },
     ],
@@ -127,6 +148,12 @@ const viewCopy: Record<
     title: "Saved territories and alerts",
     detail:
       "Build city/metro-radius searches around public business locations, save territory rules, and surface matching capital events.",
+  },
+  chicago_property: {
+    eyebrow: "Cook County asset dispositions",
+    title: "Chicago Property",
+    detail:
+      "Significant property sales and potential business-exit signals across Chicago and Cook County.",
   },
   profile: {
     eyebrow: "SEC reporting-party profile",
@@ -1377,6 +1404,8 @@ export function RealRadarApp() {
   const [motionData, setMotionData] = useState<MoneyMotionSnapshot | null>(
     null,
   );
+  const [chicagoPropertyData, setChicagoPropertyData] =
+    useState<ChicagoPropertySnapshot | null>(null);
   const people = useMemo(() => (data ? buildRealPeople(data) : []), [data]);
   const coverage = data
     ? liquidityCoverage(data)
@@ -1458,6 +1487,37 @@ export function RealRadarApp() {
       .catch(() => {
         // A reload retries the immutable checked-in public snapshot.
       });
+    return () => controller.abort();
+  }, [ready, signedIn]);
+
+  useEffect(() => {
+    if (!ready || !signedIn) return;
+    const controller = new AbortController();
+    const refreshBucket = Math.floor(Date.now() / (5 * 60 * 1000));
+    const loadCandidate = async (url: string) =>
+      decodeChicagoPropertySnapshot(
+        await fetch(url, { signal: controller.signal, cache: "no-store" }),
+      );
+    const loadSnapshots = async () => {
+      let packaged: ChicagoPropertySnapshot | null = null;
+      try {
+        packaged = await loadCandidate("/data/chicago-property-client.json.gz");
+        setChicagoPropertyData(packaged);
+      } catch {
+        if (controller.signal.aborted) throw new Error("Request aborted.");
+      }
+      try {
+        const live = await loadCandidate(
+          `${liveChicagoPropertySnapshotUrl}?refresh=${refreshBucket}`,
+        );
+        if (!packaged || live.generatedAt > packaged.generatedAt) {
+          setChicagoPropertyData(live);
+        }
+      } catch {
+        if (controller.signal.aborted) throw new Error("Request aborted.");
+      }
+    };
+    void loadSnapshots();
     return () => controller.abort();
   }, [ready, signedIn]);
 
@@ -1579,6 +1639,29 @@ export function RealRadarApp() {
     );
   } else if (view === "map") {
     content = <PublicStateMap data={data} />;
+  } else if (view === "chicago_property") {
+    content = (
+      <>
+        <PageIntro
+          view="chicago_property"
+          action={
+            chicagoPropertyData ? (
+              <span className="real-count-pill">
+                {chicagoPropertyData.stats.significantSales.toLocaleString()}{" "}
+                significant sales
+              </span>
+            ) : undefined
+          }
+        />
+        {chicagoPropertyData ? (
+          <ChicagoPropertyView snapshot={chicagoPropertyData} />
+        ) : (
+          <div className="motion-inline-loading">
+            Loading official Cook County and Illinois property records…
+          </div>
+        )}
+      </>
+    );
   } else if (view === "people") {
     content = (
       <>
