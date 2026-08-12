@@ -169,19 +169,19 @@ const viewCopy: Record<
       "Build city/metro-radius searches around public business locations, save territory rules, and surface matching capital events.",
   },
   chicago_property: {
-    eyebrow: "Cook County asset dispositions",
+    eyebrow: "Chicago Metro asset dispositions",
     title: "Chicago Property",
     detail:
-      "Significant property sales and potential business-exit signals across Chicago and Cook County.",
+      "Significant property sales and potential business-exit signals across Cook and DuPage Counties.",
   },
   chicago_profile: {
-    eyebrow: "Cook County seller profile",
+    eyebrow: "Chicago Metro seller profile",
     title: "Property disposition history",
     detail:
       "Review every significant property disposition tied to this person or seller entity.",
   },
   seller_intelligence: {
-    eyebrow: "Cook County person-resolution workflow",
+    eyebrow: "Chicago Metro person-resolution workflow",
     title: "Seller Intelligence",
     detail:
       "Rank property sellers, aggregate their dispositions, resolve defensible owner relationships, and identify converging business-exit evidence.",
@@ -1730,7 +1730,8 @@ export function RealRadarApp() {
           />
         ) : (
           <div className="motion-inline-loading">
-            Loading official Cook County and Illinois property records…
+            Loading official Cook County, DuPage County, and Illinois property
+            records…
           </div>
         )}
       </>

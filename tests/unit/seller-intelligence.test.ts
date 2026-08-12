@@ -43,6 +43,7 @@ function propertyRecord(
     resolutionConfidence: 0,
     businessMatch: null,
     property: {
+      county: "Cook",
       address: "100 W Lake St",
       city: "Chicago",
       state: "Illinois",
@@ -74,6 +75,10 @@ function propertyRecord(
       quality: "MARKET_SALE",
       qualityReasons: [],
       multiParcel: false,
+      additionalSellersReported: false,
+      additionalBuyersReported: false,
+      ptax203AAttached: false,
+      ptax203BAttached: false,
     },
     proceeds: {
       recordedSaleConsideration: value,
@@ -118,7 +123,7 @@ function propertyRecord(
 
 function snapshot(records: ChicagoPropertyRecord[]): ChicagoPropertySnapshot {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: "2026-08-11T00:00:00.000Z",
     coverage: { startDate: "2022-01-01", endDate: "2026-08-11" },
     thresholds: { commercial: 1_000_000, largeResidential: 3_000_000 },
@@ -128,6 +133,28 @@ function snapshot(records: ChicagoPropertyRecord[]): ChicagoPropertySnapshot {
     records,
   };
 }
+
+describe("cross-county seller identity", () => {
+  it("aggregates Cook and DuPage dispositions into one seller profile", () => {
+    const cook = propertyRecord({ id: "cook-sale", value: 4_000_000 });
+    const dupage = propertyRecord({
+      id: "dupage-sale",
+      transactionKey: "DUPAGE:DOC:2",
+      value: 6_000_000,
+      date: "2026-08-01",
+    });
+    dupage.property.county = "DuPage";
+    dupage.property.city = "Oak Brook";
+    const result = buildSellerIntelligence(snapshot([cook, dupage]));
+    expect(result.profiles).toHaveLength(1);
+    expect(result.profiles[0]).toMatchObject({
+      dispositionCount: 2,
+      totalRecordedConsideration: 10_000_000,
+      multipleDispositions: true,
+      counties: ["Cook", "DuPage"],
+    });
+  });
+});
 
 function manual(
   overrides: Partial<SellerManualRecord> = {},

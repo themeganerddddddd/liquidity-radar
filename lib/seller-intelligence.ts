@@ -69,6 +69,7 @@ export type SellerIntelligenceProfile = {
   seller: string;
   normalizedName: string;
   location: { city: string; state: string; display: string };
+  counties: string[];
   entityType: string;
   status:
     | "Unresolved"
@@ -153,9 +154,11 @@ export function sellerKey(record: ChicagoPropertyRecord) {
 }
 
 export function chicagoProfileKey(record: ChicagoPropertyRecord) {
-  return record.sellerPerson
-    ? `person:${normalizeEntityName(record.sellerPerson)}`
-    : `entity:${sellerKey(record)}`;
+  return record.sellerEntity
+    ? `entity:${sellerKey(record)}`
+    : record.sellerPerson
+      ? `person:${normalizeEntityName(record.sellerPerson)}`
+      : `entity:${sellerKey(record)}`;
 }
 
 export function chicagoProfileRecords(
@@ -413,7 +416,7 @@ function buildProfile(
       {
         name: seller,
         type: "PROPERTY_HOLDING_ENTITY" as const,
-        source: "Cook County / Illinois property transfer record",
+        source: "Chicago Metro / Illinois property transfer record",
       },
       ...dispositions.flatMap((record) => {
         const business = record.businessMatch;
@@ -467,7 +470,10 @@ function buildProfile(
   const city =
     [...cityCounts.entries()].sort(
       (left, right) => right[1] - left[1] || left[0].localeCompare(right[0]),
-    )[0]?.[0] || "Cook County";
+    )[0]?.[0] || "Chicago Metro";
+  const counties = [
+    ...new Set(dispositions.map((record) => record.property.county)),
+  ].sort();
   const needsManualReview =
     !ownerFound &&
     totalRecordedConsideration >= 10_000_000 &&
@@ -505,6 +511,7 @@ function buildProfile(
     seller,
     normalizedName,
     location: { city, state: "Illinois", display: `${city}, Illinois` },
+    counties,
     entityType: inferEntityType(seller),
     status,
     priorityScore: priorityScore({

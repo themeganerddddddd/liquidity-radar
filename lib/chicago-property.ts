@@ -5,9 +5,12 @@ import {
   type NormalizedSourceEvent,
 } from "./money-in-motion";
 
-export const CHICAGO_PROPERTY_SCHEMA_VERSION = 1 as const;
+export const CHICAGO_PROPERTY_SCHEMA_VERSION = 2 as const;
 export const DEFAULT_COMMERCIAL_THRESHOLD = 1_000_000;
 export const DEFAULT_RESIDENTIAL_THRESHOLD = 2_000_000;
+
+export const CHICAGO_PROPERTY_COUNTIES = ["Cook", "DuPage"] as const;
+export type PropertyCounty = (typeof CHICAGO_PROPERTY_COUNTIES)[number];
 
 export const PROPERTY_CATEGORIES = [
   "OFFICE",
@@ -103,6 +106,7 @@ export type ChicagoPropertyRecord = {
   resolutionConfidence: number;
   businessMatch: ChicagoBusinessMatch | null;
   property: {
+    county: PropertyCounty;
     address: string;
     city: string;
     state: string;
@@ -134,6 +138,10 @@ export type ChicagoPropertyRecord = {
     quality: SaleQuality;
     qualityReasons: string[];
     multiParcel: boolean;
+    additionalSellersReported: boolean;
+    additionalBuyersReported: boolean;
+    ptax203AAttached: boolean;
+    ptax203BAttached: boolean;
   };
   proceeds: {
     recordedSaleConsideration: number | null;
@@ -201,6 +209,12 @@ export type ChicagoPropertySnapshot = {
     nonMarketTransfersExcluded: number;
     ptaxMatches: number;
     valueDiscrepancies: number;
+    cookSales: number;
+    dupageSales: number;
+    cookRecordedValue: number;
+    dupageRecordedValue: number;
+    crossCountySellerEntities: number;
+    crossCountyRecordedValue: number;
     byPropertyType: Record<PropertyCategory, number>;
     byValueBucket: Record<string, number>;
     byExitConvergence: Record<string, number>;
@@ -213,6 +227,7 @@ export type ChicagoSourceRow = Record<string, unknown>;
 
 export type PropertyTransactionDraft = {
   transactionKey: string;
+  county: PropertyCounty;
   cookRowIds: string[];
   declarationIds: string[];
   seller: string;
@@ -235,6 +250,10 @@ export type PropertyTransactionDraft = {
   relationshipFlags: string[];
   multiParcel: boolean;
   reportedParcelCount: number;
+  additionalSellersReported: boolean;
+  additionalBuyersReported: boolean;
+  ptax203AAttached: boolean;
+  ptax203BAttached: boolean;
 };
 
 export type CommercialValuation = {
@@ -265,6 +284,17 @@ export type ParcelGeography = {
   zip: string;
   latitude: number | null;
   longitude: number | null;
+};
+
+export type DuPageParcelRecord = {
+  pin: string;
+  address: string;
+  city: string;
+  zip: string;
+  propertyClass: string;
+  latitude: number | null;
+  longitude: number | null;
+  retrievedAt: string;
 };
 
 export type BusinessLicenseRow = {
@@ -340,6 +370,19 @@ function titleCase(value: string) {
     .replace(/\b(?:Llc|Lp|Llp|Inc)\b/g, (word) => word.toUpperCase());
 }
 
+function standardizedChicagoMetroCity(value: string) {
+  const city = titleCase(value.trim());
+  const normalized = city.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const names: Record<string, string> = {
+    ELKGROVEVLG: "Elk Grove Village",
+    GLENDALEHTS: "Glendale Heights",
+    OAKBROOKTERR: "Oakbrook Terrace",
+    STCHARLES: "St. Charles",
+    UNINCORPORATEDWESTCHICAGO: "Unincorporated West Chicago",
+  };
+  return names[normalized] || city;
+}
+
 function unique(values: string[]) {
   return [...new Set(values.filter(Boolean))];
 }
@@ -393,6 +436,24 @@ function splitAddress(value: string) {
     : { address: titleCase(normalized), city: "", state: "Illinois", zip: "" };
 }
 
+function ptaxAddress(row: ChicagoSourceRow) {
+  const street = stringValue(row.line_1_street);
+  const city = stringValue(row.line_1_city);
+  const zip = stringValue(row.line_1_zip_code).replace(/\D/g, "").slice(0, 5);
+  if (street || city || zip)
+    return {
+      address: titleCase(street),
+      city: titleCase(city),
+      state: "Illinois",
+      zip,
+    };
+  return splitAddress(stringValue(row.full_address));
+}
+
+function propertyCounty(value: unknown): PropertyCounty {
+  return /^du\s*page$/i.test(stringValue(value)) ? "DuPage" : "Cook";
+}
+
 function draftKey(input: {
   documentNumber: string;
   seller: string;
@@ -433,6 +494,7 @@ export function clusterCookSales(rows: ChicagoSourceRow[]) {
       drafts.get(key) ||
       ({
         transactionKey: key,
+        county: "Cook",
         cookRowIds: [],
         declarationIds: [],
         seller: "",
@@ -455,6 +517,10 @@ export function clusterCookSales(rows: ChicagoSourceRow[]) {
         relationshipFlags: [],
         multiParcel: false,
         reportedParcelCount: 1,
+        additionalSellersReported: false,
+        additionalBuyersReported: false,
+        ptax203AAttached: false,
+        ptax203BAttached: false,
       } satisfies PropertyTransactionDraft);
     current.cookRowIds = unique([...current.cookRowIds, rowId]);
     current.seller ||= seller;
@@ -537,9 +603,14 @@ export function mergePtaxTransactions(
     const saleDate = dateValue(row.date_recorded);
     const full = numberValue(row.line_11_full_consideration);
     const declarationId = stringValue(row.declaration_id);
-    const existingKey = documentNumber ? byDocument.get(documentNumber) : "";
+    const county = propertyCounty(row.line_1_county);
+    const existingKey =
+      county === "Cook" && documentNumber ? byDocument.get(documentNumber) : "";
     const key =
       existingKey ||
+      (county === "DuPage" && documentNumber
+        ? `DUPAGE:DOC:${documentNumber}`
+        : "") ||
       draftKey({
         documentNumber,
         seller,
@@ -548,11 +619,12 @@ export function mergePtaxTransactions(
         value: full,
         fallback: declarationId,
       });
-    const parsedAddress = splitAddress(stringValue(row.full_address));
+    const parsedAddress = ptaxAddress(row);
     const current =
       drafts.get(key) ||
       ({
         transactionKey: key,
+        county,
         cookRowIds: [],
         declarationIds: [],
         seller,
@@ -572,7 +644,12 @@ export function mergePtaxTransactions(
         relationshipFlags: [],
         multiParcel: false,
         reportedParcelCount: 1,
+        additionalSellersReported: false,
+        additionalBuyersReported: false,
+        ptax203AAttached: false,
+        ptax203BAttached: false,
       } satisfies PropertyTransactionDraft);
+    current.county = county;
     current.declarationIds = unique([...current.declarationIds, declarationId]);
     current.seller ||= seller;
     current.buyer ||= buyer;
@@ -586,9 +663,9 @@ export function mergePtaxTransactions(
     current.pins = unique([
       ...current.pins,
       normalizePin(row.line_1_primary_pin),
-      ...stringValue(row.line_3_additional_pins)
-        .split(/[,;\s]+/)
-        .map(normalizePin),
+      normalizePin(row._203_a_line_2_primary_pin),
+      normalizePin(row._203_a_line_5_property_1_2),
+      normalizePin(row._203_a_line_5_property_2_2),
     ]);
     current.ptaxFullConsideration ??= full;
     current.ptaxNetConsideration ??= numberValue(row.line_13_net_consideration);
@@ -609,6 +686,10 @@ export function mergePtaxTransactions(
       ...current.relationshipFlags,
       ...ptaxFlags(row),
     ]);
+    current.additionalSellersReported ||= truthy(row.additional_sellers);
+    current.additionalBuyersReported ||= truthy(row.additional_buyers);
+    current.ptax203AAttached ||= truthy(row.ptax_203_a_attached);
+    current.ptax203BAttached ||= truthy(row.ptax_203_b_attached);
     current.multiParcel =
       current.multiParcel ||
       Number(row.line_2_total_parcels || 0) > 1 ||
@@ -619,7 +700,8 @@ export function mergePtaxTransactions(
       current.pins.length,
     );
     drafts.set(key, current);
-    if (documentNumber) byDocument.set(documentNumber, key);
+    if (county === "Cook" && documentNumber)
+      byDocument.set(documentNumber, key);
   }
   return [...drafts.values()];
 }
@@ -702,6 +784,30 @@ export function classifyPropertyCategory(input: {
       valuation.sourceClass.split(",").map((value) => value.trim()),
     ),
   ]);
+  if (classes.includes("DUPAGE-R"))
+    return {
+      category: "RESIDENTIAL_LUXURY" as const,
+      basis: "DuPage County residential property class",
+    };
+  if (classes.includes("DUPAGE-I"))
+    return {
+      category: "INDUSTRIAL" as const,
+      basis: "DuPage County industrial property class",
+    };
+  if (classes.some((value) => ["DUPAGE-A", "DUPAGE-L"].includes(value)))
+    return {
+      category: "LAND" as const,
+      basis: "DuPage County land/agricultural property class",
+    };
+  if (
+    classes.some((value) =>
+      ["DUPAGE-C", "DUPAGE-E", "DUPAGE-M"].includes(value),
+    )
+  )
+    return {
+      category: "OTHER_COMMERCIAL" as const,
+      basis: "DuPage County non-residential property class",
+    };
   if (classes.some((value) => /^2-/.test(value)))
     return {
       category: "RESIDENTIAL_LUXURY" as const,
@@ -1160,6 +1266,7 @@ export function finalizeChicagoRecords(input: {
   drafts: PropertyTransactionDraft[];
   addressesByPin: Record<string, PropertyAddress>;
   geographyByPin: Record<string, ParcelGeography>;
+  dupageByPin?: Record<string, DuPageParcelRecord>;
   commercialByPin: Record<string, CommercialValuation[]>;
   transferFormUseByDeclaration: Record<string, string>;
   licenses: BusinessLicenseRow[];
@@ -1176,6 +1283,10 @@ export function finalizeChicagoRecords(input: {
   let nonMarketTransfersExcluded = 0;
   let thresholdExcluded = 0;
   const records = input.drafts.flatMap((draft) => {
+    if (draft.county === "DuPage" && !draft.seller) {
+      thresholdExcluded += 1;
+      return [];
+    }
     const quality = classifySaleQuality(draft);
     if (!["MARKET_SALE", "LIKELY_MARKET_SALE"].includes(quality.quality)) {
       nonMarketTransfersExcluded += 1;
@@ -1190,8 +1301,18 @@ export function finalizeChicagoRecords(input: {
     const valuations = draft.pins.flatMap(
       (pin) => input.commercialByPin[pin] || [],
     );
+    const dupageParcels = draft.pins
+      .map((pin) => input.dupageByPin?.[pin])
+      .filter((row): row is DuPageParcelRecord => Boolean(row));
     const classification = classifyPropertyCategory({
-      sourceClasses: draft.sourceClasses,
+      sourceClasses: unique([
+        ...draft.sourceClasses,
+        ...dupageParcels.map((parcel) =>
+          parcel.propertyClass
+            ? `DUPAGE-${parcel.propertyClass.toUpperCase()}`
+            : "",
+        ),
+      ]),
       ptaxUseCode: draft.ptaxUseCode,
       ptaxUseDescription: draft.ptaxUseDescription,
       commercialValuations: valuations,
@@ -1263,11 +1384,22 @@ export function finalizeChicagoRecords(input: {
     );
     const address = addressRows[0];
     const geography = geographyRows[0];
+    const dupageParcel = dupageParcels[0];
     const propertyAddress =
-      address?.address || draft.address || valuations[0]?.address || "";
-    const city =
-      address?.city || draft.city || geography?.city || "Cook County";
-    const zip = address?.zip || draft.zip || geography?.zip || "";
+      dupageParcel?.address ||
+      address?.address ||
+      draft.address ||
+      valuations[0]?.address ||
+      "";
+    const city = standardizedChicagoMetroCity(
+      dupageParcel?.city ||
+        address?.city ||
+        draft.city ||
+        geography?.city ||
+        `${draft.county} County`,
+    );
+    const zip =
+      dupageParcel?.zip || address?.zip || draft.zip || geography?.zip || "";
     const evidence: ChicagoPropertyEvidence[] = [];
     if (draft.cookRowIds.length)
       evidence.push({
@@ -1295,12 +1427,60 @@ export function finalizeChicagoRecords(input: {
         recordId: draft.declarationIds[0],
         retrievedAt: input.generatedAt,
         facts: [
+          `${draft.county} County`,
+          draft.documentNumber
+            ? `Recorder document ${draft.documentNumber}`
+            : "Recorder document number unavailable",
           draft.ptaxFullConsideration === null
             ? "Full consideration unavailable"
             : `Full consideration ${draft.ptaxFullConsideration}`,
           draft.ptaxNetConsideration === null
             ? "Net real-property consideration unavailable"
             : `Net real-property consideration ${draft.ptaxNetConsideration}`,
+          draft.additionalSellersReported
+            ? "Additional sellers reported on the declaration"
+            : "No additional-seller flag reported",
+          draft.additionalBuyersReported
+            ? "Additional buyers reported on the declaration"
+            : "No additional-buyer flag reported",
+          draft.ptax203AAttached
+            ? "PTAX-203-A attachment reported"
+            : "No PTAX-203-A attachment reported",
+          draft.ptax203BAttached
+            ? "PTAX-203-B attachment reported"
+            : "No PTAX-203-B attachment reported",
+        ],
+      });
+    if (draft.county === "DuPage" && dupageParcel)
+      evidence.push({
+        id: stableId(id, "dupage-parcel"),
+        sourceId: "dupage_property_lookup",
+        publisher: "DuPage County",
+        title: "DuPage County property record and GIS parcel match",
+        sourceUrl: `https://propertylookup.dupagecounty.gov/Datalets/Datalet.aspx?UseSearch=no&pin=${dupageParcel.pin.slice(-10)}`,
+        recordId: dupageParcel.pin.slice(-10),
+        retrievedAt: dupageParcel.retrievedAt || input.generatedAt,
+        facts: [
+          dupageParcel.address || "Situs address unavailable",
+          dupageParcel.city || "Municipality unavailable",
+          dupageParcel.propertyClass
+            ? `County property class ${dupageParcel.propertyClass}`
+            : "County property class unavailable",
+          "Parcel geometry used for the map; situs record only",
+        ],
+      });
+    if (draft.county === "DuPage" && draft.documentNumber)
+      evidence.push({
+        id: stableId(id, "dupage-recorder"),
+        sourceId: "dupage_recorder",
+        publisher: "DuPage County Recorder",
+        title: "DuPage County Recorder targeted document lookup",
+        sourceUrl: "https://recorder.dupageco.org/Search.aspx",
+        recordId: draft.documentNumber,
+        retrievedAt: input.generatedAt,
+        facts: [
+          `Recorder document ${draft.documentNumber}`,
+          "Official targeted verification route; no bulk recorder crawling performed",
         ],
       });
     if (businessMatch)
@@ -1330,6 +1510,7 @@ export function finalizeChicagoRecords(input: {
         resolutionConfidence,
         businessMatch,
         property: {
+          county: draft.county,
           address: propertyAddress,
           city,
           state: "Illinois",
@@ -1339,6 +1520,11 @@ export function finalizeChicagoRecords(input: {
           classificationBasis: classification.basis,
           sourceClassifications: unique([
             ...draft.sourceClasses.map(formattedClass),
+            ...dupageParcels.map((parcel) =>
+              parcel.propertyClass
+                ? `DuPage class ${parcel.propertyClass.toUpperCase()}`
+                : "",
+            ),
             ...valuations.map((valuation) => valuation.sourceClass),
           ]),
           pins: draft.pins,
@@ -1349,8 +1535,8 @@ export function finalizeChicagoRecords(input: {
           ),
           commercial,
           largeResidential,
-          latitude: geography?.latitude ?? null,
-          longitude: geography?.longitude ?? null,
+          latitude: dupageParcel?.latitude ?? geography?.latitude ?? null,
+          longitude: dupageParcel?.longitude ?? geography?.longitude ?? null,
         },
         transaction: {
           saleDate: draft.saleDate,
@@ -1373,6 +1559,10 @@ export function finalizeChicagoRecords(input: {
             draft.multiParcel ||
             draft.reportedParcelCount > 1 ||
             draft.pins.length > 1,
+          additionalSellersReported: draft.additionalSellersReported,
+          additionalBuyersReported: draft.additionalBuyersReported,
+          ptax203AAttached: draft.ptax203AAttached,
+          ptax203BAttached: draft.ptax203BAttached,
         },
         proceeds: {
           recordedSaleConsideration: displayValue,
@@ -1400,8 +1590,8 @@ export function finalizeChicagoRecords(input: {
 export function applyRepeatedSellerHistory(records: ChicagoPropertyRecord[]) {
   const bySeller = new Map<string, ChicagoPropertyRecord[]>();
   for (const record of records) {
-    const key = chicagoEntityName(
-      record.sellerEntity || record.sellerPerson || record.sellerOriginal,
+    const key = normalizeEntityName(
+      record.sellerEntity || record.sellerOriginal || record.sellerPerson,
     );
     if (!key) continue;
     bySeller.set(key, [...(bySeller.get(key) || []), record]);
@@ -1478,6 +1668,21 @@ export function chicagoPropertyStats(input: {
   }
   const recorded = (record: ChicagoPropertyRecord) =>
     record.proceeds.recordedSaleConsideration || 0;
+  const sellerCounties = new Map<string, Set<PropertyCounty>>();
+  for (const record of input.records) {
+    const seller = normalizeEntityName(
+      record.sellerEntity || record.sellerOriginal || record.sellerPerson,
+    );
+    if (!seller) continue;
+    const counties = sellerCounties.get(seller) || new Set<PropertyCounty>();
+    counties.add(record.property.county);
+    sellerCounties.set(seller, counties);
+  }
+  const crossCountySellers = new Set(
+    [...sellerCounties.entries()]
+      .filter(([, counties]) => counties.size > 1)
+      .map(([seller]) => seller),
+  );
   return {
     significantSales: input.records.length,
     commercialSales: input.records.filter(
@@ -1506,8 +1711,8 @@ export function chicagoPropertyStats(input: {
       .reduce((sum, record) => sum + recorded(record), 0),
     uniqueSellerEntities: new Set(
       input.records.map((record) =>
-        chicagoEntityName(
-          record.sellerEntity || record.sellerPerson || record.sellerOriginal,
+        normalizeEntityName(
+          record.sellerEntity || record.sellerOriginal || record.sellerPerson,
         ),
       ),
     ).size,
@@ -1534,6 +1739,28 @@ export function chicagoPropertyStats(input: {
     valueDiscrepancies: input.records.filter(
       (record) => record.transaction.valueDiscrepancy,
     ).length,
+    cookSales: input.records.filter(
+      (record) => record.property.county === "Cook",
+    ).length,
+    dupageSales: input.records.filter(
+      (record) => record.property.county === "DuPage",
+    ).length,
+    cookRecordedValue: input.records
+      .filter((record) => record.property.county === "Cook")
+      .reduce((sum, record) => sum + recorded(record), 0),
+    dupageRecordedValue: input.records
+      .filter((record) => record.property.county === "DuPage")
+      .reduce((sum, record) => sum + recorded(record), 0),
+    crossCountySellerEntities: crossCountySellers.size,
+    crossCountyRecordedValue: input.records
+      .filter((record) =>
+        crossCountySellers.has(
+          normalizeEntityName(
+            record.sellerEntity || record.sellerOriginal || record.sellerPerson,
+          ),
+        ),
+      )
+      .reduce((sum, record) => sum + recorded(record), 0),
     byPropertyType,
     byValueBucket,
     byExitConvergence,
@@ -1564,7 +1791,7 @@ export function propertyMotionEvents(
     const primary = record.evidence[0];
     return {
       source_id: "chicago_property",
-      source_type: "Cook County / Illinois recorded property disposition",
+      source_type: `${record.property.county} County / Illinois recorded property disposition`,
       external_record_id: record.id,
       source_url:
         primary?.sourceUrl ||
@@ -1586,8 +1813,7 @@ export function propertyMotionEvents(
         country: "United States",
         state: "Illinois",
         city: record.property.city,
-        basis:
-          "Cook County parcel situs address; owner mailing addresses excluded",
+        basis: `${record.property.county} County parcel situs address; owner mailing addresses excluded`,
       },
       reported_transaction_value: record.transaction.displayValueHigh,
       currency: "USD",
@@ -1602,9 +1828,14 @@ export function propertyMotionEvents(
           : record.sellerEntity
             ? "ORGANIZATION"
             : "UNKNOWN",
-        publisher: primary?.publisher || "Cook County Assessor's Office",
+        publisher:
+          primary?.publisher ||
+          (record.property.county === "DuPage"
+            ? "Illinois Department of Revenue"
+            : "Cook County Assessor's Office"),
         industry: "Real Estate",
         propertyCategory: record.property.category,
+        propertyCounty: record.property.county,
         parcelCount: record.property.parcelCount,
         documentNumber: record.transaction.documentNumber,
         exitConvergenceScore: record.exitConvergence.score,

@@ -33,6 +33,21 @@ describe("production Chicago Property contracts", () => {
       50_000_000_000,
     );
     expect(snapshot.stats.ptaxMatches).toBeGreaterThan(9_000);
+    expect(snapshot.stats.cookSales).toBeGreaterThan(10_000);
+    expect(snapshot.stats.dupageSales).toBeGreaterThan(1_000);
+    expect(snapshot.stats.dupageRecordedValue).toBeGreaterThan(1_000_000_000);
+    expect(snapshot.stats.crossCountySellerEntities).toBeGreaterThan(0);
+    expect(
+      snapshot.records
+        .filter((record) => record.property.county === "DuPage")
+        .some(
+          (record) =>
+            record.property.latitude !== null &&
+            record.evidence.some(
+              (evidence) => evidence.sourceId === "dupage_property_lookup",
+            ),
+        ),
+    ).toBe(true);
     expect(snapshot.sourceHealth.map((source) => source.id)).toEqual(
       expect.arrayContaining([
         "cook_property_sales",
@@ -41,6 +56,7 @@ describe("production Chicago Property contracts", () => {
         "cook_parcel_addresses",
         "cook_commercial_valuation",
         "cook_parcel_universe",
+        "dupage_parcel_gis",
         "chicago_business_licenses",
         "chicago_business_owners",
       ]),
@@ -102,7 +118,7 @@ describe("production Chicago Property contracts", () => {
 
     const response = await GET(
       new Request(
-        "http://localhost/api/v1/chicago-property?commercial_only=true&min_value=10000000&person_resolved=false&limit=5",
+        "http://localhost/api/v1/chicago-property?county=DuPage&commercial_only=true&min_value=10000000&person_resolved=false&limit=5",
         { headers: { authorization: "Bearer lr_demo_local_2026" } },
       ),
     );
@@ -117,6 +133,7 @@ describe("production Chicago Property contracts", () => {
       payload.data.every(
         (record) =>
           record.property.commercial &&
+          record.property.county === "DuPage" &&
           !record.sellerPerson &&
           (record.transaction.displayValueHigh || 0) >= 10_000_000,
       ),

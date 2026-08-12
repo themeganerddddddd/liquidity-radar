@@ -46,6 +46,7 @@ export async function GET(request: Request) {
     url.searchParams.get("large_residential"),
   );
   const city = (url.searchParams.get("city") || "").trim().toLowerCase();
+  const county = (url.searchParams.get("county") || "").trim().toLowerCase();
   const zip = (url.searchParams.get("zip") || "").trim();
   const seller = (url.searchParams.get("seller") || "").trim().toLowerCase();
   const personResolved = booleanParameter(
@@ -82,6 +83,7 @@ export async function GET(request: Request) {
       (largeResidential === null ||
         record.property.largeResidential === largeResidential) &&
       (!city || record.property.city.toLowerCase() === city) &&
+      (!county || record.property.county.toLowerCase() === county) &&
       (!zip || record.property.zip === zip) &&
       (!seller ||
         [record.sellerPerson, record.sellerEntity, record.sellerOriginal]

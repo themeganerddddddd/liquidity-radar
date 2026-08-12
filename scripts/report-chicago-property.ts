@@ -32,7 +32,7 @@ function label(record: ChicagoPropertyRecord) {
 
 function exampleLine(record: ChicagoPropertyRecord) {
   const source = record.evidence[0];
-  return `- **${label(record)}** — ${record.property.categoryLabel}; ${money(record.transaction.displayValueHigh)} recorded consideration; ${record.property.city}, Illinois; ${record.transaction.saleDate}; ${record.property.parcelCount} parcel${record.property.parcelCount === 1 ? "" : "s"}; exit convergence ${record.exitConvergence.score}. [Official record](${source?.sourceUrl || "https://datacatalog.cookcountyil.gov/d/wvhk-k5uv"}) (document ${record.transaction.documentNumber || "unavailable"}).`;
+  return `- **${label(record)}** — ${record.property.categoryLabel}; ${money(record.transaction.displayValueHigh)} recorded consideration; ${record.property.city}, ${record.property.county} County, Illinois; ${record.transaction.saleDate}; ${record.property.parcelCount} parcel${record.property.parcelCount === 1 ? "" : "s"}; exit convergence ${record.exitConvergence.score}. [Official record](${source?.sourceUrl || "https://data.illinois.gov/d/it54-y4c6"}) (document ${record.transaction.documentNumber || "unavailable"}).`;
 }
 
 function takeUnique(
@@ -153,7 +153,7 @@ const businessLicenseMatches = snapshot.records.filter(
   (record) => record.businessMatch,
 ).length;
 
-const report = `# Chicago Property validation report
+const report = `# Chicago Metro Property validation report
 
 Generated: ${snapshot.generatedAt}
 
@@ -165,6 +165,12 @@ This report reflects only the production snapshot built from official public rec
 | --- | ---: |
 | Coverage | ${snapshot.coverage.startDate} through ${snapshot.coverage.endDate} |
 | Significant transactions | ${snapshot.stats.significantSales.toLocaleString()} |
+| Cook County transactions | ${snapshot.stats.cookSales.toLocaleString()} |
+| DuPage County transactions | ${snapshot.stats.dupageSales.toLocaleString()} |
+| Cook County recorded value | ${money(snapshot.stats.cookRecordedValue)} |
+| DuPage County recorded value | ${money(snapshot.stats.dupageRecordedValue)} |
+| Cross-county sellers | ${snapshot.stats.crossCountySellerEntities.toLocaleString()} |
+| Cross-county recorded value | ${money(snapshot.stats.crossCountyRecordedValue)} |
 | Commercial transactions | ${snapshot.stats.commercialSales.toLocaleString()} |
 | Large residential transactions | ${snapshot.stats.largeResidentialSales.toLocaleString()} |
 | Recorded transaction value | ${money(snapshot.stats.recordedTransactionValue)} |
@@ -214,11 +220,11 @@ ${exampleSections}
 ## Product safeguards verified
 
 - Multi-parcel source rows are clustered by document/transaction and counted once.
-- Cook recorded price and PTAX full, net, and taxable consideration remain separate fields.
+- Cook recorded price and PTAX full, net, and taxable consideration remain separate fields; DuPage uses the statewide declaration value without inventing a county value.
 - Quitclaim, trust, nominal, related-party, reorganization, and distress transfers are excluded from high-confidence liquidity results.
 - Exact account/legal/DBA/normalized-entity methods may auto-resolve; fuzzy candidates do not.
 - Business-owner percentages remain unknown unless explicitly reported.
-- Property situs locations are shown; owner mailing addresses are neither collected nor surfaced.
+- Cook and DuPage property situs locations are shown on one map; owner mailing addresses are neither collected nor surfaced.
 - Sale consideration, gross attributable value, potential proceeds, and net proceeds are distinct; unknown values remain unknown.
 `;
 

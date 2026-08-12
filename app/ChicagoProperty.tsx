@@ -5,6 +5,7 @@ import {
   PROPERTY_CATEGORIES,
   type ChicagoPropertyRecord,
   type ChicagoPropertySnapshot,
+  type PropertyCounty,
   type PropertyCategory,
   type ValueStatus,
 } from "../lib/chicago-property";
@@ -16,6 +17,7 @@ import {
 
 type ResultsMode = "list" | "map";
 type PropertyGroup = "all" | "commercial" | "residential";
+type CountyFilter = "all" | PropertyCounty;
 
 const pageSize = 40;
 
@@ -64,7 +66,11 @@ function dateLabel(value: string) {
 }
 
 function locationLabel(record: ChicagoPropertyRecord) {
-  return [record.property.city, record.property.state]
+  return [
+    record.property.city,
+    `${record.property.county} County`,
+    record.property.state,
+  ]
     .filter(Boolean)
     .join(", ");
 }
@@ -160,7 +166,7 @@ function ChicagoPropertyMap({
       if (!active || !containerRef.current || mapRef.current) return;
       const map = leaflet
         .map(containerRef.current, {
-          center: [41.84, -87.75],
+          center: [41.86, -87.93],
           zoom: 9,
           minZoom: 8,
           maxZoom: 19,
@@ -169,8 +175,8 @@ function ChicagoPropertyMap({
           scrollWheelZoom: true,
         })
         .setMaxBounds([
-          [41.25, -88.65],
-          [42.35, -87.2],
+          [41.35, -88.55],
+          [42.25, -87.35],
         ]);
       leaflet
         .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -268,7 +274,7 @@ function ChicagoPropertyMap({
         <div
           ref={containerRef}
           className="chicago-leaflet-map"
-          aria-label="Interactive OpenStreetMap of Cook County property sales"
+          aria-label="Interactive OpenStreetMap of Cook and DuPage County property sales"
         />
         <div className="chicago-map-key" aria-label="Map legend">
           <span>
@@ -332,6 +338,9 @@ export function ChicagoPropertyProfile({
       (item) => item.proceeds.recordedSaleConsideration || 0,
     ),
   );
+  const profileCounties = [
+    ...new Set(profileRecords.map((item) => item.property.county)),
+  ];
   const businessOwners = [
     ...new Map(
       profileRecords
@@ -397,6 +406,10 @@ export function ChicagoPropertyProfile({
             <span>Most recent</span>
             <strong>{dateLabel(profileRecords[0].transaction.saleDate)}</strong>
           </div>
+          <div>
+            <span>County coverage</span>
+            <strong>{profileCounties.join(" + ")}</strong>
+          </div>
         </section>
 
         <section>
@@ -428,7 +441,9 @@ export function ChicagoPropertyProfile({
                   </span>
                   <span>
                     <strong>{locationLabel(item)}</strong>
-                    <small>{item.property.zip}</small>
+                    <small>
+                      {item.property.county} County Â· {item.property.zip}
+                    </small>
                   </span>
                   <span>
                     <strong>{dateLabel(item.transaction.saleDate)}</strong>
@@ -693,6 +708,7 @@ export function ChicagoPropertyView({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mode, setMode] = useState<ResultsMode>("list");
   const [group, setGroup] = useState<PropertyGroup>("all");
+  const [county, setCounty] = useState<CountyFilter>("all");
   const [minValue, setMinValue] = useState(0);
   const [dateWindow, setDateWindow] = useState(0);
   const [category, setCategory] = useState<PropertyCategory | "all">("all");
@@ -727,6 +743,7 @@ export function ChicagoPropertyView({
           record.property.city,
           record.property.zip,
           record.property.categoryLabel,
+          record.property.county,
           record.transaction.documentNumber,
           record.businessMatch?.legalName || "",
           record.businessMatch?.dba || "",
@@ -740,6 +757,7 @@ export function ChicagoPropertyView({
       if (group === "commercial" && !record.property.commercial) return false;
       if (group === "residential" && !record.property.largeResidential)
         return false;
+      if (county !== "all" && record.property.county !== county) return false;
       if (minValue && value < minValue) return false;
       if (cutoff && record.transaction.saleDate < cutoff) return false;
       if (category !== "all" && record.property.category !== category)
@@ -763,6 +781,7 @@ export function ChicagoPropertyView({
     snapshot.generatedAt,
     query,
     group,
+    county,
     minValue,
     dateWindow,
     category,
@@ -780,20 +799,28 @@ export function ChicagoPropertyView({
       [
         ...new Set(
           snapshot.records
+            .filter(
+              (record) => county === "all" || record.property.county === county,
+            )
             .map((record) => record.property.city)
             .filter(Boolean),
         ),
       ].sort(),
-    [snapshot.records],
+    [snapshot.records, county],
   );
   const zips = useMemo(
     () =>
       [
         ...new Set(
-          snapshot.records.map((record) => record.property.zip).filter(Boolean),
+          snapshot.records
+            .filter(
+              (record) => county === "all" || record.property.county === county,
+            )
+            .map((record) => record.property.zip)
+            .filter(Boolean),
         ),
       ].sort(),
-    [snapshot.records],
+    [snapshot.records, county],
   );
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pages);
@@ -831,19 +858,16 @@ export function ChicagoPropertyView({
       >
         {[
           [
-            "Significant sales",
+            "Chicago Metro sales",
             snapshot.stats.significantSales.toLocaleString(),
           ],
-          ["Commercial sales", snapshot.stats.commercialSales.toLocaleString()],
+          ["Cook County", snapshot.stats.cookSales.toLocaleString()],
+          ["DuPage County", snapshot.stats.dupageSales.toLocaleString()],
           [
-            "Large residential",
-            snapshot.stats.largeResidentialSales.toLocaleString(),
+            "Cross-county sellers",
+            snapshot.stats.crossCountySellerEntities.toLocaleString(),
           ],
           ["Resolved owners", snapshot.stats.resolvedOwners.toLocaleString()],
-          [
-            "Strong exit signals",
-            snapshot.stats.strongExitSignals.toLocaleString(),
-          ],
           [
             "Recorded transaction value",
             money(snapshot.stats.recordedTransactionValue, true),
@@ -879,13 +903,14 @@ export function ChicagoPropertyView({
               minValue,
               dateWindow,
               category !== "all",
+              county !== "all",
               city,
               zip,
               resolution !== "all",
               valueStatus !== "all",
               strongExit,
             ].filter(Boolean).length
-              ? ` (${[minValue, dateWindow, category !== "all", city, zip, resolution !== "all", valueStatus !== "all", strongExit].filter(Boolean).length})`
+              ? ` (${[minValue, dateWindow, category !== "all", county !== "all", city, zip, resolution !== "all", valueStatus !== "all", strongExit].filter(Boolean).length})`
               : ""}
           </button>
           <div className="chicago-mode-toggle">
@@ -900,6 +925,43 @@ export function ChicagoPropertyView({
       </section>
 
       <div className="chicago-quick-filters">
+        <Toggle
+          active={county === "all"}
+          onClick={() =>
+            setAndReset(() => {
+              setCounty("all");
+              setCity("");
+              setZip("");
+            })
+          }
+        >
+          All Chicago Metro
+        </Toggle>
+        <Toggle
+          active={county === "Cook"}
+          onClick={() =>
+            setAndReset(() => {
+              setCounty("Cook");
+              setCity("");
+              setZip("");
+            })
+          }
+        >
+          Cook County
+        </Toggle>
+        <Toggle
+          active={county === "DuPage"}
+          onClick={() =>
+            setAndReset(() => {
+              setCounty("DuPage");
+              setCity("");
+              setZip("");
+            })
+          }
+        >
+          DuPage County
+        </Toggle>
+        <span className="chicago-filter-divider" aria-hidden="true" />
         <Toggle
           active={group === "all"}
           onClick={() => setAndReset(() => setGroup("all"))}
@@ -1057,6 +1119,7 @@ export function ChicagoPropertyView({
               setMinValue(0);
               setDateWindow(0);
               setCategory("all");
+              setCounty("all");
               setCity("");
               setZip("");
               setResolution("all");
@@ -1148,7 +1211,8 @@ export function ChicagoPropertyView({
                   {locationLabel(record) || "Location unavailable"}
                 </strong>
                 <small>
-                  {record.property.address || "Address unavailable"}
+                  {record.property.address || "Address unavailable"} Â·{" "}
+                  {record.property.county} County
                 </small>
               </span>
               <span className="chicago-date">

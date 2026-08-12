@@ -55,7 +55,7 @@ const report = `# Seller Intelligence completion report
 
 Generated: ${snapshot.generatedAt}
 
-Seller Intelligence aggregates real Cook County and Illinois property-transfer records by seller. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
+Seller Intelligence aggregates real Cook County, DuPage County, and Illinois property-transfer records by seller. Cross-county dispositions use the same seller identity key. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
 
 ## Completion metrics
 
@@ -78,6 +78,8 @@ Seller Intelligence aggregates real Cook County and Illinois property-transfer r
 | High Exit Convergence | ${sellers.stats.highExitConvergence.toLocaleString()} |
 | Recorded dispositions | ${money(sellers.stats.recordedDispositions)} |
 | People in Motion additions | ${peopleInMotionAdditions.toLocaleString()} |
+| Cross-county sellers | ${snapshot.stats.crossCountySellerEntities.toLocaleString()} |
+| Cross-county recorded value | ${money(snapshot.stats.crossCountyRecordedValue)} |
 
 No Strong or High Exit records are manufactured to satisfy counts.
 

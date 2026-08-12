@@ -11866,6 +11866,12 @@ a.real-holdings-row:hover {
 .chicago-quick-filters {
   padding-bottom: 2px;
 }
+.chicago-filter-divider {
+  width: 1px;
+  height: 26px;
+  margin: 0 2px;
+  background: #d9dfeb;
+}
 
 .chicago-filters {
   display: grid;
@@ -12490,6 +12496,10 @@ a.real-holdings-row:hover {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   padding: 0 !important;
+}
+
+.chicago-profile-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .chicago-profile-metrics > div,

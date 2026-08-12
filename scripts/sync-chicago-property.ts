@@ -20,6 +20,7 @@ import {
   type ChicagoPropertySourceHealth,
   type ChicagoSourceRow,
   type CommercialValuation,
+  type DuPageParcelRecord,
   type ParcelGeography,
   type PropertyAddress,
   type PropertyTransactionDraft,
@@ -62,6 +63,10 @@ const residentialThreshold = Number(
   process.env.CHICAGO_PROPERTY_RESIDENTIAL_THRESHOLD ||
     DEFAULT_RESIDENTIAL_THRESHOLD,
 );
+const minimumSyncIntervalMinutes = Number(
+  process.env.CHICAGO_PROPERTY_MIN_SYNC_INTERVAL_MINUTES || 210,
+);
+const forceSync = process.env.CHICAGO_PROPERTY_FORCE_SYNC === "1";
 
 const SOURCES = {
   cookSales: {
@@ -112,6 +117,15 @@ const SOURCES = {
     dataset: "nj4t-kc8j",
     sourceUrl: "https://datacatalog.cookcountyil.gov/d/nj4t-kc8j",
   },
+  dupageParcels: {
+    id: "dupage_parcel_gis",
+    name: "DuPage County parcel GIS",
+    publisher: "DuPage County Information Technology Department, GIS Division",
+    domain: "gis.dupageco.org",
+    dataset: "DuPage_County_IL/ParcelsWithRealEstateCC/MapServer/0",
+    sourceUrl:
+      "https://gis.dupageco.org/arcgis/rest/services/DuPage_County_IL/ParcelsWithRealEstateCC/MapServer/0",
+  },
   licenses: {
     id: "chicago_business_licenses",
     name: "Chicago business licenses",
@@ -133,20 +147,21 @@ const SOURCES = {
 type SourceName = keyof typeof SOURCES;
 
 type SyncState = {
-  version: 1;
+  version: 2;
   updatedAt: string;
   backfillStart: string;
   sourceUpdatedAt: Record<string, string>;
   transferUseByDeclaration: Record<string, string>;
   addressesByPin: Record<string, PropertyAddress>;
   geographyByPin: Record<string, ParcelGeography>;
+  dupageByPin: Record<string, DuPageParcelRecord>;
   commercialByPin: Record<string, CommercialValuation[]>;
   licensesBySeller: Record<string, BusinessLicenseRow[]>;
   ownersByAccount: Record<string, BusinessOwnerRow[]>;
 };
 
 type SourceArchive = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   retrievedAt: string;
   fieldsPolicy: string;
   cookParcelSales: ChicagoSourceRow[];
@@ -159,13 +174,14 @@ type HealthAccumulator = ChicagoPropertySourceHealth & {
 
 function emptyState(): SyncState {
   return {
-    version: 1,
+    version: 2,
     updatedAt: "",
     backfillStart,
     sourceUpdatedAt: {},
     transferUseByDeclaration: {},
     addressesByPin: {},
     geographyByPin: {},
+    dupageByPin: {},
     commercialByPin: {},
     licensesBySeller: {},
     ownersByAccount: {},
@@ -276,15 +292,23 @@ async function fetchMetadata(name: SourceName) {
   accumulator.requests += 1;
   try {
     const response = await fetchWithRetry(
-      `https://${source.domain}/api/views/${source.dataset}`,
+      name === "dupageParcels"
+        ? `https://${source.domain}/arcgis/rest/services/${source.dataset}?f=json`
+        : `https://${source.domain}/api/views/${source.dataset}`,
     );
     const payload = (await response.json()) as {
       rowsUpdatedAt?: number;
       rowsUpdatedBy?: string;
+      currentVersion?: number;
+      editingInfo?: { lastEditDate?: number };
     };
     const watermark = payload.rowsUpdatedAt
       ? new Date(payload.rowsUpdatedAt * 1_000).toISOString()
-      : "";
+      : payload.editingInfo?.lastEditDate
+        ? new Date(payload.editingInfo.lastEditDate).toISOString()
+        : name === "dupageParcels"
+          ? `arcgis-${payload.currentVersion || "live"}`
+          : "";
     accumulator.watermark = watermark;
     accumulator.lastSuccessAt = generatedAt;
     return watermark;
@@ -383,7 +407,7 @@ async function fetchCookSales(since = "") {
 async function fetchPtax(since = "") {
   const where = [
     `date_recorded >= '${backfillStart}T00:00:00'`,
-    "line_1_county = 'Cook'",
+    "line_1_county IN ('Cook','DuPage')",
     `line_11_full_consideration >= ${commercialThreshold}`,
     since ? `:updated_at >= '${since}'` : "",
   ]
@@ -391,7 +415,7 @@ async function fetchPtax(since = "") {
     .join(" AND ");
   return fetchSodaAll("ptax", {
     select:
-      ":id,:updated_at,declaration_id,document_number,date_recorded,full_address,line_1_county,line_1_primary_pin,line_2_total_parcels,line_3_additional_pins,line_5_instrument_type,line_5_other_instrument_type,line_8_current_use,line_8_current_commercial,line_8_current_other,line_8_current_other_use,line_10b_sale_between_related,line_10c_transfer_of_100,line_10d_court_ordered_sale,line_10e_sale_in_lieu_of,line_10f_condemnation,line_10g_short_sale,line_10h_bank_reo,line_10i_auction_sale,line_10j_seller_buyer_is,line_10k_seller_buyer_is,line_10p_trade_of_property,line_10q_sale_leaseback,line_11_full_consideration,line_13_net_consideration,line_17_net_consideration,step_4_seller_name,step_4_seller_organization,step_4_buyer_name,step_4_buyer_organization",
+      ":id,:updated_at,declaration_id,document_number,date_recorded,full_address,line_1_street,line_1_city,line_1_zip_code,line_1_county,line_1_primary_pin,line_2_total_parcels,line_3_additional_pins,line_5_instrument_type,line_5_other_instrument_type,line_8_current_use,line_8_current_number_of,line_8_current_commercial,line_8_current_other,line_8_current_other_use,line_8_intended_use,line_8_intended_number_of,line_8_intended_commercial,line_8_intended_other,line_8_intended_other_use,line_10b_sale_between_related,line_10c_transfer_of_100,line_10d_court_ordered_sale,line_10e_sale_in_lieu_of,line_10f_condemnation,line_10g_short_sale,line_10h_bank_reo,line_10i_auction_sale,line_10j_seller_buyer_is,line_10k_seller_buyer_is,line_10p_trade_of_property,line_10q_sale_leaseback,line_11_full_consideration,line_13_net_consideration,line_17_net_consideration,step_4_seller_name,step_4_seller_organization,additional_sellers,step_4_buyer_name,step_4_buyer_organization,additional_buyers,ptax_203_a_attached,_203_a_line_1_street,_203_a_line_1_city,_203_a_line_2_primary_pin,_203_a_line_5_property_1,_203_a_line_5_property_1_1,_203_a_line_5_property_1_2,_203_a_line_5_property_2,_203_a_line_5_property_2_1,_203_a_line_5_property_2_2,ptax_203_b_attached,_203_b_line_1_street,_203_b_line_1_city,_203_b_line_2_primary_pin,_203_b_line_3_controlling,_203_b_line_11a_full,_203_b_line_13_consideration,_203_b_line_17_taxable_value",
     where,
     order: "date_recorded DESC,declaration_id",
   });
@@ -407,6 +431,122 @@ function priorityDrafts(drafts: PropertyTransactionDraft[], limit: number) {
   return [...drafts]
     .sort((left, right) => draftPriority(right) - draftPriority(left))
     .slice(0, limit);
+}
+
+function duPageGeometryCenter(geometry: unknown) {
+  const rings = (geometry as { rings?: number[][][] } | null)?.rings || [];
+  const points = rings
+    .flat()
+    .filter(
+      (point) =>
+        Array.isArray(point) &&
+        Number.isFinite(point[0]) &&
+        Number.isFinite(point[1]),
+    );
+  if (!points.length) return { latitude: null, longitude: null };
+  return {
+    latitude: points.reduce((sum, point) => sum + point[1], 0) / points.length,
+    longitude: points.reduce((sum, point) => sum + point[0], 0) / points.length,
+  };
+}
+
+async function fetchDuPageParcels(pins: string[]) {
+  const source = SOURCES.dupageParcels;
+  const parameters = new URLSearchParams({
+    where: `PIN IN (${pins
+      .map((pin) => `'${escapeSoda(pin.slice(-10))}'`)
+      .join(",")})`,
+    outFields: "PIN,PROPADDRL1,PROPCITY,PROPZIP,REA017_PROP_CLASS",
+    returnGeometry: "true",
+    outSR: "4326",
+    f: "json",
+  });
+  const accumulator = sourceHealth("dupageParcels");
+  accumulator.requests += 1;
+  const response = await fetchWithRetry(
+    `https://${source.domain}/arcgis/rest/services/${source.dataset}/query?${parameters}`,
+  );
+  const payload = (await response.json()) as {
+    error?: { message?: string };
+    features?: Array<{
+      attributes?: Record<string, unknown>;
+      geometry?: unknown;
+    }>;
+  };
+  if (payload.error)
+    throw new Error(payload.error.message || "DuPage ArcGIS query failed");
+  const features = payload.features || [];
+  accumulator.rowsFetched += features.length;
+  accumulator.lastSuccessAt = generatedAt;
+  return features;
+}
+
+async function enrichDuPageParcels(
+  state: SyncState,
+  drafts: PropertyTransactionDraft[],
+) {
+  const duPageDrafts = priorityDrafts(
+    drafts.filter((draft) => draft.county === "DuPage"),
+    7_500,
+  );
+  const pins = [
+    ...new Set(
+      duPageDrafts
+        .filter(
+          (draft) =>
+            (draft.ptaxFullConsideration ?? 0) >= commercialThreshold ||
+            !draft.address ||
+            !draft.city,
+        )
+        .flatMap((draft) => draft.pins),
+    ),
+  ].filter((pin) => !(pin in state.dupageByPin));
+  for (const group of chunks(pins, 120)) {
+    try {
+      const features = await fetchDuPageParcels(group);
+      const found = new Set<string>();
+      for (const feature of features) {
+        const attributes = feature.attributes || {};
+        const pin = normalizePin(attributes.PIN);
+        if (!pin) continue;
+        found.add(pin);
+        const center = duPageGeometryCenter(feature.geometry);
+        state.dupageByPin[pin] = {
+          pin,
+          address: stringValue(attributes.PROPADDRL1),
+          city: stringValue(attributes.PROPCITY),
+          zip: stringValue(attributes.PROPZIP).slice(0, 5),
+          propertyClass: stringValue(attributes.REA017_PROP_CLASS),
+          latitude: center.latitude,
+          longitude: center.longitude,
+          retrievedAt: generatedAt,
+        };
+      }
+      for (const pin of group) {
+        if (found.has(pin)) continue;
+        state.dupageByPin[pin] = {
+          pin,
+          address: "",
+          city: "",
+          zip: "",
+          propertyClass: "",
+          latitude: null,
+          longitude: null,
+          retrievedAt: generatedAt,
+        };
+      }
+    } catch (error) {
+      const accumulator = sourceHealth("dupageParcels");
+      accumulator.status = "DEGRADED";
+      accumulator.errors.push(
+        error instanceof Error ? error.message : String(error),
+      );
+      break;
+    }
+  }
+  sourceHealth("dupageParcels").matches = Object.values(
+    state.dupageByPin,
+  ).filter((row) => row.address || row.latitude !== null).length;
 }
 
 async function enrichTransferForms(
@@ -832,6 +972,24 @@ async function main() {
   if (state.backfillStart !== backfillStart) {
     Object.assign(state, emptyState());
   }
+  state.version = 2;
+  state.dupageByPin ||= {};
+  const lastCompletedAt = Date.parse(state.updatedAt);
+  const snapshotAgeMinutes = Number.isFinite(lastCompletedAt)
+    ? (Date.now() - lastCompletedAt) / 60_000
+    : Number.POSITIVE_INFINITY;
+  if (
+    !forceSync &&
+    existingSnapshot?.schemaVersion === CHICAGO_PROPERTY_SCHEMA_VERSION &&
+    existingArchive?.schemaVersion === 2 &&
+    snapshotAgeMinutes >= 0 &&
+    snapshotAgeMinutes < minimumSyncIntervalMinutes
+  ) {
+    console.log(
+      `Chicago Metro Property is current (${Math.floor(snapshotAgeMinutes)} minutes old); no source reload required before the next four-hour window.`,
+    );
+    return;
+  }
   const metadataEntries = await Promise.all(
     (Object.keys(SOURCES) as SourceName[]).map(
       async (name) => [name, await fetchMetadata(name)] as const,
@@ -847,7 +1005,8 @@ async function main() {
   );
   try {
     const archiveIsReusable =
-      Boolean(existingArchive) && state.backfillStart === backfillStart;
+      existingArchive?.schemaVersion === 2 &&
+      state.backfillStart === backfillStart;
     const [changedCookRows, changedPtaxRows] = await Promise.all([
       archiveIsReusable && !changed.get("cookSales")
         ? Promise.resolve([])
@@ -889,23 +1048,31 @@ async function main() {
       0,
       sourceRowCount - drafts.length,
     );
-    const relevantPins = new Set(drafts.flatMap((draft) => draft.pins));
-    await enrichTransferForms(state, drafts);
+    const cookDraftsOnly = drafts.filter((draft) => draft.county === "Cook");
+    const relevantPins = new Set(cookDraftsOnly.flatMap((draft) => draft.pins));
+    await enrichTransferForms(state, cookDraftsOnly);
     await Promise.all([
       enrichCommercialValuations(
         state,
         relevantPins,
         Boolean(changed.get("commercial")),
       ),
-      enrichAddresses(state, drafts),
-      enrichGeography(state, drafts),
-      enrichBusinessLicenses(state, drafts),
+      enrichAddresses(state, cookDraftsOnly),
+      enrichGeography(state, cookDraftsOnly),
+      enrichDuPageParcels(state, drafts),
+      enrichBusinessLicenses(
+        state,
+        cookDraftsOnly.filter(
+          (draft) => draft.county === "Cook" || /^chicago$/i.test(draft.city),
+        ),
+      ),
     ]);
     await enrichBusinessOwners(state);
     const finalized = finalizeChicagoRecords({
       drafts,
       addressesByPin: state.addressesByPin,
       geographyByPin: state.geographyByPin,
+      dupageByPin: state.dupageByPin,
       commercialByPin: state.commercialByPin,
       transferFormUseByDeclaration: state.transferUseByDeclaration,
       licenses: allLicenses(state),
@@ -972,10 +1139,10 @@ async function main() {
       ),
     };
     const sourceArchive: SourceArchive = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       retrievedAt: generatedAt,
       fieldsPolicy:
-        "Selected official source fields required for transaction evidence; owner mailing addresses are never collected.",
+        "Selected Cook County, DuPage County, and Illinois source fields required for transaction evidence; owner mailing addresses are never collected.",
       cookParcelSales: cookRows,
       illinoisPtax: ptaxRows,
     };
@@ -998,7 +1165,7 @@ async function main() {
       fs.writeFile(statePath, gzipSync(JSON.stringify(state), { level: 9 })),
     ]);
     console.log(
-      `Chicago Property: ${records.length.toLocaleString()} significant transactions (${snapshot.stats.commercialSales.toLocaleString()} commercial, ${snapshot.stats.largeResidentialSales.toLocaleString()} large residential), ${snapshot.stats.personResolvedTransactions.toLocaleString()} person-resolved, ${motionEvents.length.toLocaleString()} promoted capital events.`,
+      `Chicago Metro Property: ${records.length.toLocaleString()} significant transactions (${snapshot.stats.cookSales.toLocaleString()} Cook, ${snapshot.stats.dupageSales.toLocaleString()} DuPage; ${snapshot.stats.commercialSales.toLocaleString()} commercial, ${snapshot.stats.largeResidentialSales.toLocaleString()} large residential), ${snapshot.stats.crossCountySellerEntities.toLocaleString()} cross-county sellers, ${snapshot.stats.personResolvedTransactions.toLocaleString()} person-resolved, ${motionEvents.length.toLocaleString()} promoted capital events.`,
     );
   } catch (error) {
     if (existingSnapshot) {

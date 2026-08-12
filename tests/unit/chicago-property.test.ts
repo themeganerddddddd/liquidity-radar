@@ -24,6 +24,7 @@ function draft(
 ): PropertyTransactionDraft {
   return {
     transactionKey: "DOC:123",
+    county: "Cook",
     cookRowIds: ["row-1"],
     declarationIds: ["dec-1"],
     seller: "Smith Industrial LLC",
@@ -46,6 +47,10 @@ function draft(
     relationshipFlags: [],
     multiParcel: false,
     reportedParcelCount: 1,
+    additionalSellersReported: false,
+    additionalBuyersReported: false,
+    ptax203AAttached: false,
+    ptax203BAttached: false,
     ...overrides,
   };
 }
@@ -164,6 +169,26 @@ describe("Chicago Property normalization", () => {
       category: "OFFICE",
       basis: "Illinois PTAX-203 reported property use",
     });
+  });
+
+  it("uses official DuPage parcel class and preserves one metro identity", () => {
+    expect(
+      classifyPropertyCategory({
+        sourceClasses: ["DUPAGE-R"],
+        ptaxUseCode: "",
+        ptaxUseDescription: "",
+        commercialValuations: [],
+      }),
+    ).toMatchObject({ category: "RESIDENTIAL_LUXURY" });
+    const cook = finalize(draft({ seller: "Metro Seller LLC" }));
+    const dupage = structuredClone(cook);
+    dupage.id = "dupage-record";
+    dupage.transactionKey = "DUPAGE:DOC:456";
+    dupage.property.county = "DuPage";
+    const repeated = applyRepeatedSellerHistory([cook, dupage]);
+    expect(
+      repeated.every((record) => record.repeatedSeller.transactionCount === 2),
+    ).toBe(true);
   });
 
   it("normalizes 14-character PINs and detects material Cook/PTAX discrepancies", () => {

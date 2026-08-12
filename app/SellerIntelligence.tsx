@@ -99,6 +99,7 @@ export function SellerIntelligenceView({
           profile.location.display,
           profile.entityType,
           profile.status,
+          ...profile.counties,
           ...profile.relatedPeople.map((person) => person.name),
         ]
           .join(" ")
@@ -306,6 +307,9 @@ export function SellerIntelligenceView({
             <span>
               <strong>{profile.location.display}</strong>
               <small>{profile.entityType}</small>
+              {profile.counties.length > 1 && (
+                <small>Cook + DuPage County activity</small>
+              )}
             </span>
             <span>
               <em className={`seller-status ${statusClass(profile.status)}`}>
@@ -454,6 +458,9 @@ export function SellerIntelligenceProfileView({
             <h2>{profile.seller}</h2>
             <p>
               {profile.entityType} · {profile.location.display}
+              {profile.counties.length
+                ? ` · ${profile.counties.join(" + ")} County`
+                : ""}
             </p>
           </div>
           <div className="seller-profile-total">
@@ -511,6 +518,7 @@ export function SellerIntelligenceProfileView({
                     </strong>
                     <small>
                       {record.property.city}, Illinois ·{" "}
+                      {record.property.county} County ·{" "}
                       {record.property.categoryLabel}
                     </small>
                   </span>
