@@ -35,13 +35,13 @@ test("the restored workspace shell loads its official dashboard", async ({
     page.getByRole("heading", { name: "People with recent capital events" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Top 10 Contacts This Week" }),
+    page.getByRole("heading", { name: "Top 10 Contacts — Last 14 Days" }),
   ).toBeVisible();
   await expect(page.getByLabel("Geography")).toHaveValue("CHICAGO_METRO");
   const weeklyRows = page.locator(".top-contacts-row:not(.heading)");
   expect(await weeklyRows.count()).toBeGreaterThan(0);
   expect(await weeklyRows.count()).toBeLessThanOrEqual(10);
-  await expect(page.getByText(/events dated within seven days/i)).toBeVisible();
+  await expect(page.getByText(/events dated within 14 days/i)).toBeVisible();
   await expect(page.locator(".top-contacts-metrics")).toHaveCount(0);
   const contactHeadings = page.locator(".top-contacts-row.heading");
   await expect(contactHeadings).toContainText("Name");

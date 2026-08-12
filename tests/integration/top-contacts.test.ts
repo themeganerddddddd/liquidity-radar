@@ -15,7 +15,7 @@ describe("Top Contacts API", () => {
     expect(response.status).toBe(401);
   });
 
-  it("returns up to ten evidence-backed Chicago Metro recommendations from the last seven days", async () => {
+  it("returns up to ten evidence-backed Chicago Metro recommendations from the last fourteen days", async () => {
     const response = await GET(
       new Request("http://localhost/api/v1/top-contacts", { headers }),
     );

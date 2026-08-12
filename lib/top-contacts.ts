@@ -214,7 +214,7 @@ const entityNamePattern =
   /\b(LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO\.|LTD|LIMITED|LP|L\.P\.|LLP|TRUST|FUND|CAPITAL|PARTNERS|HOLDINGS|FOUNDATION|BANK|ASSOCIATION|VILLAGE|CITY|COUNTY|TOWNSHIP|DISTRICT|DEPARTMENT|AUTHORITY|S\.A\.)\b/i;
 const excludedRolePattern =
   /registered agent|attorney|property manager|patent assignor/i;
-export const TOP_CONTACT_LOOKBACK_DAYS = 7;
+export const TOP_CONTACT_LOOKBACK_DAYS = 14;
 const preLiquidityStages = new Set([
   "WATCHING",
   "PRE_SALE",

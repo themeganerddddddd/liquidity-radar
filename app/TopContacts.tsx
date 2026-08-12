@@ -5,6 +5,7 @@ import type { ChicagoPropertySnapshot } from "../lib/chicago-property";
 import type { MoneyMotionSnapshot } from "../lib/money-in-motion";
 import {
   buildTopContacts,
+  TOP_CONTACT_LOOKBACK_DAYS,
   type TopContactGeography,
   type TopContactRecommendation,
   type TopContactsSnapshot,
@@ -158,13 +159,15 @@ export function TopContacts({
     <section className="top-contacts" aria-labelledby="top-contacts-heading">
       <div className="top-contacts-heading">
         <div>
-          <p className="eyebrow">Weekly prospecting list</p>
-          <h2 id="top-contacts-heading">Top 10 Contacts This Week</h2>
+          <p className="eyebrow">Two-week prospecting list</p>
+          <h2 id="top-contacts-heading">
+            Top 10 Contacts — Last {TOP_CONTACT_LOOKBACK_DAYS} Days
+          </h2>
           <p>
-            Ranked from public events dated within seven days of the latest data
-            refresh, then scored for ownership quality, location, and
-            professional contactability. Older records are not used to fill the
-            list.
+            Ranked from public events dated within {TOP_CONTACT_LOOKBACK_DAYS}{" "}
+            days of the latest data refresh, then scored for ownership quality,
+            location, and professional contactability. Older records are not
+            used to fill the list.
           </p>
         </div>
         <label>
@@ -187,7 +190,7 @@ export function TopContacts({
       <div className="top-contacts-tabs" aria-label="Recommendation period">
         {(
           [
-            ["current", "This Week"],
+            ["current", `Last ${TOP_CONTACT_LOOKBACK_DAYS} Days`],
             ["last", "Last Week"],
             ["history", "History"],
           ] as const

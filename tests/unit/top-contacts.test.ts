@@ -292,9 +292,9 @@ describe("Top Contacts weekly ranking", () => {
     ]);
   });
 
-  it("uses only non-future event dates from the latest seven-day window", () => {
-    const recent = person(1, { latestSignalAt: "2026-08-05" });
-    const stale = person(2, { latestSignalAt: "2026-08-04" });
+  it("uses only non-future event dates from the latest fourteen-day window", () => {
+    const recent = person(1, { latestSignalAt: "2026-07-29" });
+    const stale = person(2, { latestSignalAt: "2026-07-28" });
     const future = person(3, { latestSignalAt: "2026-08-13" });
     const result = buildTopContacts(
       motionSnapshot([recent, stale, future]),
@@ -303,7 +303,7 @@ describe("Top Contacts weekly ranking", () => {
     expect(result.recommendations.map((item) => item.personId)).toEqual([
       recent.personId,
     ]);
-    expect(result.recommendations[0].primaryEvent.eventDate).toBe("2026-08-05");
+    expect(result.recommendations[0].primaryEvent.eventDate).toBe("2026-07-29");
   });
 
   it("filters Cook and DuPage and aggregates a cross-county person once", () => {
