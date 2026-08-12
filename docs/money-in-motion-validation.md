@@ -1,12 +1,12 @@
 # Money in Motion validation report
 
-Generated: 2026-08-12T14:47:46.821Z
+Generated: 2026-08-12T21:09:23.491Z
 
 ## Outcome
 
-- 16,574 deduplicated transaction signals
-- 6,013 named people in the person-first view
-- 12,761 private-company events
+- 16,610 deduplicated transaction signals
+- 5,857 named people in the person-first view
+- 12,978 private-company events
 - 175 pre-close signals
 - 11,465 known or reported transaction values
 - 732 evidence-linked personal liquidity estimates
@@ -23,9 +23,9 @@ Generated: 2026-08-12T14:47:46.821Z
 | SEC EDGAR transactions | LIVE | 1,482 | 1,478 | 1,475 | 732 | 1,477 | 732 | 49 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
-| CMS change of ownership | LIVE | 4,591 | 2,646 | 1,373 | 401 | 0 | 0 | 0 | — |
+| CMS change of ownership | LIVE | 5,047 | 2,863 | 1,444 | 480 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | LIVE | 18 | 17 | 0 | 0 | 0 | 0 | 17 | — |
-| USPTO patent assignments | DEGRADED | 2,500 | 2,335 | 2,283 | 2,335 | 0 | 0 | 0 | — |
+| USPTO patent assignments | LIVE | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
