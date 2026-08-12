@@ -74,6 +74,18 @@ function statusClass(status: SellerIntelligenceProfile["status"]) {
   return status.toLowerCase().replaceAll(" ", "-");
 }
 
+function profileInitials(value: string) {
+  return (
+    value
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "LR"
+  );
+}
+
 export function SellerIntelligenceView({
   snapshot,
   onOpenProfile,
@@ -261,7 +273,7 @@ export function SellerIntelligenceView({
             onSort={changeSort}
           />
           <SortButton
-            label="Recent dispositions"
+            label="Recorded dispositions"
             column="value"
             active={sort}
             direction={direction}
@@ -270,6 +282,13 @@ export function SellerIntelligenceView({
           <SortButton
             label="Location"
             column="location"
+            active={sort}
+            direction={direction}
+            onSort={changeSort}
+          />
+          <SortButton
+            label="Date"
+            column="date"
             active={sort}
             direction={direction}
             onSort={changeSort}
@@ -302,7 +321,10 @@ export function SellerIntelligenceView({
             </span>
             <span className="seller-value">
               <strong>{money(profile.totalRecordedConsideration, true)}</strong>
-              <small>Most recent {date(profile.mostRecentDisposition)}</small>
+              <small>
+                {profile.dispositionCount} recorded transaction
+                {profile.dispositionCount === 1 ? "" : "s"}
+              </small>
             </span>
             <span>
               <strong>{profile.location.display}</strong>
@@ -310,6 +332,13 @@ export function SellerIntelligenceView({
               {profile.counties.length > 1 && (
                 <small>Cook + DuPage County activity</small>
               )}
+            </span>
+            <span className="seller-date">
+              <strong>{date(profile.mostRecentDisposition)}</strong>
+              <small>
+                Latest of {profile.dispositionCount} disposition
+                {profile.dispositionCount === 1 ? "" : "s"}
+              </small>
             </span>
             <span>
               <em className={`seller-status ${statusClass(profile.status)}`}>
@@ -448,27 +477,55 @@ export function SellerIntelligenceProfileView({
 
   return (
     <div className="seller-profile-page">
-      <button type="button" className="profile-back" onClick={onBack}>
-        ← Back to Seller Intelligence
+      <button type="button" className="real-profile-back" onClick={onBack}>
+        ← Seller Intelligence
       </button>
       <article className="seller-profile">
-        <header>
-          <div>
-            <p className="eyebrow">Seller Intelligence profile</p>
-            <h2>{profile.seller}</h2>
-            <p>
-              {profile.entityType} · {profile.location.display}
-              {profile.counties.length
-                ? ` · ${profile.counties.join(" + ")} County`
-                : ""}
-            </p>
+        <header className="property-profile-hero">
+          <div className="property-profile-identity">
+            <span>{profileInitials(profile.seller)}</span>
+            <div>
+              <p className="eyebrow">Evidence-linked seller profile</p>
+              <div>
+                <h2>{profile.seller}</h2>
+                <b>{profile.status}</b>
+              </div>
+              <p>
+                {profile.entityType} · {profile.location.display}
+                {profile.counties.length
+                  ? ` · ${profile.counties.join(" + ")} County`
+                  : ""}
+                {` · Latest sale ${date(profile.mostRecentDisposition)}.`}
+              </p>
+            </div>
           </div>
-          <div className="seller-profile-total">
+          <div className="property-profile-summary seller-profile-total">
             <span>Total recorded consideration</span>
             <strong>{money(profile.totalRecordedConsideration, true)}</strong>
-            <small>Not net cash received</small>
+            <small>
+              Across {profile.dispositionCount} transaction
+              {profile.dispositionCount === 1 ? "" : "s"} · not net cash
+              received
+            </small>
+            {profile.evidence[0]?.sourceUrl && (
+              <a
+                href={profile.evidence[0].sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open supporting record ↗
+              </a>
+            )}
           </div>
         </header>
+        <div className="property-profile-disclosure">
+          <strong>Recorded value, not bank balance</strong>
+          <p>
+            Recorded property consideration is a supported gross transaction
+            value. It does not establish the seller’s ownership share, net
+            proceeds, taxes, debt payoff, or current cash position.
+          </p>
+        </div>
         <section className="seller-profile-metrics">
           <div>
             <span>Transactions</span>

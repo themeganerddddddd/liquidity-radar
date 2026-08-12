@@ -84,6 +84,18 @@ function sellerSubline(record: ChicagoPropertyRecord) {
   return `${record.property.categoryLabel} sale`;
 }
 
+function profileInitials(value: string) {
+  return (
+    value
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "LR"
+  );
+}
+
 function Toggle({
   active,
   children,
@@ -145,13 +157,20 @@ function ChicagoPropertyMap({
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const layerRef = useRef<import("leaflet").LayerGroup | null>(null);
   const onOpenRef = useRef(onOpen);
+  const hasFittedRef = useRef(false);
+  const lastFitRequestRef = useRef(0);
   const [mapReady, setMapReady] = useState(false);
+  const [fitRequest, setFitRequest] = useState(0);
   const plotted = useMemo(
     () =>
       records.filter(
         (record) =>
-          record.property.latitude !== null &&
-          record.property.longitude !== null,
+          Number.isFinite(record.property.latitude) &&
+          Number.isFinite(record.property.longitude) &&
+          record.property.latitude! >= 41.35 &&
+          record.property.latitude! <= 42.25 &&
+          record.property.longitude! >= -88.55 &&
+          record.property.longitude! <= -87.35,
       ),
     [records],
   );
@@ -182,6 +201,7 @@ function ChicagoPropertyMap({
         .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
           minZoom: 8,
           maxZoom: 19,
+          crossOrigin: true,
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         })
@@ -254,19 +274,24 @@ function ChicagoPropertyMap({
         marker.addTo(layerRef.current);
         bounds.extend([latitude, longitude]);
       }
-      if (bounds.isValid()) {
+      if (
+        bounds.isValid() &&
+        (!hasFittedRef.current || fitRequest !== lastFitRequestRef.current)
+      ) {
         mapRef.current.fitBounds(bounds, {
           padding: [26, 26],
           maxZoom: plotted.length === 1 ? 15 : 12,
           animate: false,
         });
+        hasFittedRef.current = true;
+        lastFitRequestRef.current = fitRequest;
       }
       window.setTimeout(() => mapRef.current?.invalidateSize(), 0);
     });
     return () => {
       active = false;
     };
-  }, [mapReady, plotted]);
+  }, [fitRequest, mapReady, plotted]);
 
   return (
     <section className="chicago-map-panel" aria-label="Chicago property map">
@@ -295,6 +320,21 @@ function ChicagoPropertyMap({
           seller profile. Markers use asset locations only; owner mailing
           addresses are never shown.
         </span>
+        <button
+          type="button"
+          className="chicago-map-fit"
+          disabled={!plotted.length}
+          onClick={() => setFitRequest((request) => request + 1)}
+        >
+          Fit filtered sales
+        </button>
+        {records.length > plotted.length && (
+          <small>
+            {(records.length - plotted.length).toLocaleString()} filtered sale
+            {records.length - plotted.length === 1 ? "" : "s"} lack a usable
+            parcel coordinate and are retained in the list.
+          </small>
+        )}
       </div>
     </section>
   );
@@ -357,34 +397,55 @@ export function ChicagoPropertyProfile({
   ];
   return (
     <div className="chicago-profile-page">
-      <button type="button" className="profile-back" onClick={onBack}>
-        ← Back to Chicago Property
+      <button type="button" className="real-profile-back" onClick={onBack}>
+        ← Chicago Property
       </button>
       <article
         className="chicago-detail chicago-profile"
         aria-labelledby="chicago-detail-title"
       >
-        <header>
-          <button
-            type="button"
-            onClick={onBack}
-            aria-label="Close property detail"
-          >
-            ×
-          </button>
-          <p className="eyebrow">Chicago Property seller profile</p>
-          <h2 id="chicago-detail-title">{sellerLabel(record)}</h2>
-          {record.sellerPerson && record.sellerEntity && (
-            <p>{record.sellerEntity}</p>
-          )}
-          <div className="chicago-detail-hero">
+        <header className="property-profile-hero">
+          <div className="property-profile-identity">
+            <span>{profileInitials(sellerLabel(record))}</span>
+            <div>
+              <p className="eyebrow">Evidence-linked property seller</p>
+              <div>
+                <h2 id="chicago-detail-title">{sellerLabel(record)}</h2>
+                <b>{Math.round(record.resolutionConfidence * 100)}% resolved</b>
+              </div>
+              <p>
+                {record.sellerPerson && record.sellerEntity
+                  ? `${record.sellerEntity} · `
+                  : ""}
+                {profileCounties.join(" + ")} County activity · Latest sale{" "}
+                {dateLabel(profileRecords[0].transaction.saleDate)}.
+              </p>
+            </div>
+          </div>
+          <div className="property-profile-summary">
+            <span>Total recorded consideration</span>
             <strong>{money(totalRecorded, true)}</strong>
-            <span>
-              Total recorded consideration across {profileRecords.length}{" "}
-              separate transaction{profileRecords.length === 1 ? "" : "s"}
-            </span>
+            <small>
+              Across {profileRecords.length} transaction
+              {profileRecords.length === 1 ? "" : "s"} · not net cash received
+            </small>
+            {evidence[0]?.sourceUrl && (
+              <a href={evidence[0].sourceUrl} target="_blank" rel="noreferrer">
+                Open supporting record ↗
+              </a>
+            )}
           </div>
         </header>
+
+        <div className="property-profile-disclosure">
+          <strong>Recorded value, not bank balance</strong>
+          <p>
+            Consideration comes from official county and Illinois transfer
+            records. It is not the seller’s net proceeds, ownership share, or
+            current liquidity. Person and business relationships appear only
+            when supported by separate public evidence.
+          </p>
+        </div>
 
         <section
           className="chicago-profile-metrics"
