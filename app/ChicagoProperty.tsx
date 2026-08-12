@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   PROPERTY_CATEGORIES,
   type ChicagoPropertyRecord,
@@ -8,6 +8,11 @@ import {
   type PropertyCategory,
   type ValueStatus,
 } from "../lib/chicago-property";
+import {
+  chicagoProfileRecords,
+  sortChicagoPropertyRecords,
+  type ChicagoPropertySort,
+} from "../lib/seller-intelligence";
 
 type ResultsMode = "list" | "map";
 type PropertyGroup = "all" | "commercial" | "residential";
@@ -94,6 +99,35 @@ function Toggle({
   );
 }
 
+function SortHeader({
+  column,
+  label,
+  sortKey,
+  direction,
+  onSort,
+}: {
+  column: ChicagoPropertySort;
+  label: string;
+  sortKey: ChicagoPropertySort;
+  direction: "asc" | "desc";
+  onSort: (column: ChicagoPropertySort) => void;
+}) {
+  const active = column === sortKey;
+  return (
+    <button
+      type="button"
+      className={active ? "active" : ""}
+      aria-label={`Sort by ${label} ${active && direction === "asc" ? "descending" : "ascending"}`}
+      onClick={() => onSort(column)}
+    >
+      {label}
+      <span aria-hidden="true">
+        {active ? (direction === "asc" ? "↑" : "↓") : "↕"}
+      </span>
+    </button>
+  );
+}
+
 function ChicagoPropertyMap({
   records,
   onOpen,
@@ -101,76 +135,141 @@ function ChicagoPropertyMap({
   records: ChicagoPropertyRecord[];
   onOpen: (record: ChicagoPropertyRecord) => void;
 }) {
-  const plotted = records
-    .filter(
-      (record) =>
-        record.property.latitude !== null && record.property.longitude !== null,
-    )
-    .slice(0, 1_200);
-  const longitudeMin = -88.35;
-  const longitudeMax = -87.45;
-  const latitudeMin = 41.4;
-  const latitudeMax = 42.2;
-  const x = (longitude: number) =>
-    5 + ((longitude - longitudeMin) / (longitudeMax - longitudeMin)) * 90;
-  const y = (latitude: number) =>
-    95 - ((latitude - latitudeMin) / (latitudeMax - latitudeMin)) * 90;
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<import("leaflet").Map | null>(null);
+  const layerRef = useRef<import("leaflet").LayerGroup | null>(null);
+  const onOpenRef = useRef(onOpen);
+  const [mapReady, setMapReady] = useState(false);
+  const plotted = useMemo(
+    () =>
+      records.filter(
+        (record) =>
+          record.property.latitude !== null &&
+          record.property.longitude !== null,
+      ),
+    [records],
+  );
+
+  useEffect(() => {
+    onOpenRef.current = onOpen;
+  }, [onOpen]);
+
+  useEffect(() => {
+    let active = true;
+    void import("leaflet").then((leaflet) => {
+      if (!active || !containerRef.current || mapRef.current) return;
+      const map = leaflet
+        .map(containerRef.current, {
+          center: [41.84, -87.75],
+          zoom: 9,
+          minZoom: 8,
+          maxZoom: 19,
+          preferCanvas: true,
+          zoomControl: true,
+          scrollWheelZoom: true,
+        })
+        .setMaxBounds([
+          [41.25, -88.65],
+          [42.35, -87.2],
+        ]);
+      leaflet
+        .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          minZoom: 8,
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        })
+        .addTo(map);
+      leaflet.control.scale({ imperial: true, metric: false }).addTo(map);
+      mapRef.current = map;
+      layerRef.current = leaflet.layerGroup().addTo(map);
+      setMapReady(true);
+    });
+    return () => {
+      active = false;
+      mapRef.current?.remove();
+      mapRef.current = null;
+      layerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || !layerRef.current) return;
+    let active = true;
+    void import("leaflet").then((leaflet) => {
+      if (!active || !mapRef.current || !layerRef.current) return;
+      layerRef.current.clearLayers();
+      const bounds = leaflet.latLngBounds([]);
+      const renderer = leaflet.canvas({ padding: 0.35 });
+      for (const record of plotted) {
+        const latitude = record.property.latitude!;
+        const longitude = record.property.longitude!;
+        const value = record.transaction.displayValueHigh || 0;
+        const color =
+          record.exitConvergence.score >= 50
+            ? "#18895b"
+            : record.property.largeResidential
+              ? "#d77a38"
+              : "#315ee8";
+        const marker = leaflet.circleMarker([latitude, longitude], {
+          renderer,
+          radius: Math.min(
+            11,
+            Math.max(4, (Math.log10(Math.max(value, 1)) - 5.3) * 3),
+          ),
+          color: "#ffffff",
+          weight: 1.25,
+          fillColor: color,
+          fillOpacity: 0.72,
+        });
+        const tooltip = document.createElement("div");
+        tooltip.className = "chicago-map-tooltip";
+        for (const [className, text] of [
+          ["seller", sellerLabel(record)],
+          ["value", displayValue(record)],
+          [
+            "detail",
+            `${record.property.categoryLabel} · ${dateLabel(record.transaction.saleDate)}`,
+          ],
+          [
+            "detail",
+            [record.property.address, locationLabel(record)]
+              .filter(Boolean)
+              .join(", "),
+          ],
+        ]) {
+          const line = document.createElement("span");
+          line.className = className;
+          line.textContent = text;
+          tooltip.append(line);
+        }
+        marker.bindTooltip(tooltip, { direction: "top", offset: [0, -4] });
+        marker.on("click", () => onOpenRef.current(record));
+        marker.addTo(layerRef.current);
+        bounds.extend([latitude, longitude]);
+      }
+      if (bounds.isValid()) {
+        mapRef.current.fitBounds(bounds, {
+          padding: [26, 26],
+          maxZoom: plotted.length === 1 ? 15 : 12,
+          animate: false,
+        });
+      }
+      window.setTimeout(() => mapRef.current?.invalidateSize(), 0);
+    });
+    return () => {
+      active = false;
+    };
+  }, [mapReady, plotted]);
 
   return (
     <section className="chicago-map-panel" aria-label="Chicago property map">
       <div className="chicago-map-canvas">
-        <svg
-          viewBox="0 0 100 100"
-          role="img"
-          aria-label="Cook County property sale locations"
-        >
-          <path
-            className="chicago-map-land"
-            d="M8 4H88L95 15L92 31L96 46L90 61L91 78L83 96H7L4 82L8 68L5 50L10 34L6 18Z"
-          />
-          <path
-            className="chicago-map-water"
-            d="M88 4H100V100H83L91 78L90 61L96 46L92 31L95 15Z"
-          />
-          <path
-            className="chicago-map-city"
-            d="M71 20L84 24L82 88L68 91L65 73L69 55L66 39Z"
-          />
-          {plotted.map((record) => {
-            const markerX = x(record.property.longitude!);
-            const markerY = y(record.property.latitude!);
-            if (markerX < 0 || markerX > 100 || markerY < 0 || markerY > 100)
-              return null;
-            const value = record.transaction.displayValueHigh || 0;
-            const radius = Math.min(
-              2.25,
-              Math.max(0.55, Math.log10(Math.max(value, 1)) - 5.3),
-            );
-            return (
-              <circle
-                key={record.id}
-                cx={markerX}
-                cy={markerY}
-                r={radius}
-                className={
-                  record.exitConvergence.score >= 50
-                    ? "strong"
-                    : record.property.largeResidential
-                      ? "residential"
-                      : "commercial"
-                }
-                tabIndex={0}
-                role="button"
-                aria-label={`${sellerLabel(record)}, ${displayValue(record)}, ${locationLabel(record)}`}
-                onClick={() => onOpen(record)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ")
-                    onOpen(record);
-                }}
-              />
-            );
-          })}
-        </svg>
+        <div
+          ref={containerRef}
+          className="chicago-leaflet-map"
+          aria-label="Interactive OpenStreetMap of Cook County property sales"
+        />
         <div className="chicago-map-key" aria-label="Map legend">
           <span>
             <i className="commercial" /> Commercial
@@ -186,8 +285,9 @@ function ChicagoPropertyMap({
       <div className="chicago-map-note">
         <strong>{plotted.length.toLocaleString()} mapped sales</strong>
         <span>
-          Markers use asset locations only. Owner mailing addresses are not
-          collected or shown.
+          Drag or zoom the real street map, then select a marker to open the
+          seller profile. Markers use asset locations only; owner mailing
+          addresses are never shown.
         </span>
       </div>
     </section>
@@ -213,51 +313,176 @@ function EvidenceValues({ record }: { record: ChicagoPropertyRecord }) {
   );
 }
 
-function ChicagoPropertyDetail({
+export function ChicagoPropertyProfile({
   record,
-  onClose,
+  snapshot,
+  onBack,
 }: {
   record: ChicagoPropertyRecord;
-  onClose: () => void;
+  snapshot: ChicagoPropertySnapshot;
+  onBack: () => void;
 }) {
-  const businessOwners = record.businessMatch?.owners || [];
+  const profileRecords = chicagoProfileRecords(snapshot.records, record);
+  const totalRecorded = profileRecords.reduce(
+    (sum, item) => sum + (item.proceeds.recordedSaleConsideration || 0),
+    0,
+  );
+  const largestRecorded = Math.max(
+    ...profileRecords.map(
+      (item) => item.proceeds.recordedSaleConsideration || 0,
+    ),
+  );
+  const businessOwners = [
+    ...new Map(
+      profileRecords
+        .flatMap((item) => item.businessMatch?.owners || [])
+        .map((owner) => [`${owner.name}:${owner.role}`, owner]),
+    ).values(),
+  ];
+  const evidence = [
+    ...new Map(
+      profileRecords
+        .flatMap((item) => item.evidence)
+        .map((item) => [item.id, item]),
+    ).values(),
+  ];
   return (
-    <div
-      className="chicago-detail-overlay"
-      role="presentation"
-      onMouseDown={onClose}
-    >
+    <div className="chicago-profile-page">
+      <button type="button" className="profile-back" onClick={onBack}>
+        ← Back to Chicago Property
+      </button>
       <article
-        className="chicago-detail"
-        role="dialog"
-        aria-modal="true"
+        className="chicago-detail chicago-profile"
         aria-labelledby="chicago-detail-title"
-        onMouseDown={(event) => event.stopPropagation()}
       >
         <header>
           <button
             type="button"
-            onClick={onClose}
+            onClick={onBack}
             aria-label="Close property detail"
           >
             ×
           </button>
-          <p className="eyebrow">Chicago Property</p>
+          <p className="eyebrow">Chicago Property seller profile</p>
           <h2 id="chicago-detail-title">{sellerLabel(record)}</h2>
           {record.sellerPerson && record.sellerEntity && (
             <p>{record.sellerEntity}</p>
           )}
           <div className="chicago-detail-hero">
-            <strong>{displayValue(record)}</strong>
+            <strong>{money(totalRecorded, true)}</strong>
             <span>
-              {record.transaction.valueStatus === "RECORDED"
-                ? "Recorded sale consideration"
-                : record.transaction.valueStatus === "ESTIMATED"
-                  ? "Estimated property value"
-                  : "Transaction value unknown"}
+              Total recorded consideration across {profileRecords.length}{" "}
+              separate transaction{profileRecords.length === 1 ? "" : "s"}
             </span>
           </div>
         </header>
+
+        <section
+          className="chicago-profile-metrics"
+          aria-label="Seller disposition summary"
+        >
+          <div>
+            <span>Transactions</span>
+            <strong>{profileRecords.length.toLocaleString()}</strong>
+          </div>
+          <div>
+            <span>Total recorded</span>
+            <strong>{money(totalRecorded, true)}</strong>
+          </div>
+          <div>
+            <span>Largest transaction</span>
+            <strong>{money(largestRecorded, true)}</strong>
+          </div>
+          <div>
+            <span>Most recent</span>
+            <strong>{dateLabel(profileRecords[0].transaction.saleDate)}</strong>
+          </div>
+        </section>
+
+        <section>
+          <h3>All property dispositions</h3>
+          <p>
+            Each row is one clustered transaction. Multi-parcel sales are
+            counted once, and the amounts below are recorded consideration—not
+            net proceeds.
+          </p>
+          <div className="chicago-property-ledger">
+            <div className="chicago-property-ledger-head">
+              <span>Property</span>
+              <span>Recorded consideration</span>
+              <span>Location</span>
+              <span>Date</span>
+            </div>
+            {profileRecords.map((item) => (
+              <details key={item.id} className="chicago-property-ledger-row">
+                <summary>
+                  <span>
+                    <strong>{item.property.categoryLabel}</strong>
+                    <small>
+                      {item.property.address || "Address unavailable"}
+                    </small>
+                  </span>
+                  <span>
+                    <strong>{displayValue(item)}</strong>
+                    <small>{item.transaction.valueStatus.toLowerCase()}</small>
+                  </span>
+                  <span>
+                    <strong>{locationLabel(item)}</strong>
+                    <small>{item.property.zip}</small>
+                  </span>
+                  <span>
+                    <strong>{dateLabel(item.transaction.saleDate)}</strong>
+                    <small>
+                      {item.transaction.documentNumber || "No document number"}
+                    </small>
+                  </span>
+                </summary>
+                <div className="chicago-property-ledger-detail">
+                  <dl className="chicago-detail-list">
+                    <div>
+                      <dt>Buyer</dt>
+                      <dd>{item.buyer || "Unavailable"}</dd>
+                    </div>
+                    <div>
+                      <dt>Deed type</dt>
+                      <dd>{item.transaction.deedType}</dd>
+                    </div>
+                    <div>
+                      <dt>Parcels</dt>
+                      <dd>{item.property.parcelCount}</dd>
+                    </div>
+                    <div>
+                      <dt>PINs</dt>
+                      <dd>{item.property.pins.join(", ") || "Unavailable"}</dd>
+                    </div>
+                  </dl>
+                  <div className="chicago-ledger-sources">
+                    {item.evidence.map((source) => (
+                      <a
+                        key={source.id}
+                        href={source.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {source.publisher} ↗
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="chicago-profile-guidance">
+          <h3>How to use this profile</h3>
+          <p>
+            Use the disposition history to identify repeated selling activity,
+            then verify owner relationships and independent business-exit
+            evidence before outreach. A recorded property value does not
+            establish how much cash any person received.
+          </p>
+        </section>
 
         <section>
           <h3>Property</h3>
@@ -442,7 +667,7 @@ function ChicagoPropertyDetail({
         <section>
           <h3>Sources</h3>
           <ul className="chicago-source-list">
-            {record.evidence.map((item) => (
+            {evidence.map((item) => (
               <li key={item.id}>
                 <a href={item.sourceUrl} target="_blank" rel="noreferrer">
                   {item.publisher} ↗
@@ -459,8 +684,10 @@ function ChicagoPropertyDetail({
 
 export function ChicagoPropertyView({
   snapshot,
+  onOpenRecord,
 }: {
   snapshot: ChicagoPropertySnapshot;
+  onOpenRecord: (record: ChicagoPropertyRecord) => void;
 }) {
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -477,7 +704,8 @@ export function ChicagoPropertyView({
   const [valueStatus, setValueStatus] = useState<ValueStatus | "all">("all");
   const [strongExit, setStrongExit] = useState(false);
   const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<ChicagoPropertyRecord | null>(null);
+  const [sortKey, setSortKey] = useState<ChicagoPropertySort>("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -486,7 +714,7 @@ export function ChicagoPropertyView({
           .toISOString()
           .slice(0, 10)
       : "";
-    return snapshot.records.filter((record) => {
+    const matches = snapshot.records.filter((record) => {
       const value = record.transaction.displayValueHigh || 0;
       if (
         normalizedQuery &&
@@ -529,6 +757,7 @@ export function ChicagoPropertyView({
       if (strongExit && record.exitConvergence.score < 50) return false;
       return true;
     });
+    return sortChicagoPropertyRecords(matches, sortKey, sortDirection);
   }, [
     snapshot.records,
     snapshot.generatedAt,
@@ -542,6 +771,8 @@ export function ChicagoPropertyView({
     resolution,
     valueStatus,
     strongExit,
+    sortKey,
+    sortDirection,
   ]);
 
   const cities = useMemo(
@@ -574,6 +805,23 @@ export function ChicagoPropertyView({
     action();
     setPage(1);
   };
+  const sortBy = (column: ChicagoPropertySort) => {
+    if (sortKey === column) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(column);
+      setSortDirection(
+        column === "seller" || column === "location" ? "asc" : "desc",
+      );
+    }
+    setPage(1);
+  };
+  const sortDescription =
+    sortKey === "date"
+      ? sortDirection === "desc"
+        ? "Newest recorded date first"
+        : "Oldest recorded date first"
+      : `${sortKey === "seller" ? "Name" : sortKey === "value" ? "Sale value" : "Location"} ${sortDirection === "asc" ? "ascending" : "descending"}`;
 
   return (
     <div className="chicago-property-workspace">
@@ -826,29 +1074,54 @@ export function ChicagoPropertyView({
       <div className="chicago-results-meta">
         <strong>{filtered.length.toLocaleString()} significant sales</strong>
         <span>
-          Newest recorded date first · Updated{" "}
+          {sortDescription} · Updated{" "}
           {dateLabel(snapshot.generatedAt.slice(0, 10))}
         </span>
       </div>
 
       {mode === "map" ? (
-        <ChicagoPropertyMap records={filtered} onOpen={setSelected} />
+        <ChicagoPropertyMap records={filtered} onOpen={onOpenRecord} />
       ) : (
         <section
           className="chicago-results-table"
           aria-label="Chicago property results"
         >
           <div className="chicago-results-head">
-            <span>Name</span>
-            <span>Proceeds / sale value</span>
-            <span>Location</span>
+            <SortHeader
+              column="seller"
+              label="Name"
+              sortKey={sortKey}
+              direction={sortDirection}
+              onSort={sortBy}
+            />
+            <SortHeader
+              column="value"
+              label="Proceeds / sale value"
+              sortKey={sortKey}
+              direction={sortDirection}
+              onSort={sortBy}
+            />
+            <SortHeader
+              column="location"
+              label="Location"
+              sortKey={sortKey}
+              direction={sortDirection}
+              onSort={sortBy}
+            />
+            <SortHeader
+              column="date"
+              label="Date"
+              sortKey={sortKey}
+              direction={sortDirection}
+              onSort={sortBy}
+            />
           </div>
           {visible.map((record) => (
             <button
               key={record.id}
               type="button"
               className="chicago-result-row"
-              onClick={() => setSelected(record)}
+              onClick={() => onOpenRecord(record)}
             >
               <span className="chicago-seller">
                 <strong>{sellerLabel(record)}</strong>
@@ -875,10 +1148,13 @@ export function ChicagoPropertyView({
                   {locationLabel(record) || "Location unavailable"}
                 </strong>
                 <small>
-                  {dateLabel(record.transaction.saleDate)}
-                  {record.property.address
-                    ? ` · ${record.property.address}`
-                    : ""}
+                  {record.property.address || "Address unavailable"}
+                </small>
+              </span>
+              <span className="chicago-date">
+                <strong>{dateLabel(record.transaction.saleDate)}</strong>
+                <small>
+                  {record.transaction.documentNumber || "Document unavailable"}
                 </small>
               </span>
             </button>
@@ -916,12 +1192,6 @@ export function ChicagoPropertyView({
       )}
 
       <p className="chicago-disclaimer">{snapshot.disclaimer}</p>
-      {selected && (
-        <ChicagoPropertyDetail
-          record={selected}
-          onClose={() => setSelected(null)}
-        />
-      )}
     </div>
   );
 }

@@ -15,12 +15,13 @@ async function loadTestSnapshot() {
     import("node:fs/promises"),
     import("node:path"),
   ]);
-  const filename = `${["money", "in", "motion"].join("-")}.json`;
-  const contents = await readFile(
+  const filename = `${["money", "in", "motion", "client"].join("-")}.json.gz`;
+  const bytes = await readFile(
     path.resolve(process.cwd(), "public", "data", filename),
-    "utf8",
   );
-  testSnapshot = JSON.parse(contents) as MoneyMotionSnapshot;
+  testSnapshot = JSON.parse(
+    strFromU8(gunzipSync(new Uint8Array(bytes))),
+  ) as MoneyMotionSnapshot;
   return testSnapshot;
 }
 

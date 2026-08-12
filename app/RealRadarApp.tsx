@@ -9,7 +9,14 @@ import type {
   MoneyMotionRecord,
   MoneyMotionSnapshot,
 } from "../lib/money-in-motion";
-import type { ChicagoPropertySnapshot } from "../lib/chicago-property";
+import type {
+  ChicagoPropertyRecord,
+  ChicagoPropertySnapshot,
+} from "../lib/chicago-property";
+import {
+  buildSellerIntelligence,
+  type SellerIntelligenceProfile,
+} from "../lib/seller-intelligence";
 import { isQualifiedTransportationRecord } from "../lib/money-in-motion";
 import { getExitBusinessProfiles } from "../lib/exit-signals";
 import { normalizePublicLocation } from "../lib/public-locations";
@@ -23,7 +30,11 @@ import { PublicStateMap } from "./PublicStateMap";
 import { MoneyInMotionView } from "./MoneyInMotion";
 import { MotionRecordProfile, PeopleInMotionView } from "./PeopleInMotion";
 import { TerritoriesView } from "./TerritoriesView";
-import { ChicagoPropertyView } from "./ChicagoProperty";
+import { ChicagoPropertyProfile, ChicagoPropertyView } from "./ChicagoProperty";
+import {
+  SellerIntelligenceProfileView,
+  SellerIntelligenceView,
+} from "./SellerIntelligence";
 import {
   clearTestSession,
   readTestSession,
@@ -38,6 +49,9 @@ type WorkspaceView =
   | "profile"
   | "event_profile"
   | "chicago_property"
+  | "chicago_profile"
+  | "seller_intelligence"
+  | "seller_profile"
   | "territories"
   | "filings"
   | "exits"
@@ -104,6 +118,11 @@ const navigation: Array<{
       { view: "dashboard", label: "Dashboard", icon: "DB" },
       { view: "people", label: "Search directory", icon: "DIR" },
       { view: "chicago_property", label: "Chicago Property", icon: "CHI" },
+      {
+        view: "seller_intelligence",
+        label: "Seller Intelligence",
+        icon: "SI",
+      },
       { view: "territories", label: "Territories & alerts", icon: "AL" },
       { view: "map", label: "State map", icon: "US" },
     ],
@@ -154,6 +173,24 @@ const viewCopy: Record<
     title: "Chicago Property",
     detail:
       "Significant property sales and potential business-exit signals across Chicago and Cook County.",
+  },
+  chicago_profile: {
+    eyebrow: "Cook County seller profile",
+    title: "Property disposition history",
+    detail:
+      "Review every significant property disposition tied to this person or seller entity.",
+  },
+  seller_intelligence: {
+    eyebrow: "Cook County person-resolution workflow",
+    title: "Seller Intelligence",
+    detail:
+      "Rank property sellers, aggregate their dispositions, resolve defensible owner relationships, and identify converging business-exit evidence.",
+  },
+  seller_profile: {
+    eyebrow: "Evidence-linked seller profile",
+    title: "Seller disposition profile",
+    detail:
+      "Review the full property history, person and entity relationships, source evidence, and exit-signal convergence for this seller.",
   },
   profile: {
     eyebrow: "SEC reporting-party profile",
@@ -330,13 +367,21 @@ function WorkspaceSidebar({
                 key={item.view}
                 className={
                   view === item.view ||
-                  (view === "profile" && item.view === "people")
+                  (view === "profile" && item.view === "people") ||
+                  (view === "chicago_profile" &&
+                    item.view === "chicago_property") ||
+                  (view === "seller_profile" &&
+                    item.view === "seller_intelligence")
                     ? "active"
                     : ""
                 }
                 aria-current={
                   view === item.view ||
-                  (view === "profile" && item.view === "people")
+                  (view === "profile" && item.view === "people") ||
+                  (view === "chicago_profile" &&
+                    item.view === "chicago_property") ||
+                  (view === "seller_profile" &&
+                    item.view === "seller_intelligence")
                     ? "page"
                     : undefined
                 }
@@ -1400,6 +1445,8 @@ export function RealRadarApp() {
   const [query, setQuery] = useState("");
   const [selectedPersonId, setSelectedPersonId] = useState("");
   const [selectedMotionRecordId, setSelectedMotionRecordId] = useState("");
+  const [selectedChicagoRecordId, setSelectedChicagoRecordId] = useState("");
+  const [selectedSellerProfileId, setSelectedSellerProfileId] = useState("");
   const [data, setData] = useState<PublicDataSnapshot | null>(null);
   const [motionData, setMotionData] = useState<MoneyMotionSnapshot | null>(
     null,
@@ -1414,6 +1461,17 @@ export function RealRadarApp() {
     people.find((person) => person.id === selectedPersonId) ?? people[0];
   const selectedMotionRecord = motionData?.records.find(
     (record) => record.id === selectedMotionRecordId,
+  );
+  const sellerIntelligence = useMemo(
+    () =>
+      chicagoPropertyData ? buildSellerIntelligence(chicagoPropertyData) : null,
+    [chicagoPropertyData],
+  );
+  const selectedChicagoRecord = chicagoPropertyData?.records.find(
+    (record) => record.id === selectedChicagoRecordId,
+  );
+  const selectedSellerProfile = sellerIntelligence?.profiles.find(
+    (profile) => profile.id === selectedSellerProfileId,
   );
   const ready = useSyncExternalStore(
     subscribeToHydration,
@@ -1598,6 +1656,18 @@ export function RealRadarApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const openChicagoRecord = (record: ChicagoPropertyRecord) => {
+    setSelectedChicagoRecordId(record.id);
+    setView("chicago_profile");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const openSellerProfile = (profile: SellerIntelligenceProfile) => {
+    setSelectedSellerProfileId(profile.id);
+    setView("seller_profile");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (!ready) {
     return (
       <main className="test-auth-loading" aria-label="Loading test access">
@@ -1654,13 +1724,61 @@ export function RealRadarApp() {
           }
         />
         {chicagoPropertyData ? (
-          <ChicagoPropertyView snapshot={chicagoPropertyData} />
+          <ChicagoPropertyView
+            snapshot={chicagoPropertyData}
+            onOpenRecord={openChicagoRecord}
+          />
         ) : (
           <div className="motion-inline-loading">
             Loading official Cook County and Illinois property records…
           </div>
         )}
       </>
+    );
+  } else if (
+    view === "chicago_profile" &&
+    chicagoPropertyData &&
+    selectedChicagoRecord
+  ) {
+    content = (
+      <ChicagoPropertyProfile
+        snapshot={chicagoPropertyData}
+        record={selectedChicagoRecord}
+        onBack={() => navigate("chicago_property")}
+      />
+    );
+  } else if (view === "seller_intelligence") {
+    content = (
+      <>
+        <PageIntro
+          view="seller_intelligence"
+          action={
+            sellerIntelligence ? (
+              <span className="real-count-pill">
+                {sellerIntelligence.stats.totalSellerEntities.toLocaleString()}{" "}
+                seller profiles
+              </span>
+            ) : undefined
+          }
+        />
+        {sellerIntelligence ? (
+          <SellerIntelligenceView
+            snapshot={sellerIntelligence}
+            onOpenProfile={openSellerProfile}
+          />
+        ) : (
+          <div className="motion-inline-loading">
+            Aggregating property sellers and person relationships…
+          </div>
+        )}
+      </>
+    );
+  } else if (view === "seller_profile" && selectedSellerProfile) {
+    content = (
+      <SellerIntelligenceProfileView
+        profile={selectedSellerProfile}
+        onBack={() => navigate("seller_intelligence")}
+      />
     );
   } else if (view === "people") {
     content = (

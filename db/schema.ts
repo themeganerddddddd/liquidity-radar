@@ -674,6 +674,34 @@ export const workspaceRecords = sqliteTable(
   ],
 );
 
+export const sellerManualRecords = sqliteTable(
+  "seller_manual_records",
+  {
+    id: text("id").primaryKey(),
+    sellerKey: text("seller_key").notNull(),
+    entityLegalName: text("entity_legal_name").notNull(),
+    illinoisFileNumber: text("illinois_file_number"),
+    entityType: text("entity_type"),
+    entityStatus: text("entity_status"),
+    formationDate: text("formation_date"),
+    president: text("president"),
+    secretary: text("secretary"),
+    managersJson: text("managers_json").notNull().default("[]"),
+    registeredAgent: text("registered_agent"),
+    sourceUrl: text("source_url").notNull(),
+    lookupDate: text("lookup_date").notNull(),
+    checkedBy: text("checked_by").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    index("seller_manual_records_seller_idx").on(
+      table.sellerKey,
+      table.lookupDate,
+    ),
+    index("seller_manual_records_file_idx").on(table.illinoisFileNumber),
+  ],
+);
+
 export const apiKeys = sqliteTable(
   "api_keys",
   {

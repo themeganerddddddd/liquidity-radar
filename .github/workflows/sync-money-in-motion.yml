@@ -32,17 +32,17 @@ jobs:
           USPTO_API_KEY: ${{ secrets.USPTO_API_KEY }}
         run: npm run data:sync-motion
       - name: Verify money-in-motion contracts
-        run: npm run test -- tests/unit/money-in-motion.test.ts tests/unit/chicago-property.test.ts
+        run: npm run test -- tests/unit/money-in-motion.test.ts tests/unit/chicago-property.test.ts tests/unit/seller-intelligence.test.ts
       - name: Generate integrity and source-value report
-        run: npm run data:report-motion
+        run: npm run data:report-motion && npm run data:report-sellers
       - name: Commit changed public snapshot
         run: |
-          if git diff --quiet -- public/data/money-in-motion-client.json.gz public/data/chicago-property-client.json.gz public/data/chicago-property-source-records.json.gz public/data/chicago-property-sync-state.json.gz public/data/gdelt-sync-state.json public/data/cms-owner-cache.json.gz public/data/stb-sync-state.json public/data/uspto-sync-state.json.gz docs/money-in-motion-validation.md; then
+          if git diff --quiet -- public/data/money-in-motion-client.json.gz public/data/chicago-property-client.json.gz public/data/chicago-property-source-records.json.gz public/data/chicago-property-sync-state.json.gz public/data/gdelt-sync-state.json public/data/cms-owner-cache.json.gz public/data/stb-sync-state.json public/data/uspto-sync-state.json.gz docs/money-in-motion-validation.md docs/seller-intelligence-validation.md; then
             echo "No source changes."
             exit 0
           fi
           git config user.name "liquidity-radar-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add public/data/money-in-motion-client.json.gz public/data/chicago-property-client.json.gz public/data/chicago-property-source-records.json.gz public/data/chicago-property-sync-state.json.gz public/data/gdelt-sync-state.json public/data/cms-owner-cache.json.gz public/data/stb-sync-state.json public/data/uspto-sync-state.json.gz docs/money-in-motion-validation.md
+          git add public/data/money-in-motion-client.json.gz public/data/chicago-property-client.json.gz public/data/chicago-property-source-records.json.gz public/data/chicago-property-sync-state.json.gz public/data/gdelt-sync-state.json public/data/cms-owner-cache.json.gz public/data/stb-sync-state.json public/data/uspto-sync-state.json.gz docs/money-in-motion-validation.md docs/seller-intelligence-validation.md
           git commit -m "Refresh Money in Motion snapshot"
           git push origin main
