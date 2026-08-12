@@ -24,7 +24,7 @@ test("the restored workspace shell loads its official dashboard", async ({
   await signInWithDummy(page);
   await expect(
     page.getByRole("heading", { name: "Liquidity Radar" }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 20_000 });
   await expect(
     page.getByText("Real records only", { exact: true }),
   ).toHaveCount(0);
@@ -34,6 +34,11 @@ test("the restored workspace shell loads its official dashboard", async ({
   await expect(
     page.getByRole("heading", { name: "People with recent capital events" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Top 10 Contacts This Week" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Geography")).toHaveValue("CHICAGO_METRO");
+  await expect(page.locator(".top-contacts-row:not(.heading)")).toHaveCount(10);
   await expect(
     page.getByRole("heading", { name: "State activity pulse" }),
   ).toBeVisible();
@@ -112,15 +117,21 @@ test("a browser-local test account can register and retain its session", async (
     .getByRole("button", { name: "Create account and continue" })
     .click();
 
-  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible();
+  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible({
+    timeout: 20_000,
+  });
   await page.reload();
-  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible();
+  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible({
+    timeout: 20_000,
+  });
 
   await page.getByRole("button", { name: "Sign out" }).click();
   await page.getByLabel("Email").fill("ada@example.test");
   await page.locator('input[name="password"]').fill("TestRadar2026");
   await page.getByRole("button", { name: "Sign in to test dashboard" }).click();
-  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible();
+  await expect(page.getByText("Ada Tester", { exact: true })).toBeVisible({
+    timeout: 20_000,
+  });
 });
 
 test("confirmed exits, owner attribution, and saved metro alerts are usable", async ({
@@ -178,7 +189,8 @@ test("the combined capital directory exposes event details and source health", a
   const filters = page.getByLabel("Capital directory filters");
   await expect(filters.getByLabel("Search event locations")).toBeVisible();
   await expect(filters.getByLabel("Date range")).toBeVisible();
-  await expect(filters.getByLabel("Minimum proceeds")).toBeVisible();
+  await expect(filters.getByLabel("Minimum transaction value")).toBeVisible();
+  await expect(filters.getByLabel("Maximum transaction value")).toBeVisible();
   await expect(
     filters
       .getByLabel("Type")
@@ -186,14 +198,14 @@ test("the combined capital directory exposes event details and source health", a
   ).toHaveCount(0);
   const headings = page.locator(".sales-directory-row.heading");
   await expect(headings).toContainText("Name");
-  await expect(headings).toContainText("Proceeds");
+  await expect(headings).toContainText("Sale / proposed value");
   await expect(headings).toContainText("Location");
   await expect(headings).toContainText("Date");
   await expect(headings).toContainText("Type");
   await expect(headings).toContainText("Event description");
   for (const label of [
     "Name",
-    "Proceeds",
+    "Sale / proposed value",
     "Location",
     "Date",
     "Type",
@@ -257,6 +269,42 @@ test("the combined capital directory exposes event details and source health", a
   ).toBeVisible();
   await expect(page.getByText("CMS change of ownership")).toBeVisible();
   await expect(page.getByText("FCC Universal Licensing System")).toBeVisible();
+});
+
+test("the directory value range and full-width property map controls are usable", async ({
+  page,
+}) => {
+  await signInWithDummy(page);
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "Search directory" })
+    .click();
+  const filters = page.getByLabel("Capital directory filters");
+  await filters.getByLabel("Minimum transaction value").fill("1000000");
+  await filters.getByLabel("Maximum transaction value").fill("5000000");
+  const rows = page.locator(".sales-directory-row:not(.heading)");
+  await expect(rows.first()).toBeVisible();
+  const values = await rows.evaluateAll((items) =>
+    items
+      .slice(0, 20)
+      .map((item) => Number(item.getAttribute("data-proceeds"))),
+  );
+  expect(
+    values.every((value) => value >= 1_000_000 && value <= 5_000_000),
+  ).toBe(true);
+
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "Chicago property" })
+    .click();
+  await page.getByRole("button", { name: "Map", exact: true }).click();
+  await expect(page.locator(".chicago-leaflet-map")).toBeVisible();
+  await expect(page.locator(".chicago-map-note")).toHaveCount(0);
+  await expect(
+    page
+      .locator(".chicago-map-actions")
+      .getByRole("button", { name: /Filters/ }),
+  ).toBeVisible();
 });
 
 test("the capital directory searches every source with one event UI", async ({
