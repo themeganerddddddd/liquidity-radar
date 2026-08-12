@@ -294,7 +294,7 @@ describe("Top Contacts weekly ranking", () => {
 
   it("filters Cook and DuPage and aggregates a cross-county person once", () => {
     const candidate = person(1, {
-      name: "Cross County Owner",
+      name: "Cross Region Owner",
       location: {
         country: "United States",
         state: "Illinois",
@@ -473,11 +473,31 @@ describe("Top Contacts weekly ranking", () => {
       person(2, { highestConfidence: 50 }),
       person(3, { role: "Registered agent" }),
       person(4, { role: "Patent assignor" }),
+      person(5, { name: "Village of Example" }),
     ];
     expect(
       buildTopContacts(motionSnapshot(candidates), propertySnapshot())
         .recommendations,
     ).toHaveLength(0);
+  });
+
+  it("does not confuse an out-of-state city with an Illinois city of the same name", () => {
+    const candidate = person(1, {
+      name: "Arizona Executive",
+      location: {
+        country: "United States",
+        state: "Arizona",
+        city: "Phoenix",
+        basis: "public business address",
+      },
+    });
+    const phoenixIllinois = propertyRecord("phoenix-il", "Cook");
+    phoenixIllinois.property.city = "Phoenix";
+    const result = buildTopContacts(
+      motionSnapshot([candidate]),
+      propertySnapshot([phoenixIllinois]),
+    );
+    expect(result.recommendations).toHaveLength(0);
   });
 
   it("never exposes a residential address in ranking output", () => {

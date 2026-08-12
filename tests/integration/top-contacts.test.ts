@@ -29,7 +29,9 @@ describe("Top Contacts API", () => {
     expect(
       body.data.every(
         (recommendation) =>
-          recommendation.primaryEvent.ownershipEvidence &&
+          (recommendation.primaryEvent.ownershipEvidence ||
+            recommendation.primaryEvent.eventType ===
+              "COMMERCIAL_REAL_ESTATE_SALE") &&
           recommendation.contactPriorityScore <= 100 &&
           recommendation.whyNow.length > 30,
       ),

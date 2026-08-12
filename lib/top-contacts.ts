@@ -211,7 +211,7 @@ const verifiedCompanyRoutes: ContactRoute[] = [
 ];
 
 const entityNamePattern =
-  /\b(LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO\.|LTD|LIMITED|LP|L\.P\.|LLP|TRUST|FUND|CAPITAL|PARTNERS|HOLDINGS|FOUNDATION|BANK|ASSOCIATION|S\.A\.)\b/i;
+  /\b(LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO\.|LTD|LIMITED|LP|L\.P\.|LLP|TRUST|FUND|CAPITAL|PARTNERS|HOLDINGS|FOUNDATION|BANK|ASSOCIATION|VILLAGE|CITY|COUNTY|TOWNSHIP|DISTRICT|DEPARTMENT|AUTHORITY|S\.A\.)\b/i;
 const excludedRolePattern =
   /registered agent|attorney|property manager|patent assignor/i;
 const preLiquidityStages = new Set([
@@ -369,6 +369,17 @@ function countiesForCandidate(
     }
   }
   if (exact.size) return exact;
+  const state = person.location.state.trim().toLowerCase();
+  const country = person.location.country.trim().toLowerCase();
+  if (
+    !["illinois", "il"].includes(state) ||
+    (country &&
+      !["united states", "united states of america", "us", "usa"].includes(
+        country,
+      ))
+  ) {
+    return new Set<"Cook" | "DuPage">();
+  }
   return (
     cityCounties.get(person.location.city.trim().toLowerCase()) || new Set()
   );
