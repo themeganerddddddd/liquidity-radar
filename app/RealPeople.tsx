@@ -571,6 +571,8 @@ export function RealPeopleDirectory({
   const [state, setState] = useState("All states / provinces");
   const [city, setCity] = useState("All cities");
   const [radiusMiles, setRadiusMiles] = useState(0);
+  const [minimumValue, setMinimumValue] = useState("");
+  const [maximumValue, setMaximumValue] = useState("");
   const [sortKey, setSortKey] = useState<DirectorySortKey>("liquidity");
   const [sortDirection, setSortDirection] =
     useState<DirectorySortDirection>("desc");
@@ -746,6 +748,12 @@ export function RealPeopleDirectory({
             return person.holdings.length > 0;
           return true;
         })
+        .filter((person) => {
+          const value = headlineSaleValue(person);
+          if (minimumValue && value < Number(minimumValue)) return false;
+          if (maximumValue && value > Number(maximumValue)) return false;
+          return true;
+        })
         .sort((left, right) =>
           compareDirectoryPeople(left, right, sortKey, sortDirection),
         ),
@@ -754,6 +762,8 @@ export function RealPeopleDirectory({
       country,
       evidence,
       kind,
+      maximumValue,
+      minimumValue,
       people,
       query,
       radiusMiles,
@@ -896,6 +906,41 @@ export function RealPeopleDirectory({
             <option>Entities only</option>
           </select>
         </label>
+        <div className="value-range-filter">
+          <span>Sale value range</span>
+          <label>
+            <span className="sr-only">Minimum sale value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              placeholder="Min $"
+              aria-label="Minimum sale value"
+              value={minimumValue}
+              onChange={(event) => {
+                setMinimumValue(event.target.value);
+                setVisibleCount(50);
+              }}
+            />
+          </label>
+          <label>
+            <span className="sr-only">Maximum sale value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              placeholder="Max $"
+              aria-label="Maximum sale value"
+              value={maximumValue}
+              onChange={(event) => {
+                setMaximumValue(event.target.value);
+                setVisibleCount(50);
+              }}
+            />
+          </label>
+        </div>
         <label>
           <span>Sort by</span>
           <select

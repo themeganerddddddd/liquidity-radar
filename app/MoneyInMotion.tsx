@@ -496,6 +496,7 @@ export function MoneyInMotionView({
   const [locationFilter, setLocationFilter] = useState("");
   const [industry, setIndustry] = useState("");
   const [minimum, setMinimum] = useState("");
+  const [maximum, setMaximum] = useState("");
   const [dateWindow, setDateWindow] = useState("365");
   const [confidence, setConfidence] = useState("0");
   const [source, setSource] = useState("");
@@ -573,6 +574,7 @@ export function MoneyInMotionView({
         return false;
       if (industry && record.industry !== industry) return false;
       if (minimum && value < Number(minimum)) return false;
+      if (maximum && value > Number(maximum)) return false;
       if (
         thresholdDate &&
         (!Number.isFinite(eventTime) || eventTime < thresholdDate)
@@ -595,6 +597,7 @@ export function MoneyInMotionView({
     locationFilter,
     industry,
     minimum,
+    maximum,
     dateWindow,
     confidence,
     source,
@@ -702,18 +705,35 @@ export function MoneyInMotionView({
             ))}
           </select>
         </label>
-        <label>
-          <span>Amount</span>
-          <select
-            value={minimum}
-            onChange={(event) => setMinimum(event.target.value)}
-          >
-            <option value="">Any or undisclosed</option>
-            <option value="1000000">$1M+</option>
-            <option value="10000000">$10M+</option>
-            <option value="100000000">$100M+</option>
-          </select>
-        </label>
+        <div className="value-range-filter">
+          <span>Value range</span>
+          <label>
+            <span className="sr-only">Minimum value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              aria-label="Minimum event value"
+              placeholder="Min $"
+              value={minimum}
+              onChange={(event) => setMinimum(event.target.value)}
+            />
+          </label>
+          <label>
+            <span className="sr-only">Maximum value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              aria-label="Maximum event value"
+              placeholder="Max $"
+              value={maximum}
+              onChange={(event) => setMaximum(event.target.value)}
+            />
+          </label>
+        </div>
         <label>
           <span>Date</span>
           <select

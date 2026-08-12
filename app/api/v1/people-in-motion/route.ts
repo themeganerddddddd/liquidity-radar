@@ -30,6 +30,7 @@ export async function GET(request: Request) {
   const eventType = url.searchParams.get("event_type") || "";
   const source = url.searchParams.get("source") || "";
   const minimumAmount = Number(url.searchParams.get("minimum_amount") || 0);
+  const maximumAmount = Number(url.searchParams.get("maximum_amount") || 0);
   const minimumConfidence = Number(
     url.searchParams.get("minimum_confidence") || 0,
   );
@@ -77,6 +78,9 @@ export async function GET(request: Request) {
         (!minimumAmount ||
           (person.estimatedLiquidityHigh !== null &&
             person.estimatedLiquidityHigh >= minimumAmount)) &&
+        (!maximumAmount ||
+          (person.estimatedLiquidityHigh !== null &&
+            person.estimatedLiquidityHigh <= maximumAmount)) &&
         person.highestConfidence >= minimumConfidence &&
         (!threshold ||
           (Number.isFinite(eventTime) && eventTime >= threshold)) &&

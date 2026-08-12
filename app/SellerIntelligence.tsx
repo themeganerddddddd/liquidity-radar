@@ -97,6 +97,8 @@ export function SellerIntelligenceView({
   const [filter, setFilter] = useState<SellerFilter>("all");
   const [sort, setSort] = useState<SellerProfileSort>("priority");
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
+  const [minimum, setMinimum] = useState("");
+  const [maximum, setMaximum] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 50;
 
@@ -119,6 +121,10 @@ export function SellerIntelligenceView({
           .includes(needle)
       )
         return false;
+      if (minimum && profile.totalRecordedConsideration < Number(minimum))
+        return false;
+      if (maximum && profile.totalRecordedConsideration > Number(maximum))
+        return false;
       if (filter.startsWith("unresolved-"))
         return (
           !profile.ownerFound && profile.totalRecordedConsideration >= threshold
@@ -136,7 +142,7 @@ export function SellerIntelligenceView({
       return true;
     });
     return sortSellerProfiles(matches, sort, direction);
-  }, [direction, filter, query, snapshot, sort]);
+  }, [direction, filter, maximum, minimum, query, snapshot, sort]);
 
   const pages = Math.max(1, Math.ceil(profiles.length / pageSize));
   const visible = profiles.slice((page - 1) * pageSize, page * pageSize);
@@ -232,6 +238,41 @@ export function SellerIntelligenceView({
           placeholder="Search seller, person, entity, or location…"
         />
       </label>
+      <div className="seller-value-range value-range-filter">
+        <span>Recorded disposition range</span>
+        <label>
+          <span className="sr-only">Minimum recorded dispositions</span>
+          <input
+            type="number"
+            min="0"
+            step="100000"
+            inputMode="numeric"
+            placeholder="Min $"
+            aria-label="Minimum recorded disposition value"
+            value={minimum}
+            onChange={(event) => {
+              setMinimum(event.target.value);
+              setPage(1);
+            }}
+          />
+        </label>
+        <label>
+          <span className="sr-only">Maximum recorded dispositions</span>
+          <input
+            type="number"
+            min="0"
+            step="100000"
+            inputMode="numeric"
+            placeholder="Max $"
+            aria-label="Maximum recorded disposition value"
+            value={maximum}
+            onChange={(event) => {
+              setMaximum(event.target.value);
+              setPage(1);
+            }}
+          />
+        </label>
+      </div>
       <div
         className="chicago-quick-filters seller-quick-filters"
         aria-label="Seller filters"

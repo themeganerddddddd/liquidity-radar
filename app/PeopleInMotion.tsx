@@ -6,6 +6,7 @@ import type {
   MoneyMotionSnapshot,
 } from "../lib/money-in-motion";
 import { isQualifiedTransportationRecord } from "../lib/money-in-motion";
+import type { TopContactRecommendation } from "../lib/top-contacts";
 
 type SortKey = "name" | "proceeds" | "location" | "date" | "type" | "event";
 type SortDirection = "asc" | "desc";
@@ -109,6 +110,14 @@ function place(record: MoneyMotionRecord) {
 }
 
 function amountValue(record: MoneyMotionRecord) {
+  if (
+    ["WATCHING", "PRE_SALE", "ANNOUNCED", "PENDING_REGULATORY"].includes(
+      record.stage,
+    ) &&
+    record.reportedTransactionValue !== null
+  ) {
+    return record.reportedTransactionValue;
+  }
   return (
     record.estimate.potentiallyDeployableHigh ?? record.reportedTransactionValue
   );
@@ -134,6 +143,20 @@ function undisclosedReason(record: MoneyMotionRecord) {
 }
 
 function proceeds(record: MoneyMotionRecord) {
+  if (
+    ["WATCHING", "PRE_SALE", "ANNOUNCED", "PENDING_REGULATORY"].includes(
+      record.stage,
+    ) &&
+    record.reportedTransactionValue !== null
+  ) {
+    return {
+      amount: compactMoney(record.reportedTransactionValue, record.currency),
+      basis:
+        record.stage === "PRE_SALE" || record.eventType === "BUSINESS_FOR_SALE"
+          ? "Proposed sale value"
+          : "Reported transaction value",
+    };
+  }
   const low = record.estimate.potentiallyDeployableLow;
   const high = record.estimate.potentiallyDeployableHigh;
   if (low !== null && high !== null) {
@@ -216,6 +239,7 @@ export function PeopleInMotionView({
   const [eventType, setEventType] = useState("");
   const [dateWindow, setDateWindow] = useState("");
   const [minimum, setMinimum] = useState("");
+  const [maximum, setMaximum] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; direction: SortDirection }>({
     key: "date",
     direction: "desc",
@@ -278,6 +302,12 @@ export function PeopleInMotionView({
             amountValue(record)! < Number(minimum))
         )
           return false;
+        if (
+          maximum &&
+          (amountValue(record) === null ||
+            amountValue(record)! > Number(maximum))
+        )
+          return false;
         return true;
       })
       .sort((left, right) => {
@@ -288,7 +318,16 @@ export function PeopleInMotionView({
         );
         return comparison || left.id.localeCompare(right.id);
       });
-  }, [snapshot, query, locationQuery, eventType, dateWindow, minimum, sort]);
+  }, [
+    snapshot,
+    query,
+    locationQuery,
+    eventType,
+    dateWindow,
+    minimum,
+    maximum,
+    sort,
+  ]);
 
   const visibleRecords = records.slice(0, visibleCount);
   const recordsWithAmounts = records.filter(
@@ -390,30 +429,48 @@ export function PeopleInMotionView({
             <option value="1095">Last 3 years</option>
           </select>
         </label>
-        <label>
-          <span>Proceeds</span>
-          <select
-            aria-label="Minimum proceeds"
-            value={minimum}
-            onChange={(event) => {
-              setMinimum(event.target.value);
-              resetVisibleCount();
-            }}
-          >
-            <option value="">Any or undisclosed</option>
-            <option value="1000000">$1M+</option>
-            <option value="5000000">$5M+</option>
-            <option value="25000000">$25M+</option>
-            <option value="100000000">$100M+</option>
-          </select>
-        </label>
+        <div className="value-range-filter">
+          <span>Value range</span>
+          <label>
+            <span className="sr-only">Minimum value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              aria-label="Minimum transaction value"
+              placeholder="Min $"
+              value={minimum}
+              onChange={(event) => {
+                setMinimum(event.target.value);
+                resetVisibleCount();
+              }}
+            />
+          </label>
+          <label>
+            <span className="sr-only">Maximum value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              aria-label="Maximum transaction value"
+              placeholder="Max $"
+              value={maximum}
+              onChange={(event) => {
+                setMaximum(event.target.value);
+                resetVisibleCount();
+              }}
+            />
+          </label>
+        </div>
       </section>
 
       <div className="people-motion-result-bar unified-result-bar">
         <strong>{records.length.toLocaleString()} capital events</strong>
         <span>
-          {recordsWithAmounts.toLocaleString()} with a public or estimated value
-          · sorted by {sort.key}{" "}
+          {recordsWithAmounts.toLocaleString()} with a public transaction or
+          proposed-sale value · sorted by {sort.key}{" "}
           {sort.direction === "asc" ? "ascending" : "descending"}
         </span>
       </div>
@@ -424,7 +481,7 @@ export function PeopleInMotionView({
       >
         <div className="people-motion-row real-people-row heading sales-directory-row">
           <span>{sortHeading("name", "Name")}</span>
-          <span>{sortHeading("proceeds", "Proceeds")}</span>
+          <span>{sortHeading("proceeds", "Sale / proposed value")}</span>
           <span>{sortHeading("location", "Location")}</span>
           <span>{sortHeading("date", "Date")}</span>
           <span>{sortHeading("type", "Type")}</span>
@@ -508,10 +565,12 @@ export function PeopleInMotionView({
 export function MotionRecordProfile({
   snapshot,
   record,
+  outreach,
   onBack,
 }: {
   snapshot: MoneyMotionSnapshot;
   record: MoneyMotionRecord;
+  outreach?: TopContactRecommendation;
   onBack: () => void;
 }) {
   const name = recordName(record);
@@ -607,6 +666,85 @@ export function MotionRecordProfile({
             transfer without disclosing price.
           </p>
         </div>
+
+        {outreach && (
+          <section className="outreach-summary" aria-label="Outreach summary">
+            <div className="outreach-summary-head">
+              <div>
+                <p className="eyebrow">Weekly recommendation</p>
+                <h2>Outreach Summary</h2>
+              </div>
+              <strong>{outreach.contactPriorityScore} / 100 priority</strong>
+            </div>
+            <div className="outreach-summary-grid">
+              <article>
+                <span>Estimated potential liquidity</span>
+                <strong>
+                  {outreach.estimatedProceedsLow !== null &&
+                  outreach.estimatedProceedsHigh !== null
+                    ? `${compactMoney(outreach.estimatedProceedsLow, outreach.currency)}–${compactMoney(outreach.estimatedProceedsHigh, outreach.currency)}`
+                    : "Unknown"}
+                </strong>
+                <small>Public transaction evidence; not a bank balance</small>
+              </article>
+              <article>
+                <span>Professional contact</span>
+                {outreach.contacts[0] ? (
+                  <a
+                    href={outreach.contacts[0].sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {outreach.contactability === "DIRECT"
+                      ? "Verified public direct contact"
+                      : outreach.contactability === "COMPANY"
+                        ? "Official company contact"
+                        : "Public professional profile"}{" "}
+                    ↗
+                  </a>
+                ) : (
+                  <strong>Needs Contact Research</strong>
+                )}
+                <small>No private or inferred contact details</small>
+              </article>
+              <article>
+                <span>Relevant events</span>
+                <strong>{outreach.relevantEventIds.length}</strong>
+                <small>
+                  Primary: {eventLabel(outreach.primaryEvent.eventType)}
+                </small>
+              </article>
+              <article>
+                <span>Outreach status</span>
+                <strong>{titleCase(outreach.workflowStatus)}</strong>
+                <small>
+                  Week of {dateLabel(outreach.weekStart)} · {outreach.county}
+                </small>
+              </article>
+            </div>
+            <div className="outreach-why">
+              <strong>Why now</strong>
+              <p>{outreach.whyNow}</p>
+            </div>
+            <div className="outreach-score-breakdown">
+              {[
+                ["Liquidity", outreach.score.liquidity, 30],
+                ["Recency", outreach.score.recency, 20],
+                ["Exit Convergence", outreach.score.exitConvergence, 20],
+                ["Ownership", outreach.score.ownership, 10],
+                ["Contactability", outreach.score.contactability, 10],
+                ["Evidence", outreach.score.evidence, 10],
+              ].map(([label, value, maximum]) => (
+                <span key={label}>
+                  {label}{" "}
+                  <b>
+                    {value}/{maximum}
+                  </b>
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section
           className="real-profile-kpis"

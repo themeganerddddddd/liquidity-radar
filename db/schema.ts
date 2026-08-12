@@ -702,6 +702,107 @@ export const sellerManualRecords = sqliteTable(
   ],
 );
 
+export const weeklyContactRecommendations = sqliteTable(
+  "weekly_contact_recommendations",
+  {
+    id: text("id").primaryKey(),
+    weekStart: text("week_start").notNull(),
+    geographyId: text("geography_id").notNull(),
+    rank: integer("rank").notNull(),
+    personId: text("person_id").notNull(),
+    primaryEventId: text("primary_event_id").notNull(),
+    contactPriorityScore: integer("contact_priority_score").notNull(),
+    estimatedProceedsLow: integer("estimated_proceeds_low"),
+    estimatedProceedsHigh: integer("estimated_proceeds_high"),
+    location: text("location").notNull(),
+    whyNow: text("why_now").notNull(),
+    contactabilityStatus: text("contactability_status").notNull(),
+    workflowStatus: text("workflow_status").notNull().default("NOT_REVIEWED"),
+    recommendationStatus: text("recommendation_status")
+      .notNull()
+      .default("ACTIVE"),
+    skipReason: text("skip_reason").notNull().default(""),
+    lastMaterialEventAt: text("last_material_event_at").notNull(),
+    payloadJson: text("payload_json").notNull(),
+    generatedAt: text("generated_at").notNull(),
+    lastUpdatedAt: text("last_updated_at").notNull(),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("weekly_contacts_week_geo_person_idx").on(
+      table.weekStart,
+      table.geographyId,
+      table.personId,
+    ),
+    index("weekly_contacts_week_geo_rank_idx").on(
+      table.weekStart,
+      table.geographyId,
+      table.rank,
+    ),
+    index("weekly_contacts_person_status_idx").on(
+      table.personId,
+      table.workflowStatus,
+      table.lastUpdatedAt,
+    ),
+  ],
+);
+
+export const professionalContacts = sqliteTable(
+  "professional_contacts",
+  {
+    id: text("id").primaryKey(),
+    personId: text("person_id").notNull(),
+    company: text("company").notNull(),
+    contactType: text("contact_type").notNull(),
+    contactValue: text("contact_value").notNull(),
+    sourceUrl: text("source_url").notNull(),
+    sourceName: text("source_name").notNull(),
+    retrievedAt: text("retrieved_at").notNull(),
+    verificationStatus: text("verification_status").notNull(),
+    notes: text("notes").notNull().default(""),
+    ...auditColumns,
+  },
+  (table) => [
+    uniqueIndex("professional_contacts_person_value_idx").on(
+      table.personId,
+      table.contactType,
+      table.contactValue,
+    ),
+    index("professional_contacts_person_idx").on(
+      table.personId,
+      table.verificationStatus,
+    ),
+  ],
+);
+
+export const weeklyContactHistory = sqliteTable(
+  "weekly_contact_history",
+  {
+    id: text("id").primaryKey(),
+    recommendationId: text("recommendation_id").notNull(),
+    personId: text("person_id").notNull(),
+    weekStart: text("week_start").notNull(),
+    geographyId: text("geography_id").notNull(),
+    previousWorkflowStatus: text("previous_workflow_status"),
+    workflowStatus: text("workflow_status").notNull(),
+    previousRecommendationStatus: text("previous_recommendation_status"),
+    recommendationStatus: text("recommendation_status").notNull(),
+    reason: text("reason").notNull().default(""),
+    actor: text("actor").notNull(),
+    changedAt: text("changed_at").notNull(),
+  },
+  (table) => [
+    index("weekly_contact_history_recommendation_idx").on(
+      table.recommendationId,
+      table.changedAt,
+    ),
+    index("weekly_contact_history_person_idx").on(
+      table.personId,
+      table.changedAt,
+    ),
+  ],
+);
+
 export const apiKeys = sqliteTable(
   "api_keys",
   {

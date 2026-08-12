@@ -149,9 +149,13 @@ function SortHeader({
 function ChicagoPropertyMap({
   records,
   onOpen,
+  onOpenFilters,
+  activeFilterCount,
 }: {
   records: ChicagoPropertyRecord[];
   onOpen: (record: ChicagoPropertyRecord) => void;
+  onOpenFilters: () => void;
+  activeFilterCount: number;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
@@ -312,29 +316,18 @@ function ChicagoPropertyMap({
             <i className="strong" /> Strong exit signal
           </span>
         </div>
-      </div>
-      <div className="chicago-map-note">
-        <strong>{plotted.length.toLocaleString()} mapped sales</strong>
-        <span>
-          Drag or zoom the real street map, then select a marker to open the
-          seller profile. Markers use asset locations only; owner mailing
-          addresses are never shown.
-        </span>
-        <button
-          type="button"
-          className="chicago-map-fit"
-          disabled={!plotted.length}
-          onClick={() => setFitRequest((request) => request + 1)}
-        >
-          Fit filtered sales
-        </button>
-        {records.length > plotted.length && (
-          <small>
-            {(records.length - plotted.length).toLocaleString()} filtered sale
-            {records.length - plotted.length === 1 ? "" : "s"} lack a usable
-            parcel coordinate and are retained in the list.
-          </small>
-        )}
+        <div className="chicago-map-actions">
+          <button type="button" onClick={onOpenFilters}>
+            Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}
+          </button>
+          <button
+            type="button"
+            disabled={!plotted.length}
+            onClick={() => setFitRequest((request) => request + 1)}
+          >
+            Fit filtered sales
+          </button>
+        </div>
       </div>
     </section>
   );
@@ -771,6 +764,7 @@ export function ChicagoPropertyView({
   const [group, setGroup] = useState<PropertyGroup>("all");
   const [county, setCounty] = useState<CountyFilter>("all");
   const [minValue, setMinValue] = useState(0);
+  const [maxValue, setMaxValue] = useState(0);
   const [dateWindow, setDateWindow] = useState(0);
   const [category, setCategory] = useState<PropertyCategory | "all">("all");
   const [city, setCity] = useState("");
@@ -820,6 +814,7 @@ export function ChicagoPropertyView({
         return false;
       if (county !== "all" && record.property.county !== county) return false;
       if (minValue && value < minValue) return false;
+      if (maxValue && value > maxValue) return false;
       if (cutoff && record.transaction.saleDate < cutoff) return false;
       if (category !== "all" && record.property.category !== category)
         return false;
@@ -844,6 +839,7 @@ export function ChicagoPropertyView({
     group,
     county,
     minValue,
+    maxValue,
     dateWindow,
     category,
     city,
@@ -910,6 +906,18 @@ export function ChicagoPropertyView({
         ? "Newest recorded date first"
         : "Oldest recorded date first"
       : `${sortKey === "seller" ? "Name" : sortKey === "value" ? "Sale value" : "Location"} ${sortDirection === "asc" ? "ascending" : "descending"}`;
+  const activeFilterCount = [
+    minValue,
+    maxValue,
+    dateWindow,
+    category !== "all",
+    county !== "all",
+    city,
+    zip,
+    resolution !== "all",
+    valueStatus !== "all",
+    strongExit,
+  ].filter(Boolean).length;
 
   return (
     <div className="chicago-property-workspace">
@@ -960,19 +968,7 @@ export function ChicagoPropertyView({
             onClick={() => setFiltersOpen((current) => !current)}
           >
             Filters
-            {[
-              minValue,
-              dateWindow,
-              category !== "all",
-              county !== "all",
-              city,
-              zip,
-              resolution !== "all",
-              valueStatus !== "all",
-              strongExit,
-            ].filter(Boolean).length
-              ? ` (${[minValue, dateWindow, category !== "all", county !== "all", city, zip, resolution !== "all", valueStatus !== "all", strongExit].filter(Boolean).length})`
-              : ""}
+            {activeFilterCount ? ` (${activeFilterCount})` : ""}
           </button>
           <div className="chicago-mode-toggle">
             <Toggle active={mode === "list"} onClick={() => setMode("list")}>
@@ -1056,24 +1052,43 @@ export function ChicagoPropertyView({
           className="chicago-filters"
           aria-label="Chicago property filters"
         >
-          <fieldset>
-            <legend>Minimum sale value</legend>
-            <div>
-              {[1_000_000, 5_000_000, 10_000_000, 25_000_000, 50_000_000].map(
-                (value) => (
-                  <Toggle
-                    key={value}
-                    active={minValue === value}
-                    onClick={() =>
-                      setAndReset(() =>
-                        setMinValue(minValue === value ? 0 : value),
-                      )
-                    }
-                  >
-                    {money(value, true)}+
-                  </Toggle>
-                ),
-              )}
+          <fieldset className="chicago-value-range">
+            <legend>Sale value range</legend>
+            <div className="value-range-filter">
+              <label>
+                <span>Minimum</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="100000"
+                  inputMode="numeric"
+                  placeholder="Min $"
+                  aria-label="Minimum Chicago property sale value"
+                  value={minValue || ""}
+                  onChange={(event) =>
+                    setAndReset(() =>
+                      setMinValue(Number(event.target.value) || 0),
+                    )
+                  }
+                />
+              </label>
+              <label>
+                <span>Maximum</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="100000"
+                  inputMode="numeric"
+                  placeholder="Max $"
+                  aria-label="Maximum Chicago property sale value"
+                  value={maxValue || ""}
+                  onChange={(event) =>
+                    setAndReset(() =>
+                      setMaxValue(Number(event.target.value) || 0),
+                    )
+                  }
+                />
+              </label>
             </div>
           </fieldset>
           <fieldset>
@@ -1178,6 +1193,7 @@ export function ChicagoPropertyView({
             className="chicago-clear"
             onClick={() => {
               setMinValue(0);
+              setMaxValue(0);
               setDateWindow(0);
               setCategory("all");
               setCounty("all");
@@ -1204,7 +1220,21 @@ export function ChicagoPropertyView({
       </div>
 
       {mode === "map" ? (
-        <ChicagoPropertyMap records={filtered} onOpen={onOpenRecord} />
+        <ChicagoPropertyMap
+          records={filtered}
+          onOpen={onOpenRecord}
+          onOpenFilters={() => {
+            setFiltersOpen(true);
+            window.setTimeout(
+              () =>
+                document
+                  .querySelector(".chicago-filters")
+                  ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+              0,
+            );
+          }}
+          activeFilterCount={activeFilterCount}
+        />
       ) : (
         <section
           className="chicago-results-table"

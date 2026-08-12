@@ -51,4 +51,25 @@ describe("production Seller Intelligence contracts", () => {
       ),
     ).toBe(true);
   });
+
+  it("supports a typed minimum and maximum disposition range", async () => {
+    const response = await GET(
+      new Request(
+        "http://localhost/api/v1/seller-intelligence?min_value=10000000&max_value=25000000&limit=50",
+        { headers: { authorization: "Bearer lr_demo_local_2026" } },
+      ),
+    );
+    const body = (await response.json()) as {
+      data: SellerIntelligenceProfile[];
+    };
+    expect(response.status).toBe(200);
+    expect(body.data.length).toBeGreaterThan(0);
+    expect(
+      body.data.every(
+        (profile) =>
+          profile.totalRecordedConsideration >= 10_000_000 &&
+          profile.totalRecordedConsideration <= 25_000_000,
+      ),
+    ).toBe(true);
+  });
 });

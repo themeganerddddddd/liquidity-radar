@@ -132,4 +132,26 @@ describe("People in Motion API", () => {
       true,
     );
   });
+
+  it("supports a typed minimum and maximum value range", async () => {
+    const response = await GET(
+      new Request(
+        "https://radar.test/api/v1/people-in-motion?minimum_amount=1000000&maximum_amount=10000000&limit=25",
+        { headers: { authorization: "Bearer lr_demo_local_2026" } },
+      ),
+    );
+    const payload = (await response.json()) as {
+      data: Array<{ estimatedLiquidityHigh: number | null }>;
+    };
+    expect(response.status).toBe(200);
+    expect(payload.data.length).toBeGreaterThan(0);
+    expect(
+      payload.data.every(
+        (person) =>
+          person.estimatedLiquidityHigh !== null &&
+          person.estimatedLiquidityHigh >= 1_000_000 &&
+          person.estimatedLiquidityHigh <= 10_000_000,
+      ),
+    ).toBe(true);
+  });
 });

@@ -29,6 +29,8 @@ import {
 import { PublicStateMap } from "./PublicStateMap";
 import { MoneyInMotionView } from "./MoneyInMotion";
 import { MotionRecordProfile, PeopleInMotionView } from "./PeopleInMotion";
+import { TopContacts } from "./TopContacts";
+import type { TopContactRecommendation } from "../lib/top-contacts";
 import { TerritoriesView } from "./TerritoriesView";
 import { ChicagoPropertyProfile, ChicagoPropertyView } from "./ChicagoProperty";
 import {
@@ -604,14 +606,20 @@ function Dashboard({
   data,
   people,
   directoryCount,
+  motion,
+  property,
   onNavigate,
   onPerson,
+  onTopContact,
 }: {
   data: PublicDataSnapshot;
   people: RealPersonRecord[];
   directoryCount: number;
+  motion: MoneyMotionSnapshot | null;
+  property: ChicagoPropertySnapshot | null;
   onNavigate: (view: WorkspaceView) => void;
   onPerson: (person: RealPersonRecord) => void;
+  onTopContact: (recommendation: TopContactRecommendation) => void;
 }) {
   const coverage = liquidityCoverage(data);
   const liquidPeople = people.filter(
@@ -686,6 +694,19 @@ function Dashboard({
           Methodology →
         </button>
       </div>
+
+      {motion && property ? (
+        <TopContacts
+          motion={motion}
+          property={property}
+          onOpen={onTopContact}
+        />
+      ) : (
+        <div className="motion-inline-loading top-contacts-loading">
+          Ranking this week&apos;s Chicago-area contacts from current public
+          transaction evidence…
+        </div>
+      )}
 
       <section className="real-workspace-kpis" aria-label="Public data summary">
         <article>
@@ -893,6 +914,8 @@ function ConfirmedExitsPanel({
   const [completedQuery, setCompletedQuery] = useState("");
   const [location, setLocation] = useState("All locations");
   const [attribution, setAttribution] = useState("All attribution");
+  const [minimumValue, setMinimumValue] = useState("");
+  const [maximumValue, setMaximumValue] = useState("");
   const allRecords = data.completedExits?.records ?? [];
   const locationDisplay = (locationValue: {
     city: string;
@@ -950,10 +973,14 @@ function ConfirmedExitsPanel({
           : attribution === "Named entities"
             ? record.ownerAttributions.some((owner) => owner.kind === "entity")
             : record.ownerAttributions.length === 0;
+    const disclosedValue =
+      record.consideration.cashAmount ?? record.consideration.totalAmount ?? 0;
     return (
       searchText.includes(combinedQuery) &&
       matchesLocation &&
-      matchesAttribution
+      matchesAttribution &&
+      (!minimumValue || disclosedValue >= Number(minimumValue)) &&
+      (!maximumValue || disclosedValue <= Number(maximumValue))
     );
   });
   const disclosedCash = records.reduce(
@@ -1020,6 +1047,35 @@ function ConfirmedExitsPanel({
             <option>No named owner</option>
           </select>
         </label>
+        <div className="value-range-filter">
+          <span>Disclosed value range</span>
+          <label>
+            <span className="sr-only">Minimum disclosed value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              placeholder="Min $"
+              aria-label="Minimum disclosed transaction value"
+              value={minimumValue}
+              onChange={(event) => setMinimumValue(event.target.value)}
+            />
+          </label>
+          <label>
+            <span className="sr-only">Maximum disclosed value</span>
+            <input
+              type="number"
+              min="0"
+              step="100000"
+              inputMode="numeric"
+              placeholder="Max $"
+              aria-label="Maximum disclosed transaction value"
+              value={maximumValue}
+              onChange={(event) => setMaximumValue(event.target.value)}
+            />
+          </label>
+        </div>
         <div>
           <strong>{compactCurrency(disclosedCash)}</strong>
           <span>
@@ -1445,6 +1501,8 @@ export function RealRadarApp() {
   const [query, setQuery] = useState("");
   const [selectedPersonId, setSelectedPersonId] = useState("");
   const [selectedMotionRecordId, setSelectedMotionRecordId] = useState("");
+  const [selectedTopContact, setSelectedTopContact] =
+    useState<TopContactRecommendation | null>(null);
   const [selectedChicagoRecordId, setSelectedChicagoRecordId] = useState("");
   const [selectedSellerProfileId, setSelectedSellerProfileId] = useState("");
   const [data, setData] = useState<PublicDataSnapshot | null>(null);
@@ -1632,6 +1690,7 @@ export function RealRadarApp() {
   };
 
   const openMotionRecord = (record: MoneyMotionRecord) => {
+    setSelectedTopContact(null);
     const linkedSecPerson = record.evidence.some(
       (evidence) => evidence.sourceId === "sec",
     )
@@ -1645,6 +1704,14 @@ export function RealRadarApp() {
       return;
     }
     setSelectedMotionRecordId(record.id);
+    setView("event_profile");
+    setQuery("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const openTopContact = (recommendation: TopContactRecommendation) => {
+    setSelectedTopContact(recommendation);
+    setSelectedMotionRecordId(recommendation.primaryEvent.id);
     setView("event_profile");
     setQuery("");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1703,8 +1770,11 @@ export function RealRadarApp() {
         data={data}
         people={people}
         directoryCount={motionData?.peopleInMotion.length || people.length}
+        motion={motionData}
+        property={chicagoPropertyData}
         onNavigate={navigate}
         onPerson={openPerson}
+        onTopContact={openTopContact}
       />
     );
   } else if (view === "map") {
@@ -1824,6 +1894,7 @@ export function RealRadarApp() {
       <MotionRecordProfile
         snapshot={motionData}
         record={selectedMotionRecord}
+        outreach={selectedTopContact ?? undefined}
         onBack={() => navigate("people")}
       />
     );

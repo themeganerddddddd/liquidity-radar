@@ -60,6 +60,10 @@ export async function GET(request: Request) {
     0,
     Number(url.searchParams.get("min_value") || 0),
   );
+  const maximumValue = Math.max(
+    0,
+    Number(url.searchParams.get("max_value") || 0),
+  );
   const minimumExit = Math.max(
     0,
     Number(url.searchParams.get("min_exit_convergence") || 0),
@@ -94,6 +98,7 @@ export async function GET(request: Request) {
           profile.location.display.toLowerCase().includes(location)) &&
         profile.dispositionCount >= minimumDispositions &&
         profile.totalRecordedConsideration >= minimumValue &&
+        (!maximumValue || profile.totalRecordedConsideration <= maximumValue) &&
         profile.exitConvergence.score >= minimumExit &&
         (personResolved === null || hasPerson === personResolved) &&
         (ownerFound === null || profile.ownerFound === ownerFound) &&

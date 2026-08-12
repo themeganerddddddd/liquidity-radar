@@ -27,17 +27,25 @@ export async function GET(request: Request) {
   const minimumConfidence = Number(
     url.searchParams.get("minimum_confidence") || 0,
   );
+  const minimumAmount = Number(url.searchParams.get("minimum_amount") || 0);
+  const maximumAmount = Number(url.searchParams.get("maximum_amount") || 0);
   const limit = Math.min(
     250,
     Math.max(1, Number(url.searchParams.get("limit") || 100)),
   );
   const records = snapshot.records
-    .filter(
-      (record) =>
+    .filter((record) => {
+      const amount =
+        record.estimate.potentiallyDeployableHigh ??
+        record.reportedTransactionValue;
+      return (
         (!stage || record.stage === stage) &&
         (!type || record.eventType === type) &&
-        record.confidence.total >= minimumConfidence,
-    )
+        record.confidence.total >= minimumConfidence &&
+        (!minimumAmount || (amount !== null && amount >= minimumAmount)) &&
+        (!maximumAmount || (amount !== null && amount <= maximumAmount))
+      );
+    })
     .slice(0, limit);
   return NextResponse.json(
     {

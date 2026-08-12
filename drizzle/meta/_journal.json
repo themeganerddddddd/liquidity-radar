@@ -36,6 +36,13 @@
       "when": 1786481638300,
       "tag": "0004_magical_hiroim",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1786553336938,
+      "tag": "0005_neat_shatterstar",
+      "breakpoints": true
     }
   ]
 }
