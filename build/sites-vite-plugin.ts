@@ -36,6 +36,20 @@ export function sites(): Plugin {
         "data",
         "money-in-motion.json",
       );
+      const serverOnlyPropertySnapshot = resolve(
+        root,
+        "dist",
+        "client",
+        "data",
+        "chicago-property.json",
+      );
+      const serverOnlyPropertyEvents = resolve(
+        root,
+        "dist",
+        "client",
+        "data",
+        "chicago-property-motion-events.json",
+      );
       const packagedSnapshot = resolve(
         root,
         "dist",
@@ -58,6 +72,8 @@ export function sites(): Plugin {
         await writeClientMotionSnapshot(snapshotSource, packagedSnapshot);
       }
       await rm(serverOnlySnapshot, { force: true });
+      await rm(serverOnlyPropertySnapshot, { force: true });
+      await rm(serverOnlyPropertyEvents, { force: true });
       await mkdir(outputDirectory, { recursive: true });
 
       if (await exists(hostingConfig)) {
