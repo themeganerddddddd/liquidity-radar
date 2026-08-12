@@ -39,6 +39,14 @@ test("the restored workspace shell loads its official dashboard", async ({
   ).toBeVisible();
   await expect(page.getByLabel("Geography")).toHaveValue("CHICAGO_METRO");
   await expect(page.locator(".top-contacts-row:not(.heading)")).toHaveCount(10);
+  await expect(page.locator(".top-contacts-metrics")).toHaveCount(0);
+  const contactHeadings = page.locator(".top-contacts-row.heading");
+  await expect(contactHeadings).toContainText("Name");
+  await expect(contactHeadings).toContainText("Why now");
+  await expect(contactHeadings).toContainText("Proposed value");
+  await expect(contactHeadings).toContainText("Location");
+  await expect(contactHeadings).toContainText("Date");
+  await expect(contactHeadings).not.toContainText("Contact");
   await expect(
     page.getByRole("heading", { name: "State activity pulse" }),
   ).toBeVisible();
@@ -51,6 +59,32 @@ test("the restored workspace shell loads its official dashboard", async ({
   await expect(
     page.getByText("EDGAR insider transactions", { exact: true }).first(),
   ).toBeVisible();
+});
+
+test("Seller Intelligence uses directory search with optional advanced filters", async ({
+  page,
+}) => {
+  await signInWithDummy(page);
+  await page
+    .locator(".side-nav")
+    .getByRole("button", { name: "Seller Intelligence" })
+    .click();
+
+  await expect(page.getByLabel("Search Seller Intelligence")).toBeVisible();
+  await expect(page.locator(".seller-summary")).toHaveCount(0);
+  await expect(
+    page.getByLabel("Minimum recorded disposition value"),
+  ).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Filters" }).click();
+  await expect(
+    page.getByLabel("Minimum recorded disposition value"),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("Maximum recorded disposition value"),
+  ).toBeVisible();
+  await page.getByLabel("Search Seller Intelligence").fill("Chicago");
+  await expect(page.getByText(/matching seller profiles/)).toBeVisible();
 });
 
 test("real SEC names are searchable and open evidence-linked profiles", async ({

@@ -99,6 +99,7 @@ export function SellerIntelligenceView({
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
   const [minimum, setMinimum] = useState("");
   const [maximum, setMaximum] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 50;
 
@@ -180,118 +181,99 @@ export function SellerIntelligenceView({
     ],
     ["updated", "Recently updated", null],
   ];
+  const activeFilterCount =
+    (filter === "all" ? 0 : 1) + (minimum ? 1 : 0) + (maximum ? 1 : 0);
 
   return (
     <div className="seller-workspace">
       <section
-        className="seller-summary"
-        aria-label="Seller Intelligence summary"
+        className="people-motion-controls real-people-controls unified-directory-controls sales-directory-controls seller-directory-controls"
+        aria-label="Seller Intelligence search"
       >
-        <div>
-          <span>Unresolved sellers</span>
-          <strong>{snapshot.stats.unresolvedSellers.toLocaleString()}</strong>
-        </div>
-        <div>
-          <span>Recorded dispositions</span>
-          <strong>{money(snapshot.stats.recordedDispositions, true)}</strong>
-        </div>
-        <div>
-          <span>Resolved owners</span>
-          <strong>
-            {snapshot.stats.resolvedSellerEntities.toLocaleString()}
-          </strong>
-        </div>
-        <div>
-          <span>Unresolved $10M+</span>
-          <strong>{snapshot.stats.unresolved10m.toLocaleString()}</strong>
-        </div>
-        <div>
-          <span>Multiple sales</span>
-          <strong>
-            {snapshot.stats.multipleDispositionSellers.toLocaleString()}
-          </strong>
-        </div>
-        <div>
-          <span>Exit candidates</span>
-          <strong>
-            {snapshot.stats.businessExitCandidates.toLocaleString()}
-          </strong>
-        </div>
-        <div>
-          <span>Strong exit signals</span>
-          <strong>{snapshot.stats.strongExitSignals.toLocaleString()}</strong>
-        </div>
-        <div>
-          <span>High exit convergence</span>
-          <strong>{snapshot.stats.highExitConvergence.toLocaleString()}</strong>
-        </div>
+        <label className="people-motion-search seller-directory-search">
+          <span>Seller, person, entity, or location</span>
+          <input
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search sellers, people, entities, cities, or counties…"
+            aria-label="Search Seller Intelligence"
+          />
+        </label>
+        <button
+          type="button"
+          className={`seller-filter-toggle${filtersOpen ? " active" : ""}`}
+          aria-expanded={filtersOpen}
+          aria-controls="seller-advanced-filters"
+          onClick={() => setFiltersOpen((current) => !current)}
+        >
+          Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}
+        </button>
       </section>
-
-      <label className="chicago-search seller-search">
-        <span aria-hidden="true">⌕</span>
-        <input
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setPage(1);
-          }}
-          placeholder="Search seller, person, entity, or location…"
-        />
-      </label>
-      <div className="seller-value-range value-range-filter">
-        <span>Recorded disposition range</span>
-        <label>
-          <span className="sr-only">Minimum recorded dispositions</span>
-          <input
-            type="number"
-            min="0"
-            step="100000"
-            inputMode="numeric"
-            placeholder="Min $"
-            aria-label="Minimum recorded disposition value"
-            value={minimum}
-            onChange={(event) => {
-              setMinimum(event.target.value);
-              setPage(1);
-            }}
-          />
-        </label>
-        <label>
-          <span className="sr-only">Maximum recorded dispositions</span>
-          <input
-            type="number"
-            min="0"
-            step="100000"
-            inputMode="numeric"
-            placeholder="Max $"
-            aria-label="Maximum recorded disposition value"
-            value={maximum}
-            onChange={(event) => {
-              setMaximum(event.target.value);
-              setPage(1);
-            }}
-          />
-        </label>
-      </div>
-      <div
-        className="chicago-quick-filters seller-quick-filters"
-        aria-label="Seller filters"
-      >
-        {filters.map(([key, label, count]) => (
-          <button
-            key={key}
-            type="button"
-            className={filter === key ? "active" : ""}
-            onClick={() => {
-              setFilter(key);
-              setPage(1);
-            }}
+      {filtersOpen && (
+        <section
+          id="seller-advanced-filters"
+          className="seller-advanced-filters"
+          aria-label="Advanced seller filters"
+        >
+          <div className="seller-value-range value-range-filter">
+            <span>Recorded disposition range</span>
+            <label>
+              <span className="sr-only">Minimum recorded dispositions</span>
+              <input
+                type="number"
+                min="0"
+                step="100000"
+                inputMode="numeric"
+                placeholder="Min $"
+                aria-label="Minimum recorded disposition value"
+                value={minimum}
+                onChange={(event) => {
+                  setMinimum(event.target.value);
+                  setPage(1);
+                }}
+              />
+            </label>
+            <label>
+              <span className="sr-only">Maximum recorded dispositions</span>
+              <input
+                type="number"
+                min="0"
+                step="100000"
+                inputMode="numeric"
+                placeholder="Max $"
+                aria-label="Maximum recorded disposition value"
+                value={maximum}
+                onChange={(event) => {
+                  setMaximum(event.target.value);
+                  setPage(1);
+                }}
+              />
+            </label>
+          </div>
+          <div
+            className="chicago-quick-filters seller-quick-filters"
+            aria-label="Seller filters"
           >
-            {label}
-            {count === null ? "" : ` · ${count.toLocaleString()}`}
-          </button>
-        ))}
-      </div>
+            {filters.map(([key, label, count]) => (
+              <button
+                key={key}
+                type="button"
+                className={filter === key ? "active" : ""}
+                onClick={() => {
+                  setFilter(key);
+                  setPage(1);
+                }}
+              >
+                {label}
+                {count === null ? "" : ` · ${count.toLocaleString()}`}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
       <div className="chicago-results-meta">
         <strong>
           {profiles.length.toLocaleString()} matching seller profiles

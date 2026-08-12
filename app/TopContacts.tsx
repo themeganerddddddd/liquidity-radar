@@ -51,12 +51,26 @@ function proceeds(recommendation: TopContactRecommendation) {
     : `${compactMoney(low, recommendation.currency)}–${compactMoney(high, recommendation.currency)}`;
 }
 
-function contactLabel(recommendation: TopContactRecommendation) {
-  if (recommendation.contactability === "DIRECT") return "Verified direct";
-  if (recommendation.contactability === "COMPANY") return "Company Contact";
-  if (recommendation.contactability === "PROFILE")
-    return "Professional Profile";
-  return "Needs Contact Research";
+function proposedValue(recommendation: TopContactRecommendation) {
+  const event = recommendation.primaryEvent;
+  if (event.reportedTransactionValue !== null) {
+    return {
+      value: compactMoney(event.reportedTransactionValue, event.currency),
+      basis:
+        event.stage === "PRE_SALE" ||
+        event.stage === "ANNOUNCED" ||
+        event.stage === "PENDING_REGULATORY"
+          ? "Public proposed value"
+          : "Reported transaction value",
+    };
+  }
+  return {
+    value: proceeds(recommendation),
+    basis:
+      recommendation.estimatedProceedsLow === null
+        ? "No public value available"
+        : "Estimated proceeds range",
+  };
 }
 
 function weekLabel(value: string) {
@@ -68,6 +82,14 @@ function weekLabel(value: string) {
     year: "numeric",
     timeZone: "UTC",
   }).format(parsed);
+}
+
+function eventDate(recommendation: TopContactRecommendation) {
+  const value =
+    recommendation.primaryEvent.eventDate ||
+    recommendation.primaryEvent.publishedAt ||
+    recommendation.latestMaterialEventAt;
+  return weekLabel(value.slice(0, 10));
 }
 
 type RecommendationScope = "current" | "last" | "history";
@@ -185,17 +207,6 @@ export function TopContacts({
       : historical.key === `${geography}:${scope}`
         ? historical.data
         : [];
-  const metrics = [
-    ["Recommended", snapshot.stats.visibleRecommendations.toLocaleString()],
-    [
-      "Estimated potential liquidity",
-      `${compactMoney(snapshot.stats.estimatedProceedsLow)}–${compactMoney(snapshot.stats.estimatedProceedsHigh)}`,
-    ],
-    ["Direct contacts", snapshot.stats.directContacts.toLocaleString()],
-    ["New this week", snapshot.stats.newThisWeek.toLocaleString()],
-    ["Pre-liquidity", snapshot.stats.preLiquidityCandidates.toLocaleString()],
-  ];
-
   return (
     <section className="top-contacts" aria-labelledby="top-contacts-heading">
       <div className="top-contacts-heading">
@@ -243,41 +254,22 @@ export function TopContacts({
         ))}
       </div>
 
-      {scope === "current" && (
-        <div className="top-contacts-metrics">
-          {metrics.map(([label, value]) => (
-            <div key={label}>
-              <span>{label}</span>
-              <strong>{value}</strong>
-            </div>
-          ))}
-        </div>
-      )}
-
       {message && <p className="top-contacts-message">{message}</p>}
       <div className="top-contacts-table">
-        <div
-          className={`top-contacts-row heading ${scope === "history" ? "history" : ""}`}
-        >
-          {scope === "history" && <span>Week</span>}
+        <div className="top-contacts-row heading">
           <span>Name</span>
-          <span>Estimated proceeds</span>
+          <span>Why now</span>
+          <span>Proposed value</span>
           <span>Location</span>
-          <span>Contact</span>
+          <span>Date</span>
         </div>
         {currentRecommendations.map((recommendation) => {
-          const contact = recommendation.contacts[0];
+          const value = proposedValue(recommendation);
           return (
             <article
-              className={`top-contacts-row ${scope === "history" ? "history" : ""}`}
+              className="top-contacts-row"
               key={`${recommendation.weekStart}-${recommendation.geographyId}-${recommendation.personId}`}
             >
-              {scope === "history" && (
-                <span className="top-contacts-week">
-                  <strong>{weekLabel(recommendation.weekStart)}</strong>
-                  <small>#{recommendation.rank}</small>
-                </span>
-              )}
               <span className="top-contacts-person">
                 <button type="button" onClick={() => onOpen(recommendation)}>
                   <strong>
@@ -291,90 +283,90 @@ export function TopContacts({
                       : ""}
                   </small>
                 </button>
-                <small className="top-contacts-why">
-                  <b>Why now:</b> {recommendation.whyNow}
-                </small>
+              </span>
+              <span className="top-contacts-why">
+                <strong>{recommendation.whyNow}</strong>
+                <div className="top-contacts-workflow">
+                  <select
+                    aria-label={`Outreach status for ${recommendation.name}`}
+                    value={recommendation.workflowStatus}
+                    disabled={
+                      scope !== "current" ||
+                      updating === recommendation.personId
+                    }
+                    onChange={(event) =>
+                      void updateState(
+                        recommendation,
+                        event.target.value as ContactWorkflowStatus,
+                        recommendation.recommendationStatus,
+                      )
+                    }
+                  >
+                    {CONTACT_WORKFLOW_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {workflowLabels[status]}
+                      </option>
+                    ))}
+                  </select>
+                  {scope === "current" && (
+                    <div>
+                      <button
+                        type="button"
+                        disabled={updating === recommendation.personId}
+                        onClick={() =>
+                          void updateState(
+                            recommendation,
+                            recommendation.workflowStatus,
+                            "SAVED",
+                          )
+                        }
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        disabled={updating === recommendation.personId}
+                        onClick={() =>
+                          void updateState(
+                            recommendation,
+                            recommendation.workflowStatus,
+                            "SKIPPED",
+                          )
+                        }
+                      >
+                        Skip
+                      </button>
+                      <button
+                        type="button"
+                        disabled={updating === recommendation.personId}
+                        onClick={() =>
+                          void updateState(
+                            recommendation,
+                            "CONTACTED",
+                            recommendation.recommendationStatus,
+                          )
+                        }
+                      >
+                        Contacted
+                      </button>
+                    </div>
+                  )}
+                </div>
               </span>
               <span>
-                <strong>{proceeds(recommendation)}</strong>
-                <small>
-                  Priority {recommendation.contactPriorityScore}/100
-                </small>
+                <strong>{value.value}</strong>
+                <small>{value.basis}</small>
               </span>
               <span>
                 <strong>{recommendation.location}</strong>
                 <small>{recommendation.county} County activity</small>
               </span>
-              <span className="top-contacts-contact">
-                {contact ? (
-                  <a href={contact.sourceUrl} target="_blank" rel="noreferrer">
-                    {contactLabel(recommendation)} ↗
-                  </a>
-                ) : (
-                  <strong>{contactLabel(recommendation)}</strong>
-                )}
-                <select
-                  aria-label={`Outreach status for ${recommendation.name}`}
-                  value={recommendation.workflowStatus}
-                  disabled={
-                    scope !== "current" || updating === recommendation.personId
-                  }
-                  onChange={(event) =>
-                    void updateState(
-                      recommendation,
-                      event.target.value as ContactWorkflowStatus,
-                      recommendation.recommendationStatus,
-                    )
-                  }
-                >
-                  {CONTACT_WORKFLOW_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {workflowLabels[status]}
-                    </option>
-                  ))}
-                </select>
-                {scope === "current" && (
-                  <div>
-                    <button
-                      type="button"
-                      disabled={updating === recommendation.personId}
-                      onClick={() =>
-                        void updateState(
-                          recommendation,
-                          recommendation.workflowStatus,
-                          "SAVED",
-                        )
-                      }
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      disabled={updating === recommendation.personId}
-                      onClick={() =>
-                        void updateState(
-                          recommendation,
-                          recommendation.workflowStatus,
-                          "SKIPPED",
-                        )
-                      }
-                    >
-                      Skip
-                    </button>
-                    <button
-                      type="button"
-                      disabled={updating === recommendation.personId}
-                      onClick={() =>
-                        void updateState(
-                          recommendation,
-                          "CONTACTED",
-                          recommendation.recommendationStatus,
-                        )
-                      }
-                    >
-                      Contacted
-                    </button>
-                  </div>
+              <span className="top-contacts-date">
+                <strong>{eventDate(recommendation)}</strong>
+                {scope === "history" && (
+                  <small>
+                    Ranked week of {weekLabel(recommendation.weekStart)}
+                  </small>
                 )}
               </span>
             </article>
