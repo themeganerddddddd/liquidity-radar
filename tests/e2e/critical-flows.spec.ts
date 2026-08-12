@@ -47,6 +47,10 @@ test("the restored workspace shell loads its official dashboard", async ({
   await expect(contactHeadings).toContainText("Location");
   await expect(contactHeadings).toContainText("Date");
   await expect(contactHeadings).not.toContainText("Contact");
+  const firstWhyNow = page.locator(".top-contacts-why").first();
+  await expect(firstWhyNow.locator("p")).not.toBeEmpty();
+  await expect(firstWhyNow.getByRole("button")).toHaveCount(0);
+  await expect(firstWhyNow.locator("select")).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: "State activity pulse" }),
   ).toBeVisible();

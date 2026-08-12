@@ -5,9 +5,6 @@ import type { ChicagoPropertySnapshot } from "../lib/chicago-property";
 import type { MoneyMotionSnapshot } from "../lib/money-in-motion";
 import {
   buildTopContacts,
-  CONTACT_WORKFLOW_STATUSES,
-  type ContactWorkflowStatus,
-  type RecommendationStatus,
   type TopContactGeography,
   type TopContactRecommendation,
   type TopContactsSnapshot,
@@ -19,18 +16,6 @@ const geographyLabels: Record<TopContactGeography, string> = {
   CHICAGO_METRO: "Chicago Metro",
   COOK: "Cook County",
   DUPAGE: "DuPage County",
-};
-
-const workflowLabels: Record<ContactWorkflowStatus, string> = {
-  NOT_REVIEWED: "Not reviewed",
-  RESEARCHING: "Researching",
-  READY: "Ready",
-  CONTACTED: "Contacted",
-  RESPONDED: "Responded",
-  MEETING: "Meeting booked",
-  OPPORTUNITY_CREATED: "Opportunity created",
-  NOT_RELEVANT: "Not relevant",
-  DO_NOT_CONTACT: "Do not contact",
 };
 
 function compactMoney(value: number, currency = "USD") {
@@ -111,7 +96,6 @@ export function TopContacts({
     key: string;
     data: TopContactRecommendation[];
   }>({ key: "", data: [] });
-  const [updating, setUpdating] = useState("");
   const [message, setMessage] = useState("");
 
   const local = useMemo(
@@ -163,43 +147,6 @@ export function TopContacts({
     // recommendation state is loaded from D1.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geography, scope, motion.generatedAt, property.generatedAt]);
-
-  const updateState = async (
-    recommendation: TopContactRecommendation,
-    workflowStatus: ContactWorkflowStatus,
-    recommendationStatus: RecommendationStatus,
-  ) => {
-    setUpdating(recommendation.personId);
-    setMessage("");
-    try {
-      const response = await fetch("/api/v1/top-contacts", {
-        method: "POST",
-        headers: {
-          authorization: `Bearer ${API_KEY}`,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "status",
-          weekStart: recommendation.weekStart,
-          geographyId: recommendation.geographyId,
-          personId: recommendation.personId,
-          workflowStatus,
-          recommendationStatus,
-        }),
-      });
-      if (!response.ok) throw new Error("Update failed");
-      await refresh("current");
-      setMessage(
-        recommendationStatus === "SKIPPED"
-          ? "Skipped and replaced by the next qualified person."
-          : "Outreach workflow updated.",
-      );
-    } catch {
-      setMessage("The workflow update could not be saved. Please try again.");
-    } finally {
-      setUpdating("");
-    }
-  };
 
   const currentRecommendations =
     scope === "current"
@@ -285,73 +232,7 @@ export function TopContacts({
                 </button>
               </span>
               <span className="top-contacts-why">
-                <strong>{recommendation.whyNow}</strong>
-                <div className="top-contacts-workflow">
-                  <select
-                    aria-label={`Outreach status for ${recommendation.name}`}
-                    value={recommendation.workflowStatus}
-                    disabled={
-                      scope !== "current" ||
-                      updating === recommendation.personId
-                    }
-                    onChange={(event) =>
-                      void updateState(
-                        recommendation,
-                        event.target.value as ContactWorkflowStatus,
-                        recommendation.recommendationStatus,
-                      )
-                    }
-                  >
-                    {CONTACT_WORKFLOW_STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {workflowLabels[status]}
-                      </option>
-                    ))}
-                  </select>
-                  {scope === "current" && (
-                    <div>
-                      <button
-                        type="button"
-                        disabled={updating === recommendation.personId}
-                        onClick={() =>
-                          void updateState(
-                            recommendation,
-                            recommendation.workflowStatus,
-                            "SAVED",
-                          )
-                        }
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        disabled={updating === recommendation.personId}
-                        onClick={() =>
-                          void updateState(
-                            recommendation,
-                            recommendation.workflowStatus,
-                            "SKIPPED",
-                          )
-                        }
-                      >
-                        Skip
-                      </button>
-                      <button
-                        type="button"
-                        disabled={updating === recommendation.personId}
-                        onClick={() =>
-                          void updateState(
-                            recommendation,
-                            "CONTACTED",
-                            recommendation.recommendationStatus,
-                          )
-                        }
-                      >
-                        Contacted
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <p>{recommendation.whyNow}</p>
               </span>
               <span>
                 <strong>{value.value}</strong>

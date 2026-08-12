@@ -12575,43 +12575,16 @@ a.real-holdings-row:hover {
   font-style: normal;
 }
 
-.top-contacts-why > strong {
-  color: #526970 !important;
-  font-size: 10px !important;
+.top-contacts-why > p {
+  margin: 0;
+  color: #526970;
+  font-size: 10px;
   font-weight: 650;
   line-height: 1.45;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-}
-
-.top-contacts-workflow select {
-  min-height: 32px;
-  padding: 0 28px 0 8px;
-  border: 1px solid #d2dcdf;
-  border-radius: 6px;
-  background: #fff;
-  color: #526970;
-  font-size: 10px;
-}
-
-.top-contacts-workflow,
-.top-contacts-workflow > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.top-contacts-workflow button {
-  padding: 5px 7px;
-  border: 1px solid #d2dcdf;
-  border-radius: 6px;
-  background: #fff;
-  color: #526970;
-  font-size: 9px;
-  font-weight: 800;
-  cursor: pointer;
 }
 
 .top-contacts-date strong {
