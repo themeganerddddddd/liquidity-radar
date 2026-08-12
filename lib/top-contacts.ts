@@ -214,6 +214,7 @@ const entityNamePattern =
   /\b(LLC|L\.L\.C\.|INC|INCORPORATED|CORP|CORPORATION|COMPANY|CO\.|LTD|LIMITED|LP|L\.P\.|LLP|TRUST|FUND|CAPITAL|PARTNERS|HOLDINGS|FOUNDATION|BANK|ASSOCIATION|VILLAGE|CITY|COUNTY|TOWNSHIP|DISTRICT|DEPARTMENT|AUTHORITY|S\.A\.)\b/i;
 const excludedRolePattern =
   /registered agent|attorney|property manager|patent assignor/i;
+export const TOP_CONTACT_LOOKBACK_DAYS = 7;
 const preLiquidityStages = new Set([
   "WATCHING",
   "PRE_SALE",
@@ -241,6 +242,14 @@ function daysBetween(from: string, to: string) {
   const end = Date.parse(`${to.slice(0, 10)}T00:00:00Z`);
   if (!Number.isFinite(start) || !Number.isFinite(end)) return Infinity;
   return Math.max(0, Math.floor((end - start) / 86_400_000));
+}
+
+function isWithinLookback(from: string, to: string, lookbackDays: number) {
+  const start = Date.parse(`${from.slice(0, 10)}T00:00:00Z`);
+  const end = Date.parse(`${to.slice(0, 10)}T00:00:00Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return false;
+  const age = Math.floor((end - start) / 86_400_000);
+  return age >= 0 && age <= lookbackDays;
 }
 
 export function weekStart(value: string | Date) {
@@ -470,8 +479,13 @@ export function buildTopContacts(
     const primaryEvent = recordsById.get(person.latestEventId);
     if (!primaryEvent || entityNamePattern.test(person.name)) continue;
     if (excludedRolePattern.test(person.role)) continue;
-    const age = daysBetween(person.latestSignalAt, motion.generatedAt);
-    if (age > 365 || person.highestConfidence < 65) continue;
+    const datedAt = primaryEvent.eventDate || primaryEvent.publishedAt;
+    if (
+      !isWithinLookback(datedAt, motion.generatedAt, TOP_CONTACT_LOOKBACK_DAYS)
+    )
+      continue;
+    const age = daysBetween(datedAt, motion.generatedAt);
+    if (person.highestConfidence < 65) continue;
     const counties = countiesForCandidate(
       person,
       property.records,

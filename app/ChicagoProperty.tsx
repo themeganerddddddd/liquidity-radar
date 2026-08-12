@@ -257,16 +257,7 @@ function ChicagoPropertyMap({
         for (const [className, text] of [
           ["seller", sellerLabel(record)],
           ["value", displayValue(record)],
-          [
-            "detail",
-            `${record.property.categoryLabel} · ${dateLabel(record.transaction.saleDate)}`,
-          ],
-          [
-            "detail",
-            [record.property.address, locationLabel(record)]
-              .filter(Boolean)
-              .join(", "),
-          ],
+          ["detail", record.property.categoryLabel],
         ]) {
           const line = document.createElement("span");
           line.className = className;

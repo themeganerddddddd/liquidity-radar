@@ -34,8 +34,8 @@ function record(
     whyHere: "Ownership is reported",
     eventType: "BUSINESS_SALE",
     stage: "CLOSED",
-    eventDate: "2026-08-01",
-    publishedAt: "2026-08-02",
+    eventDate: "2026-08-07",
+    publishedAt: "2026-08-08",
     location: {
       country: "United States",
       state: "Illinois",
@@ -80,17 +80,17 @@ function record(
       explanation: [],
     },
     leadTime: {
-      firstSignalAt: "2026-08-01",
+      firstSignalAt: "2026-08-07",
       firstPreSaleSignalAt: "",
       announcedAt: "",
       regulatoryFilingAt: "",
-      closedAt: "2026-08-01",
+      closedAt: "2026-08-07",
       leadDaysToAnnouncement: null,
       leadDaysToClose: null,
     },
     independentSourceCount: 2,
-    firstReportedAt: "2026-08-01",
-    latestReportedAt: "2026-08-02",
+    firstReportedAt: "2026-08-07",
+    latestReportedAt: "2026-08-08",
     ownershipEvidence: true,
     evidence: [
       {
@@ -99,7 +99,7 @@ function record(
         sourceUrl: `https://example.test/${id}`,
         publisher: "SEC",
         title: "Official filing",
-        publishedAt: "2026-08-02",
+        publishedAt: "2026-08-08",
         retrievedAt: generatedAt,
         classification: "REPORTED",
         excerpt: "Public transaction evidence",
@@ -133,9 +133,9 @@ function person(
     latestEventTitle: "Reported transaction",
     latestStage: "CLOSED",
     eventCount: 1,
-    firstSignalAt: "2026-08-01",
-    latestSignalAt: "2026-08-01",
-    latestCloseAt: "2026-08-01",
+    firstSignalAt: "2026-08-07",
+    latestSignalAt: "2026-08-07",
+    latestCloseAt: "2026-08-07",
     estimatedLiquidityLow: 5_500_000,
     estimatedLiquidityHigh: 8_500_000,
     currency: "USD",
@@ -290,6 +290,20 @@ describe("Top Contacts weekly ranking", () => {
     expect(result.recommendations.map((item) => item.rank)).toEqual([
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
     ]);
+  });
+
+  it("uses only non-future event dates from the latest seven-day window", () => {
+    const recent = person(1, { latestSignalAt: "2026-08-05" });
+    const stale = person(2, { latestSignalAt: "2026-08-04" });
+    const future = person(3, { latestSignalAt: "2026-08-13" });
+    const result = buildTopContacts(
+      motionSnapshot([recent, stale, future]),
+      propertySnapshot(),
+    );
+    expect(result.recommendations.map((item) => item.personId)).toEqual([
+      recent.personId,
+    ]);
+    expect(result.recommendations[0].primaryEvent.eventDate).toBe("2026-08-05");
   });
 
   it("filters Cook and DuPage and aggregates a cross-county person once", () => {

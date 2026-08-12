@@ -161,8 +161,10 @@ export function TopContacts({
           <p className="eyebrow">Weekly prospecting list</p>
           <h2 id="top-contacts-heading">Top 10 Contacts This Week</h2>
           <p>
-            Ranked from recent public transaction evidence, ownership quality,
-            location, and legitimate professional contactability.
+            Ranked from public events dated within seven days of the latest data
+            refresh, then scored for ownership quality, location, and
+            professional contactability. Older records are not used to fill the
+            list.
           </p>
         </div>
         <label>

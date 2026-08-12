@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { GET } from "../../app/api/v1/top-contacts/route";
-import type { TopContactRecommendation } from "../../lib/top-contacts";
+import {
+  TOP_CONTACT_LOOKBACK_DAYS,
+  type TopContactRecommendation,
+} from "../../lib/top-contacts";
 
 const headers = { authorization: "Bearer lr_demo_local_2026" };
 
@@ -12,20 +15,25 @@ describe("Top Contacts API", () => {
     expect(response.status).toBe(401);
   });
 
-  it("returns ten evidence-backed Chicago Metro recommendations by default", async () => {
+  it("returns up to ten evidence-backed Chicago Metro recommendations from the last seven days", async () => {
     const response = await GET(
       new Request("http://localhost/api/v1/top-contacts", { headers }),
     );
     const body = (await response.json()) as {
       data: TopContactRecommendation[];
       stats: { eligiblePeople: number; visibleRecommendations: number };
-      meta: { geographyId: string; schemaVersion: number };
+      meta: {
+        geographyId: string;
+        schemaVersion: number;
+        generatedAt: string;
+      };
     };
     expect(response.status).toBe(200);
     expect(body.meta.geographyId).toBe("CHICAGO_METRO");
     expect(body.meta.schemaVersion).toBe(1);
-    expect(body.data).toHaveLength(10);
-    expect(body.stats.eligiblePeople).toBeGreaterThanOrEqual(10);
+    expect(body.data.length).toBeGreaterThan(0);
+    expect(body.data.length).toBeLessThanOrEqual(10);
+    expect(body.stats.eligiblePeople).toBeGreaterThanOrEqual(body.data.length);
     expect(
       body.data.every(
         (recommendation) =>
@@ -36,7 +44,21 @@ describe("Top Contacts API", () => {
           recommendation.whyNow.length > 30,
       ),
     ).toBe(true);
-    expect(new Set(body.data.map((item) => item.personId)).size).toBe(10);
+    expect(new Set(body.data.map((item) => item.personId)).size).toBe(
+      body.data.length,
+    );
+    const generatedAt = Date.parse(
+      `${body.meta.generatedAt.slice(0, 10)}T00:00:00Z`,
+    );
+    expect(
+      body.data.every((item) => {
+        const eventAt = Date.parse(
+          `${item.primaryEvent.eventDate.slice(0, 10)}T00:00:00Z`,
+        );
+        const age = (generatedAt - eventAt) / 86_400_000;
+        return age >= 0 && age <= TOP_CONTACT_LOOKBACK_DAYS;
+      }),
+    ).toBe(true);
   }, 15_000);
 
   it("supports Cook, DuPage, priority, and proceeds filters", async () => {
@@ -54,7 +76,6 @@ describe("Top Contacts API", () => {
         data: TopContactRecommendation[];
       };
       expect(response.status).toBe(200);
-      expect(body.data.length).toBeGreaterThan(0);
       expect(body.data.length).toBeLessThanOrEqual(5);
       expect(body.data.every((item) => item.county.includes(county))).toBe(
         true,

@@ -38,7 +38,10 @@ test("the restored workspace shell loads its official dashboard", async ({
     page.getByRole("heading", { name: "Top 10 Contacts This Week" }),
   ).toBeVisible();
   await expect(page.getByLabel("Geography")).toHaveValue("CHICAGO_METRO");
-  await expect(page.locator(".top-contacts-row:not(.heading)")).toHaveCount(10);
+  const weeklyRows = page.locator(".top-contacts-row:not(.heading)");
+  expect(await weeklyRows.count()).toBeGreaterThan(0);
+  expect(await weeklyRows.count()).toBeLessThanOrEqual(10);
+  await expect(page.getByText(/events dated within seven days/i)).toBeVisible();
   await expect(page.locator(".top-contacts-metrics")).toHaveCount(0);
   const contactHeadings = page.locator(".top-contacts-row.heading");
   await expect(contactHeadings).toContainText("Name");
