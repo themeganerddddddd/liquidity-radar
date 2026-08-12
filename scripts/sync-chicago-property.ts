@@ -67,6 +67,7 @@ const minimumSyncIntervalMinutes = Number(
   process.env.CHICAGO_PROPERTY_MIN_SYNC_INTERVAL_MINUTES || 210,
 );
 const forceSync = process.env.CHICAGO_PROPERTY_FORCE_SYNC === "1";
+const recomputeOnly = process.env.CHICAGO_PROPERTY_RECOMPUTE_ONLY === "1";
 
 const SOURCES = {
   cookSales: {
@@ -980,6 +981,7 @@ async function main() {
     : Number.POSITIVE_INFINITY;
   if (
     !forceSync &&
+    !recomputeOnly &&
     existingSnapshot?.schemaVersion === CHICAGO_PROPERTY_SCHEMA_VERSION &&
     existingArchive?.schemaVersion === 2 &&
     snapshotAgeMinutes >= 0 &&
@@ -990,11 +992,16 @@ async function main() {
     );
     return;
   }
-  const metadataEntries = await Promise.all(
-    (Object.keys(SOURCES) as SourceName[]).map(
-      async (name) => [name, await fetchMetadata(name)] as const,
-    ),
-  );
+  const metadataEntries = recomputeOnly
+    ? (Object.keys(SOURCES) as SourceName[]).map(
+        (name) =>
+          [name, state.sourceUpdatedAt[SOURCES[name].id] || ""] as const,
+      )
+    : await Promise.all(
+        (Object.keys(SOURCES) as SourceName[]).map(
+          async (name) => [name, await fetchMetadata(name)] as const,
+        ),
+      );
   const changed = new Map(
     metadataEntries.map(([name, watermark]) => [
       name,

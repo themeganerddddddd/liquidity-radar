@@ -731,8 +731,7 @@ function gdeltEvent(article: GdeltArticle): NormalizedSourceEvent | null {
     event_type: classification.eventType,
     event_stage: classification.stage,
     raw_title: article.title,
-    raw_text:
-      "Publisher headline discovered through GDELT. Open the linked story for full context; no person or ownership is inferred from the headline.",
+    raw_text: `Relevant publisher evidence headline: “${article.title}” GDELT supplies discovery and timing metadata only; no quoted executive, person, ownership, or proceeds are inferred from the headline.`,
     seller_entity: parties.seller,
     buyer_entity: parties.buyer,
     subject_person: "",
@@ -752,6 +751,10 @@ function gdeltEvent(article: GdeltArticle): NormalizedSourceEvent | null {
       language: article.language,
       queryFamily: article.family,
       firstDetectedAt: date,
+      latestReportedAt: date,
+      canonicalUrl: article.url,
+      evidenceSentence: article.title,
+      transactionStage: classification.stage,
       valueClassification: value ? "REPORTED" : "UNKNOWN",
       marketClass: "PRIVATE",
       subjectKind: parties.seller ? "ORGANIZATION" : "UNKNOWN",
@@ -772,7 +775,7 @@ async function fetchGdelt(): Promise<{
   const before = { ...previous.metrics };
   const result = await runGdeltIncremental({
     state: previous,
-    maximumQueries: 1,
+    maximumQueries: 3,
     familyOffset: Math.floor(Date.now() / (4 * 60 * 60 * 1000)),
   });
   await fs.writeFile(
@@ -797,23 +800,31 @@ async function fetchGdelt(): Promise<{
     .at(0);
   const succeededThisRun =
     result.state.metrics.successfulQueries - before.successfulQueries > 0;
-  const errorType = succeededThisRun
-    ? ""
-    : queryStates.find((query) => query.lastErrorType)?.lastErrorType || "";
-  const effectiveNextRetry = succeededThisRun ? "" : nextRetry || "";
+  const failedThisRun =
+    result.state.metrics.failedRequests - (before.failedRequests || 0) > 0;
+  const runErrors = queryStates.filter(
+    (query) =>
+      query.lastAttemptAt === result.state.updatedAt && query.lastErrorType,
+  );
+  const unhealthyStates = queryStates.filter(
+    (query) => query.lastErrorType || query.nextRetryAt,
+  );
+  const errorState = runErrors[0] || unhealthyStates[0];
+  const errorType = errorState?.lastErrorType || "";
+  const effectiveNextRetry = nextRetry || "";
   return {
     events,
     health: {
       mode:
-        result.stoppedForRateLimit || effectiveNextRetry || errorType
-          ? "DEGRADED"
-          : "LIVE",
+        failedThisRun || effectiveNextRetry || errorType ? "DEGRADED" : "LIVE",
       lastSuccessAt: latestSuccess || "",
       recordsSeen: result.articles.length,
       recordsAccepted: events.length,
       recordsRejected: result.articles.length - events.length,
       latencyMs: Date.now() - started,
-      error: errorType ? `GDELT query state: ${errorType}` : "",
+      error: errorType
+        ? `GDELT ${errorType}: ${errorState?.lastErrorSummary || "request failed"}`
+        : "",
       errorType,
       watermark:
         queryStates
@@ -828,6 +839,28 @@ async function fetchGdelt(): Promise<{
         result.state.metrics.rateLimitCount - before.rateLimitCount,
       successfulQueries:
         result.state.metrics.successfulQueries - before.successfulQueries,
+      reason:
+        unhealthyStates.length && succeededThisRun
+          ? "Successful GDELT query families completed; failed families retained their watermarks and entered isolated backoff."
+          : "Public DOC 2.0 news discovery with strict transaction-language filtering, per-family watermarks, and persistent backoff.",
+      details: {
+        httpStatusDistribution: result.state.metrics.httpStatusDistribution,
+        failedRequests:
+          result.state.metrics.failedRequests - (before.failedRequests || 0),
+        networkFailures:
+          result.state.metrics.networkFailureCount -
+          (before.networkFailureCount || 0),
+        queryFamilies: Object.fromEntries(
+          Object.entries(result.state.queries).map(([id, query]) => [
+            id,
+            {
+              watermark: query.watermark,
+              lastErrorType: query.lastErrorType,
+              lastErrorSummary: query.lastErrorSummary,
+            },
+          ]),
+        ),
+      },
     },
   };
 }
@@ -1312,6 +1345,7 @@ function recordFor(event: NormalizedSourceEvent): MoneyMotionRecord {
     ownershipEvidence,
     evidence: [evidenceFor(event)],
     sourceEventIds: [`${event.source_id}:${event.external_record_id}`],
+    corroboratingRecordIds: [],
   };
 }
 
@@ -1419,6 +1453,79 @@ function mergeClusters(records: MoneyMotionRecord[]) {
   );
 }
 
+function corroboratePatentAssignments(records: MoneyMotionRecord[]) {
+  const entityKeys = (record: MoneyMotionRecord) =>
+    new Set(
+      [record.person, record.company, record.seller, record.buyer]
+        .map(normalizeEntityName)
+        .filter((value) => value.length >= 4),
+    );
+  const withinOneYear = (left: string, right: string) => {
+    const leftTime = Date.parse(`${left.slice(0, 10)}T00:00:00Z`);
+    const rightTime = Date.parse(`${right.slice(0, 10)}T00:00:00Z`);
+    return (
+      Number.isFinite(leftTime) &&
+      Number.isFinite(rightTime) &&
+      Math.abs(leftTime - rightTime) <= 365 * 86_400_000
+    );
+  };
+  return records.map((record) => {
+    if (!record.evidence.some((item) => item.sourceId === "uspto_assignments"))
+      return record;
+    const keys = entityKeys(record);
+    const related = records.filter((candidate) => {
+      if (
+        candidate.id === record.id ||
+        candidate.evidence.some(
+          (item) => item.sourceId === "uspto_assignments",
+        ) ||
+        !withinOneYear(record.eventDate, candidate.eventDate)
+      )
+        return false;
+      return [...entityKeys(candidate)].some((key) => keys.has(key));
+    });
+    if (!related.length) return record;
+    const independentSources = Math.max(
+      record.independentSourceCount,
+      new Set(
+        related.flatMap((item) =>
+          item.evidence.map((evidence) => evidence.sourceId),
+        ),
+      ).size + 1,
+    );
+    return {
+      ...record,
+      corroboratingRecordIds: related.map((item) => item.id),
+      independentSourceCount: independentSources,
+      confidence: scoreConfidence({
+        sourceReliability: record.confidence.sourceReliability,
+        transactionCertainty: Math.min(
+          25,
+          record.confidence.transactionCertainty +
+            Math.min(4, related.length * 2),
+        ),
+        identityMatch: record.confidence.identityMatch,
+        ownershipCertainty: record.confidence.ownershipCertainty,
+        valuationCertainty: record.confidence.valuationCertainty,
+        explanation: [
+          ...record.confidence.explanation,
+          `${related.length} entity-and-date matched transaction record${related.length === 1 ? "" : "s"} corroborate this assignment.`,
+        ],
+      }),
+      actionability: scoreActionability({
+        potentialLiquidityHigh: record.estimate.potentiallyDeployableHigh,
+        eventDate: record.eventDate,
+        asOfDate: generatedAt,
+        stage: record.stage,
+        ownershipEvidence: record.ownershipEvidence,
+        privateCompany: record.marketClass === "PRIVATE",
+        independentSourceCount: independentSources,
+      }),
+      whyHere: `${record.whyHere} Entity and date resolution linked ${related.length} corroborating transaction record${related.length === 1 ? "" : "s"}; no consideration, ownership percentage, or personal proceeds were inferred.`,
+    };
+  });
+}
+
 function baseHealth(
   id: string,
   overrides: Partial<SourceHealth> = {},
@@ -1470,16 +1577,60 @@ async function main() {
     usptoStatePath,
     emptyUsptoOdpState(),
   );
+  const isolatedGdelt = fetchGdelt().catch((error) => ({
+    events: [] as NormalizedSourceEvent[],
+    health: {
+      mode: "ERROR" as const,
+      lastAttemptAt: generatedAt,
+      error: error instanceof Error ? error.message : String(error),
+      errorType: "ISOLATED_ADAPTER_FAILURE",
+      reason:
+        "GDELT failed outside its request boundary; other official sources continued independently.",
+    } satisfies Partial<SourceHealth>,
+  }));
+  const isolatedUspto = runUsptoOdpSync({
+    apiKey: process.env.USPTO_API_KEY?.trim() || "",
+    state: usptoState,
+    now: generatedAt,
+  }).catch((error) => ({
+    state: usptoState,
+    events: usptoState.events,
+    health: {
+      mode: (usptoState.events.length ? "DEGRADED" : "ERROR") as
+        "DEGRADED" | "ERROR",
+      lastAttemptAt: generatedAt,
+      lastSuccessAt: usptoState.updatedAt,
+      recordsSeen: usptoState.recordsSeen,
+      recordsAccepted: usptoState.events.length,
+      recordsRejected: usptoState.recordsRejected,
+      latencyMs: null,
+      error: error instanceof Error ? error.message : String(error),
+      errorType: "ISOLATED_ADAPTER_FAILURE",
+      watermark: usptoState.fileReleaseDate,
+      nextRetryAt: "",
+      requests: 0,
+      successfulQueries: 0,
+      reason:
+        "USPTO failed outside its streaming boundary; cached assignments and all other official sources remained available.",
+      details: {
+        currentFile: usptoState.fileName,
+        filesProcessed: [],
+        bytesDownloaded: 0,
+        bytesProcessed: 0,
+        recordsProcessed: 0,
+        currentCheckpoint: "ISOLATED_FAILURE",
+        classificationCounts: usptoState.classificationCounts,
+        transactionMatches: 0,
+        peakMemoryBytes: null,
+      },
+    },
+  }));
   const [cms, gdelt, stb, uspto, fcc, bankruptcy, officialNews] =
     await Promise.all([
       fetchCmsChow(),
-      fetchGdelt(),
+      isolatedGdelt,
       fetchStb(),
-      runUsptoOdpSync({
-        apiKey: process.env.USPTO_API_KEY?.trim() || "",
-        state: usptoState,
-        now: generatedAt,
-      }),
+      isolatedUspto,
       fetchFccAssignments(),
       fetchBankruptcySales(),
       fetchOfficialTransactionNews(),
@@ -1506,9 +1657,14 @@ async function main() {
     ...bankruptcy.events,
     ...officialNews.events,
   ]);
-  const records = mergeClusters(allEvents.map(recordFor)).filter(
-    isQualifiedTransportationRecord,
-  );
+  const records = corroboratePatentAssignments(
+    mergeClusters(allEvents.map(recordFor)),
+  ).filter(isQualifiedTransportationRecord);
+  uspto.health.details.transactionMatches = records.filter(
+    (record) =>
+      record.evidence.some((item) => item.sourceId === "uspto_assignments") &&
+      (record.corroboratingRecordIds?.length || 0) > 0,
+  ).length;
   const activeCounts = new Map<string, number>();
   for (const event of allEvents) {
     activeCounts.set(

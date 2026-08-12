@@ -30,9 +30,17 @@ jobs:
       - name: Normalize live public transaction sources
         env:
           USPTO_API_KEY: ${{ secrets.USPTO_API_KEY }}
+          USPTO_MAX_DOWNLOAD_BYTES: 150000000
+          USPTO_MAX_DECOMPRESSED_BYTES: 1250000000
+          USPTO_STREAM_CHUNK_BYTES: 1048576
+          USPTO_MAX_FILES_PER_RUN: 2
         run: npm run data:sync-motion
+      - name: Recompute Seller Intelligence convergence
+        env:
+          CHICAGO_PROPERTY_RECOMPUTE_ONLY: 1
+        run: npm run data:sync-chicago
       - name: Verify money-in-motion contracts
-        run: npm run test -- tests/unit/money-in-motion.test.ts tests/unit/chicago-property.test.ts tests/unit/seller-intelligence.test.ts
+        run: npm run test -- tests/unit/money-in-motion.test.ts tests/unit/chicago-property.test.ts tests/unit/seller-intelligence.test.ts tests/unit/gdelt-client.test.ts tests/unit/uspto-odp.test.ts
       - name: Generate integrity and source-value report
         run: npm run data:report-motion && npm run data:report-sellers
       - name: Commit changed public snapshot

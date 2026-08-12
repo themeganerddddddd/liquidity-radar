@@ -167,6 +167,7 @@ export type MoneyMotionRecord = {
   ownershipEvidence: boolean;
   evidence: MotionEvidence[];
   sourceEventIds: string[];
+  corroboratingRecordIds?: string[];
 };
 
 export type SourceValueMetrics = {
@@ -208,6 +209,28 @@ export type SourceHealth = {
   reason: string;
   sourceUrl: string;
   value: SourceValueMetrics;
+  details?: {
+    currentFile?: string;
+    filesProcessed?: string[];
+    bytesDownloaded?: number;
+    bytesProcessed?: number;
+    recordsProcessed?: number;
+    currentCheckpoint?: string;
+    classificationCounts?: Record<string, number>;
+    transactionMatches?: number;
+    peakMemoryBytes?: number | null;
+    httpStatusDistribution?: Record<string, number>;
+    failedRequests?: number;
+    networkFailures?: number;
+    queryFamilies?: Record<
+      string,
+      {
+        watermark: string;
+        lastErrorType: string;
+        lastErrorSummary: string;
+      }
+    >;
+  };
 };
 
 export type PersonLiquiditySummary = {

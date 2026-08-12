@@ -75,6 +75,11 @@ function fullMoney(value: number, currency = "USD") {
   }).format(value);
 }
 
+function bytesLabel(value: number) {
+  if (value < 1_000_000) return `${Math.round(value / 1_000)} KB`;
+  return `${(value / 1_000_000).toFixed(1)} MB`;
+}
+
 function dateLabel(value: string) {
   if (!value) return "Date unavailable";
   return new Intl.DateTimeFormat("en-US", {
@@ -443,6 +448,22 @@ function SourceMonitor({ snapshot }: { snapshot: MoneyMotionSnapshot }) {
                 values · {source.value.preLiquiditySignals.toLocaleString()}{" "}
                 pre-close
               </small>
+              {source.details?.currentFile && (
+                <small>
+                  {source.details.currentFile}
+                  {typeof source.details.bytesDownloaded === "number" &&
+                  source.details.bytesDownloaded > 0
+                    ? ` · ${bytesLabel(source.details.bytesDownloaded)} downloaded`
+                    : ""}
+                  {typeof source.details.recordsProcessed === "number" &&
+                  source.details.recordsProcessed > 0
+                    ? ` · ${source.details.recordsProcessed.toLocaleString()} processed`
+                    : ""}
+                  {source.details.currentCheckpoint
+                    ? ` · ${source.details.currentCheckpoint.toLowerCase()}`
+                    : ""}
+                </small>
+              )}
               {source.nextRetryAt && (
                 <small>Next retry {dateLabel(source.nextRetryAt)}</small>
               )}
