@@ -1,29 +1,29 @@
 # Money in Motion validation report
 
-Generated: 2026-08-13T09:38:32.057Z
+Generated: 2026-08-13T13:56:39.804Z
 
 ## Outcome
 
-- 17,558 deduplicated transaction signals
-- 6,270 named people in the person-first view
-- 13,926 private-company events
-- 185 pre-close signals
-- 11,465 known or reported transaction values
-- 732 evidence-linked personal liquidity estimates
-- 732 high-confidence estimates
+- 17,801 deduplicated transaction signals
+- 6,392 named people in the person-first view
+- 14,148 private-company events
+- 184 pre-close signals
+- 11,486 known or reported transaction values
+- 753 evidence-linked personal liquidity estimates
+- 753 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 732 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 753 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,482 | 1,478 | 1,475 | 732 | 1,477 | 732 | 49 | 0 |
+| SEC EDGAR transactions | LIVE | 1,503 | 1,499 | 1,496 | 753 | 1,498 | 753 | 48 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 4 | 2 | 0 | 0 | 0 | 0 | 1 | 0 |
-| CMS change of ownership | LIVE | 6,419 | 3,801 | 1,858 | 579 | 0 | 0 | 0 | — |
+| CMS change of ownership | LIVE | 6,770 | 4,023 | 1,959 | 641 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | LIVE | 27 | 26 | 0 | 0 | 0 | 0 | 26 | — |
 | USPTO patent assignments | DEGRADED | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
