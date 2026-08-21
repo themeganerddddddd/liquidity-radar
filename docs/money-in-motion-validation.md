@@ -1,28 +1,28 @@
 # Money in Motion validation report
 
-Generated: 2026-08-21T09:05:21.821Z
+Generated: 2026-08-21T13:19:04.827Z
 
 ## Outcome
 
-- 18,205 deduplicated transaction signals
-- 6,663 named people in the person-first view
-- 14,571 private-company events
-- 172 pre-close signals
-- 11,494 known or reported transaction values
-- 733 evidence-linked personal liquidity estimates
-- 733 high-confidence estimates
+- 18,217 deduplicated transaction signals
+- 6,672 named people in the person-first view
+- 14,574 private-company events
+- 177 pre-close signals
+- 11,503 known or reported transaction values
+- 740 evidence-linked personal liquidity estimates
+- 740 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 733 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 740 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,484 | 1,480 | 1,477 | 733 | 1,479 | 733 | 45 | 0 |
+| SEC EDGAR transactions | LIVE | 1,493 | 1,489 | 1,486 | 740 | 1,488 | 740 | 50 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
-| GDELT transaction news | DEGRADED | 17 | 14 | 0 | 0 | 0 | 0 | 10 | 0 |
+| GDELT transaction news | DEGRADED | 20 | 17 | 0 | 0 | 0 | 0 | 10 | 0 |
 | CMS change of ownership | LIVE | 7,501 | 4,425 | 2,243 | 701 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | LIVE | 6 | 6 | 0 | 0 | 0 | 0 | 6 | — |
 | USPTO patent assignments | DEGRADED | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
