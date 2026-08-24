@@ -1,6 +1,6 @@
 # Money in Motion validation report
 
-Generated: 2026-08-24T17:02:58.034Z
+Generated: 2026-08-24T20:55:33.234Z
 
 ## Outcome
 
@@ -28,11 +28,11 @@ Generated: 2026-08-24T17:02:58.034Z
 | USPTO patent assignments | DEGRADED | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Bankruptcy asset-sale dockets | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | DOJ and FTC transaction notices | LIVE | 11 | 11 | 0 | 0 | 0 | 0 | 11 | — |
 | Chicago Property transactions | LIVE | 10,605 | 10,054 | 890 | 0 | 10,054 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,148 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Illinois PTAX-203 transfer declarations | DEGRADED | 12,524 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 12,524 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County and Chicago transfer forms | LIVE | 3,096 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County parcel situs addresses | LIVE | 9,222 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County commercial valuation | LIVE | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
