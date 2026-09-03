@@ -1,6 +1,6 @@
 # Seller Intelligence completion report
 
-Generated: 2026-09-02T22:42:39.911Z
+Generated: 2026-09-03T04:43:56.217Z
 
 Seller Intelligence aggregates real Cook County, DuPage County, and Illinois property-transfer records by seller. Cross-county dispositions use the same seller identity key. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
 
@@ -38,22 +38,22 @@ The four-hour workflow incrementally refreshes the sources below, using persiste
 | --- | --- | --- | --- | --- |
 | SEC EDGAR transactions | LIVE | — | 2026-09-02T13:39:58.220Z | — |
 | HSR early-termination notices | LIVE | — | 2026-09-02T13:39:58.220Z | — |
-| GDELT transaction news | DEGRADED | 2026-08-14T05:26:20.748Z | 2026-08-22T20:47:25.581Z | GDELT NETWORK_FAILURE: fetch failed: Error: read ECONNRESET |
-| CMS change of ownership | LIVE | — | 2026-09-02T22:42:14.788Z | — |
-| FCC Universal Licensing System | LIVE | 2026-08-26 | 2026-09-02T22:42:14.788Z | — |
+| GDELT transaction news | DEGRADED | 2026-08-14T05:26:20.748Z | 2026-08-22T20:47:25.581Z | GDELT CONNECT_TIMEOUT: fetch failed: ConnectTimeoutError: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms) |
+| CMS change of ownership | LIVE | — | 2026-09-03T04:42:49.669Z | — |
+| FCC Universal Licensing System | LIVE | 2026-08-27 | 2026-09-03T04:42:49.669Z | — |
 | USPTO patent assignments | DEGRADED | 2026-08-12T05:12:17.000Z | 2026-08-12T21:09:23.491Z | USPTO_MAX_DOWNLOAD_BYTES_EXCEEDED:180357611 |
-| STB rail transaction dockets | LIVE | 2026-09-02T22:42:14.788Z | 2026-09-02T22:42:14.788Z | — |
-| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-02T22:42:14.788Z | — |
-| DOJ and FTC transaction notices | LIVE | 2026-09-02 | 2026-09-02T22:42:14.788Z | — |
-| Chicago Property transactions | DEGRADED | — | — | Chicago Property snapshot unavailable. |
-| Cook County parcel sales | LIVE | — | — | — |
-| Illinois PTAX-203 transfer declarations | LIVE | — | — | — |
-| Cook County and Chicago transfer forms | LIVE | — | — | — |
-| Cook County parcel situs addresses | LIVE | — | — | — |
-| Cook County commercial valuation | LIVE | — | — | — |
-| Cook County parcel geography | LIVE | — | — | — |
-| Chicago business licenses | LIVE | — | — | — |
-| Chicago business owners | LIVE | — | — | — |
+| STB rail transaction dockets | LIVE | 2026-09-03T04:42:49.669Z | 2026-09-03T04:42:49.669Z | — |
+| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-03T04:42:49.669Z | — |
+| DOJ and FTC transaction notices | LIVE | 2026-09-03 | 2026-09-03T04:42:49.669Z | — |
+| Chicago Property transactions | LIVE | 2026-08-28 | 2026-09-03T04:39:12.069Z | — |
+| Cook County parcel sales | LIVE | 2026-09-01T12:03:37.000Z | 2026-09-03T04:39:12.069Z | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 2026-08-30T11:02:19.000Z | 2026-09-03T04:39:12.069Z | — |
+| Cook County and Chicago transfer forms | LIVE | 2026-08-30T11:00:47.000Z | 2026-09-03T04:39:12.069Z | — |
+| Cook County parcel situs addresses | LIVE | 2026-09-01T12:02:42.000Z | 2026-09-03T04:39:12.069Z | — |
+| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-09-03T04:39:12.069Z | — |
+| Cook County parcel geography | LIVE | 2026-09-01T15:26:32.000Z | 2026-09-03T04:39:12.069Z | — |
+| Chicago business licenses | LIVE | 2026-09-02T10:04:48.000Z | 2026-09-03T04:39:12.069Z | — |
+| Chicago business owners | LIVE | 2026-09-02T09:50:09.000Z | 2026-09-03T04:39:12.069Z | — |
 
 ## Manual/import sources pending
 
