@@ -1,6 +1,6 @@
 # Seller Intelligence completion report
 
-Generated: 2026-09-12T04:46:45.339Z
+Generated: 2026-09-12T12:18:45.143Z
 
 Seller Intelligence aggregates real Cook County, DuPage County, and Illinois property-transfer records by seller. Cross-county dispositions use the same seller identity key. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
 
@@ -38,22 +38,22 @@ The four-hour workflow incrementally refreshes the sources below, using persiste
 | --- | --- | --- | --- | --- |
 | SEC EDGAR transactions | LIVE | — | 2026-09-11T13:35:33.657Z | — |
 | HSR early-termination notices | LIVE | — | 2026-09-11T13:35:33.657Z | — |
-| GDELT transaction news | DEGRADED | 2026-08-14T05:26:20.748Z | 2026-09-11T22:38:57.191Z | GDELT CONNECT_TIMEOUT: fetch failed: ConnectTimeoutError: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms) |
-| CMS change of ownership | LIVE | — | 2026-09-12T04:45:22.636Z | — |
-| FCC Universal Licensing System | LIVE | 2026-09-05 | 2026-09-12T04:45:22.636Z | — |
+| GDELT transaction news | DEGRADED | 2026-08-14T08:55:03.057Z | 2026-09-12T12:17:26.873Z | GDELT RATE_LIMITED: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset: https://blog.gdeltproject.org/using-the-new-web-ngrams-dataset-to-find-relevant-coverage/. For trend analysis, please see our daily newsletter briefings: https |
+| CMS change of ownership | LIVE | — | 2026-09-12T12:17:26.309Z | — |
+| FCC Universal Licensing System | LIVE | 2026-09-05 | 2026-09-12T12:17:26.309Z | — |
 | USPTO patent assignments | DEGRADED | 2026-08-12T05:12:17.000Z | 2026-08-12T21:09:23.491Z | USPTO_MAX_DOWNLOAD_BYTES_EXCEEDED:180357611 |
-| STB rail transaction dockets | LIVE | 2026-09-12T04:45:22.636Z | 2026-09-12T04:45:22.636Z | — |
-| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-12T04:45:22.636Z | — |
-| DOJ and FTC transaction notices | LIVE | 2026-09-12 | 2026-09-12T04:45:22.636Z | — |
-| Chicago Property transactions | LIVE | 2026-09-04 | 2026-09-12T04:42:24.379Z | — |
-| Cook County parcel sales | LIVE | 2026-09-01T12:03:37.000Z | 2026-09-12T04:42:24.379Z | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 2026-09-08T11:01:23.000Z | 2026-09-12T04:42:24.379Z | — |
-| Cook County and Chicago transfer forms | LIVE | 2026-09-08T11:00:30.000Z | 2026-09-12T04:42:24.379Z | — |
-| Cook County parcel situs addresses | LIVE | 2026-09-01T12:02:42.000Z | 2026-09-12T04:42:24.379Z | — |
-| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-09-12T04:42:24.379Z | — |
-| Cook County parcel geography | LIVE | 2026-09-01T15:26:32.000Z | 2026-09-12T04:42:24.379Z | — |
-| Chicago business licenses | LIVE | 2026-09-10T10:25:40.000Z | 2026-09-12T04:42:24.379Z | — |
-| Chicago business owners | LIVE | 2026-09-11T10:30:55.000Z | 2026-09-12T04:42:24.379Z | — |
+| STB rail transaction dockets | LIVE | 2026-09-12T12:17:26.309Z | 2026-09-12T12:17:26.309Z | — |
+| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-12T12:17:26.309Z | — |
+| DOJ and FTC transaction notices | LIVE | 2026-09-12 | 2026-09-12T12:17:26.309Z | — |
+| Chicago Property transactions | LIVE | 2026-09-04 | 2026-09-12T12:13:06.025Z | — |
+| Cook County parcel sales | LIVE | 2026-09-01T12:03:37.000Z | 2026-09-12T12:13:06.025Z | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 2026-09-08T11:01:23.000Z | 2026-09-12T12:13:06.025Z | — |
+| Cook County and Chicago transfer forms | LIVE | 2026-09-08T11:00:30.000Z | 2026-09-12T12:13:06.025Z | — |
+| Cook County parcel situs addresses | LIVE | 2026-09-01T12:02:42.000Z | 2026-09-12T12:13:06.025Z | — |
+| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-09-12T12:13:06.025Z | — |
+| Cook County parcel geography | LIVE | 2026-09-01T15:26:32.000Z | 2026-09-12T12:13:06.025Z | — |
+| Chicago business licenses | LIVE | 2026-09-10T10:25:40.000Z | 2026-09-12T12:13:06.025Z | — |
+| Chicago business owners | LIVE | 2026-09-12T10:33:09.000Z | 2026-09-12T12:13:06.025Z | — |
 
 ## Manual/import sources pending
 
