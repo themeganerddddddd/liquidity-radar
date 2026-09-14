@@ -1,6 +1,6 @@
 # Seller Intelligence completion report
 
-Generated: 2026-09-14T15:09:23.483Z
+Generated: 2026-09-14T20:24:57.855Z
 
 Seller Intelligence aggregates real Cook County, DuPage County, and Illinois property-transfer records by seller. Cross-county dispositions use the same seller identity key. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
 
@@ -36,24 +36,24 @@ The four-hour workflow incrementally refreshes the sources below, using persiste
 
 | Source | Status | Watermark | Last successful sync | Error |
 | --- | --- | --- | --- | --- |
-| SEC EDGAR transactions | LIVE | — | 2026-09-13T13:48:55.229Z | — |
-| HSR early-termination notices | LIVE | — | 2026-09-13T13:48:55.229Z | — |
+| SEC EDGAR transactions | LIVE | — | 2026-09-14T15:55:30.119Z | — |
+| HSR early-termination notices | LIVE | — | 2026-09-14T15:55:30.119Z | — |
 | GDELT transaction news | DEGRADED | 2026-08-14T08:55:03.057Z | 2026-09-12T12:17:26.873Z | GDELT RATE_LIMITED: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset: https://blog.gdeltproject.org/using-the-new-web-ngrams-dataset-to-find-relevant-coverage/. For trend analysis, please see our daily newsletter briefings: https |
-| CMS change of ownership | LIVE | — | 2026-09-14T15:07:41.088Z | — |
-| FCC Universal Licensing System | LIVE | 2026-09-14 | 2026-09-14T15:07:41.088Z | — |
+| CMS change of ownership | LIVE | — | 2026-09-14T20:23:46.110Z | — |
+| FCC Universal Licensing System | LIVE | 2026-09-14 | 2026-09-14T20:23:46.110Z | — |
 | USPTO patent assignments | DEGRADED | 2026-08-12T05:12:17.000Z | 2026-08-12T21:09:23.491Z | USPTO_MAX_DOWNLOAD_BYTES_EXCEEDED:180357611 |
-| STB rail transaction dockets | LIVE | 2026-09-14T15:07:41.088Z | 2026-09-14T15:07:41.088Z | — |
-| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-14T15:07:41.088Z | — |
-| DOJ and FTC transaction notices | LIVE | 2026-09-14 | 2026-09-14T15:07:41.088Z | — |
-| Chicago Property transactions | LIVE | 2026-09-11 | 2026-09-14T15:04:09.189Z | — |
-| Cook County parcel sales | LIVE | 2026-09-01T12:03:37.000Z | 2026-09-14T15:04:09.189Z | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 2026-09-13T11:01:05.000Z | 2026-09-14T15:04:09.189Z | — |
-| Cook County and Chicago transfer forms | LIVE | 2026-09-13T11:00:28.000Z | 2026-09-14T15:04:09.189Z | — |
-| Cook County parcel situs addresses | LIVE | 2026-09-01T12:02:42.000Z | 2026-09-14T15:04:09.189Z | — |
-| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-09-14T15:04:09.189Z | — |
-| Cook County parcel geography | LIVE | 2026-09-01T15:26:32.000Z | 2026-09-14T15:04:09.189Z | — |
-| Chicago business licenses | LIVE | 2026-09-10T10:25:40.000Z | 2026-09-14T15:04:09.189Z | — |
-| Chicago business owners | LIVE | 2026-09-14T10:25:19.000Z | 2026-09-14T15:04:09.189Z | — |
+| STB rail transaction dockets | LIVE | 2026-09-14T20:23:46.110Z | 2026-09-14T20:23:46.110Z | — |
+| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-14T20:23:46.110Z | — |
+| DOJ and FTC transaction notices | LIVE | 2026-09-14 | 2026-09-14T20:23:46.110Z | — |
+| Chicago Property transactions | LIVE | 2026-09-11 | 2026-09-14T20:20:10.916Z | — |
+| Cook County parcel sales | LIVE | 2026-09-01T12:03:37.000Z | 2026-09-14T20:20:10.916Z | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 2026-09-13T11:01:05.000Z | 2026-09-14T20:20:10.916Z | — |
+| Cook County and Chicago transfer forms | LIVE | 2026-09-13T11:00:28.000Z | 2026-09-14T20:20:10.916Z | — |
+| Cook County parcel situs addresses | LIVE | 2026-09-01T12:02:42.000Z | 2026-09-14T20:20:10.916Z | — |
+| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-09-14T20:20:10.916Z | — |
+| Cook County parcel geography | LIVE | 2026-09-01T15:26:32.000Z | 2026-09-14T20:20:10.916Z | — |
+| Chicago business licenses | LIVE | 2026-09-10T10:25:40.000Z | 2026-09-14T20:20:10.916Z | — |
+| Chicago business owners | LIVE | 2026-09-14T10:25:19.000Z | 2026-09-14T20:20:10.916Z | — |
 
 ## Manual/import sources pending
 
