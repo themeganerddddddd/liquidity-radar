@@ -1,26 +1,26 @@
 # Money in Motion validation report
 
-Generated: 2026-09-15T13:42:21.177Z
+Generated: 2026-09-15T19:45:58.710Z
 
 ## Outcome
 
-- 18,374 deduplicated transaction signals
-- 6,687 named people in the person-first view
-- 14,733 private-company events
-- 175 pre-close signals
-- 11,661 known or reported transaction values
-- 741 evidence-linked personal liquidity estimates
-- 741 high-confidence estimates
+- 18,387 deduplicated transaction signals
+- 6,700 named people in the person-first view
+- 14,732 private-company events
+- 176 pre-close signals
+- 11,675 known or reported transaction values
+- 753 evidence-linked personal liquidity estimates
+- 753 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 741 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 753 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,491 | 1,487 | 1,484 | 741 | 1,486 | 741 | 46 | 0 |
+| SEC EDGAR transactions | LIVE | 1,505 | 1,501 | 1,498 | 753 | 1,500 | 753 | 48 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 24 | 19 | 0 | 0 | 0 | 0 | 15 | 0 |
 | CMS change of ownership | LIVE | 7,501 | 4,425 | 2,243 | 701 | 0 | 0 | 0 | — |
@@ -29,7 +29,7 @@ Generated: 2026-09-15T13:42:21.177Z
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| DOJ and FTC transaction notices | LIVE | 10 | 10 | 0 | 0 | 0 | 0 | 10 | — |
+| DOJ and FTC transaction notices | LIVE | 9 | 9 | 0 | 0 | 0 | 0 | 9 | — |
 | Chicago Property transactions | LIVE | 10,728 | 10,175 | 905 | 0 | 10,175 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,148 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Illinois PTAX-203 transfer declarations | LIVE | 12,697 | 0 | 0 | 0 | 0 | 0 | 0 | — |
