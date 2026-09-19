@@ -1,6 +1,6 @@
 # Money in Motion validation report
 
-Generated: 2026-09-19T18:41:40.347Z
+Generated: 2026-09-19T22:24:17.304Z
 
 ## Outcome
 
@@ -31,14 +31,14 @@ Generated: 2026-09-19T18:41:40.347Z
 | Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | DOJ and FTC transaction notices | LIVE | 8 | 8 | 0 | 0 | 0 | 0 | 8 | — |
 | Chicago Property transactions | LIVE | 10,728 | 10,175 | 905 | 0 | 10,175 | 0 | 0 | 0 |
-| Cook County parcel sales | LIVE | 9,148 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 12,697 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County and Chicago transfer forms | LIVE | 3,398 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel situs addresses | LIVE | 9,573 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County commercial valuation | LIVE | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel geography | LIVE | 9,578 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Chicago business licenses | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Chicago business owners | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel sales | DEGRADED | 9,148 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Illinois PTAX-203 transfer declarations | DEGRADED | 12,697 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County and Chicago transfer forms | DEGRADED | 3,398 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel situs addresses | DEGRADED | 9,573 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County commercial valuation | DEGRADED | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel geography | DEGRADED | 9,578 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Chicago business licenses | DEGRADED | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Chicago business owners | DEGRADED | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Maryland business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | District of Columbia business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Virginia business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
