@@ -1,14 +1,14 @@
 # Money in Motion validation report
 
-Generated: 2026-09-27T05:28:28.127Z
+Generated: 2026-09-27T14:06:51.263Z
 
 ## Outcome
 
-- 18,435 deduplicated transaction signals
-- 6,694 named people in the person-first view
-- 14,795 private-company events
-- 179 pre-close signals
-- 11,717 known or reported transaction values
+- 18,485 deduplicated transaction signals
+- 6,698 named people in the person-first view
+- 14,845 private-company events
+- 180 pre-close signals
+- 11,766 known or reported transaction values
 - 736 evidence-linked personal liquidity estimates
 - 736 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
@@ -22,7 +22,7 @@ Generated: 2026-09-27T05:28:28.127Z
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | SEC EDGAR transactions | LIVE | 1,490 | 1,486 | 1,483 | 736 | 1,485 | 736 | 46 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
-| GDELT transaction news | DEGRADED | 45 | 30 | 0 | 0 | 0 | 0 | 25 | 0 |
+| GDELT transaction news | DEGRADED | 46 | 31 | 0 | 0 | 0 | 0 | 26 | 0 |
 | CMS change of ownership | LIVE | 7,501 | 4,425 | 2,243 | 701 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | USPTO patent assignments | DEGRADED | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
@@ -30,13 +30,13 @@ Generated: 2026-09-27T05:28:28.127Z
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | DOJ and FTC transaction notices | LIVE | 8 | 8 | 0 | 0 | 0 | 0 | 8 | — |
-| Chicago Property transactions | LIVE | 10,785 | 10,232 | 913 | 0 | 10,232 | 0 | 0 | 0 |
+| Chicago Property transactions | LIVE | 10,834 | 10,281 | 917 | 0 | 10,281 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,148 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 12,787 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County and Chicago transfer forms | LIVE | 3,566 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel situs addresses | LIVE | 9,771 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 12,861 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County and Chicago transfer forms | LIVE | 3,682 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel situs addresses | LIVE | 9,900 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County commercial valuation | LIVE | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel geography | LIVE | 9,776 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel geography | LIVE | 9,905 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business licenses | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business owners | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Maryland business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
