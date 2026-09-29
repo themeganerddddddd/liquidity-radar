@@ -1,6 +1,6 @@
 # Money in Motion validation report
 
-Generated: 2026-09-29T00:28:29.699Z
+Generated: 2026-09-29T10:47:49.526Z
 
 ## Outcome
 
@@ -32,8 +32,8 @@ Generated: 2026-09-29T00:28:29.699Z
 | DOJ and FTC transaction notices | LIVE | 8 | 8 | 0 | 0 | 0 | 0 | 8 | — |
 | Chicago Property transactions | LIVE | 10,834 | 10,281 | 917 | 0 | 10,281 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,148 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Illinois PTAX-203 transfer declarations | DEGRADED | 12,861 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County and Chicago transfer forms | DEGRADED | 3,682 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 12,861 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County and Chicago transfer forms | LIVE | 3,682 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County parcel situs addresses | LIVE | 9,900 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County commercial valuation | LIVE | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County parcel geography | LIVE | 9,905 | 0 | 0 | 0 | 0 | 0 | 0 | — |
