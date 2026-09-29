@@ -1,6 +1,6 @@
 # Seller Intelligence completion report
 
-Generated: 2026-09-28T16:51:22.976Z
+Generated: 2026-09-29T00:29:50.828Z
 
 Seller Intelligence aggregates real Cook County, DuPage County, and Illinois property-transfer records by seller. Cross-county dispositions use the same seller identity key. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
 
@@ -36,24 +36,24 @@ The four-hour workflow incrementally refreshes the sources below, using persiste
 
 | Source | Status | Watermark | Last successful sync | Error |
 | --- | --- | --- | --- | --- |
-| SEC EDGAR transactions | LIVE | — | 2026-09-27T14:42:16.330Z | — |
-| HSR early-termination notices | LIVE | — | 2026-09-27T14:42:16.330Z | — |
+| SEC EDGAR transactions | LIVE | — | 2026-09-28T17:39:18.616Z | — |
+| HSR early-termination notices | LIVE | — | 2026-09-28T17:39:18.616Z | — |
 | GDELT transaction news | DEGRADED | 2026-08-17T08:55:03.057Z | 2026-09-27T14:06:51.801Z | GDELT RATE_LIMITED: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset: https://blog.gdeltproject.org/using-the-new-web-ngrams-dataset-to-find-relevant-coverage/. For trend analysis, please see our daily newsletter briefings: https |
-| CMS change of ownership | LIVE | — | 2026-09-28T16:50:19.425Z | — |
-| FCC Universal Licensing System | LIVE | 2026-09-21 | 2026-09-28T16:50:19.425Z | — |
+| CMS change of ownership | LIVE | — | 2026-09-29T00:28:29.699Z | — |
+| FCC Universal Licensing System | LIVE | 2026-09-22 | 2026-09-29T00:28:29.699Z | — |
 | USPTO patent assignments | DEGRADED | 2026-08-12T05:12:17.000Z | 2026-08-12T21:09:23.491Z | USPTO_MAX_DOWNLOAD_BYTES_EXCEEDED:180357611 |
-| STB rail transaction dockets | LIVE | 2026-09-28T16:50:19.425Z | 2026-09-28T16:50:19.425Z | — |
-| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-28T16:50:19.425Z | — |
-| DOJ and FTC transaction notices | LIVE | 2026-09-28 | 2026-09-28T16:50:19.425Z | — |
-| Chicago Property transactions | LIVE | 2026-09-25 | 2026-09-28T16:48:15.021Z | — |
-| Cook County parcel sales | LIVE | 2026-09-15T11:52:36.000Z | 2026-09-28T16:48:15.021Z | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 2026-09-27T11:00:59.000Z | 2026-09-28T16:48:15.021Z | — |
-| Cook County and Chicago transfer forms | LIVE | 2026-09-27T11:00:18.000Z | 2026-09-28T16:48:15.021Z | — |
-| Cook County parcel situs addresses | LIVE | 2026-09-15T11:51:39.000Z | 2026-09-28T16:48:15.021Z | — |
-| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-09-28T16:48:15.021Z | — |
-| Cook County parcel geography | LIVE | 2026-09-15T14:29:43.000Z | 2026-09-28T16:48:15.021Z | — |
-| Chicago business licenses | LIVE | 2026-09-27T09:57:03.000Z | 2026-09-28T16:48:15.021Z | — |
-| Chicago business owners | LIVE | 2026-09-26T09:47:16.000Z | 2026-09-28T16:48:15.021Z | — |
+| STB rail transaction dockets | LIVE | 2026-09-29T00:28:29.699Z | 2026-09-29T00:28:29.699Z | — |
+| Bankruptcy asset-sale dockets | LIVE | — | 2026-09-29T00:28:29.699Z | — |
+| DOJ and FTC transaction notices | LIVE | 2026-09-29 | 2026-09-29T00:28:29.699Z | — |
+| Chicago Property transactions | LIVE | 2026-09-25 | 2026-09-29T00:24:21.012Z | — |
+| Cook County parcel sales | LIVE | 2026-09-15T11:52:36.000Z | 2026-09-29T00:24:21.012Z | — |
+| Illinois PTAX-203 transfer declarations | DEGRADED | 2026-09-27T11:00:59.000Z | — | fetch failed |
+| Cook County and Chicago transfer forms | DEGRADED | 2026-09-27T11:00:18.000Z | — | fetch failed |
+| Cook County parcel situs addresses | LIVE | 2026-09-15T11:51:39.000Z | 2026-09-29T00:24:21.012Z | — |
+| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-09-29T00:24:21.012Z | — |
+| Cook County parcel geography | LIVE | 2026-09-15T14:29:43.000Z | 2026-09-29T00:24:21.012Z | — |
+| Chicago business licenses | LIVE | 2026-09-27T09:57:03.000Z | 2026-09-29T00:24:21.012Z | — |
+| Chicago business owners | LIVE | 2026-09-26T09:47:16.000Z | 2026-09-29T00:24:21.012Z | — |
 
 ## Manual/import sources pending
 
