@@ -1,14 +1,14 @@
 # Money in Motion validation report
 
-Generated: 2026-10-01T06:10:32.184Z
+Generated: 2026-10-01T15:33:53.231Z
 
 ## Outcome
 
-- 18,517 deduplicated transaction signals
+- 18,519 deduplicated transaction signals
 - 6,712 named people in the person-first view
-- 14,863 private-company events
+- 14,865 private-company events
 - 200 pre-close signals
-- 11,780 known or reported transaction values
+- 11,782 known or reported transaction values
 - 752 evidence-linked personal liquidity estimates
 - 752 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
@@ -30,13 +30,13 @@ Generated: 2026-10-01T06:10:32.184Z
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | DOJ and FTC transaction notices | LIVE | 8 | 8 | 0 | 0 | 0 | 0 | 8 | — |
-| Chicago Property transactions | LIVE | 10,834 | 10,281 | 917 | 0 | 10,281 | 0 | 0 | 0 |
-| Cook County parcel sales | LIVE | 9,148 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Chicago Property transactions | LIVE | 10,834 | 10,283 | 917 | 0 | 10,283 | 0 | 0 | 0 |
+| Cook County parcel sales | LIVE | 9,226 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Illinois PTAX-203 transfer declarations | LIVE | 12,861 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County and Chicago transfer forms | LIVE | 3,682 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel situs addresses | LIVE | 9,900 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County and Chicago transfer forms | LIVE | 3,687 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel situs addresses | LIVE | 9,996 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County commercial valuation | LIVE | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel geography | LIVE | 9,905 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel geography | LIVE | 10,006 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business licenses | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business owners | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Maryland business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
