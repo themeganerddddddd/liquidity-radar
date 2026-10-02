@@ -1,26 +1,26 @@
 # Money in Motion validation report
 
-Generated: 2026-10-02T14:50:56.660Z
+Generated: 2026-10-02T20:51:56.378Z
 
 ## Outcome
 
-- 18,492 deduplicated transaction signals
-- 6,695 named people in the person-first view
+- 18,499 deduplicated transaction signals
+- 6,702 named people in the person-first view
 - 14,855 private-company events
-- 193 pre-close signals
-- 11,765 known or reported transaction values
-- 733 evidence-linked personal liquidity estimates
-- 733 high-confidence estimates
+- 189 pre-close signals
+- 11,772 known or reported transaction values
+- 736 evidence-linked personal liquidity estimates
+- 736 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 733 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 736 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,487 | 1,483 | 1,480 | 733 | 1,482 | 733 | 50 | 0 |
+| SEC EDGAR transactions | LIVE | 1,494 | 1,490 | 1,487 | 736 | 1,489 | 736 | 46 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 42 | 28 | 0 | 0 | 0 | 0 | 24 | 0 |
 | CMS change of ownership | LIVE | 7,501 | 4,425 | 2,243 | 701 | 0 | 0 | 0 | — |
