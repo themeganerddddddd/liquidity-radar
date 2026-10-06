@@ -1,26 +1,26 @@
 # Money in Motion validation report
 
-Generated: 2026-10-06T11:22:46.559Z
+Generated: 2026-10-06T18:30:09.909Z
 
 ## Outcome
 
-- 18,556 deduplicated transaction signals
-- 6,698 named people in the person-first view
-- 14,919 private-company events
+- 18,584 deduplicated transaction signals
+- 6,714 named people in the person-first view
+- 14,934 private-company events
 - 193 pre-close signals
-- 11,829 known or reported transaction values
-- 735 evidence-linked personal liquidity estimates
-- 735 high-confidence estimates
+- 11,857 known or reported transaction values
+- 742 evidence-linked personal liquidity estimates
+- 742 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 735 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 742 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,487 | 1,483 | 1,480 | 735 | 1,482 | 735 | 50 | 0 |
+| SEC EDGAR transactions | LIVE | 1,500 | 1,496 | 1,493 | 742 | 1,495 | 742 | 50 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 43 | 29 | 0 | 0 | 0 | 0 | 25 | 0 |
 | CMS change of ownership | LIVE | 7,501 | 4,425 | 2,243 | 701 | 0 | 0 | 0 | — |
@@ -30,13 +30,13 @@ Generated: 2026-10-06T11:22:46.559Z
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | DOJ and FTC transaction notices | LIVE | 8 | 8 | 0 | 0 | 0 | 0 | 8 | — |
-| Chicago Property transactions | LIVE | 10,901 | 10,347 | 920 | 0 | 10,347 | 0 | 0 | 0 |
+| Chicago Property transactions | LIVE | 10,916 | 10,362 | 923 | 0 | 10,362 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,226 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 12,952 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County and Chicago transfer forms | LIVE | 3,805 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel situs addresses | LIVE | 10,139 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 12,969 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County and Chicago transfer forms | LIVE | 3,832 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel situs addresses | LIVE | 10,170 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County commercial valuation | LIVE | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel geography | LIVE | 10,150 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel geography | LIVE | 10,181 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business licenses | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business owners | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Maryland business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
