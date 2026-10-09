@@ -1,13 +1,13 @@
 # Money in Motion validation report
 
-Generated: 2026-10-08T21:26:49.675Z
+Generated: 2026-10-09T06:21:33.566Z
 
 ## Outcome
 
-- 18,604 deduplicated transaction signals
+- 18,588 deduplicated transaction signals
 - 6,719 named people in the person-first view
-- 14,949 private-company events
-- 207 pre-close signals
+- 14,933 private-company events
+- 191 pre-close signals
 - 11,862 known or reported transaction values
 - 753 evidence-linked personal liquidity estimates
 - 753 high-confidence estimates
@@ -24,7 +24,7 @@ Generated: 2026-10-08T21:26:49.675Z
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 44 | 30 | 0 | 0 | 0 | 0 | 26 | 0 |
 | CMS change of ownership | LIVE | 7,501 | 4,425 | 2,243 | 701 | 0 | 0 | 0 | — |
-| FCC Universal Licensing System | LIVE | 23 | 23 | 0 | 0 | 0 | 0 | 23 | — |
+| FCC Universal Licensing System | LIVE | 8 | 7 | 0 | 0 | 0 | 0 | 7 | — |
 | USPTO patent assignments | DEGRADED | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
