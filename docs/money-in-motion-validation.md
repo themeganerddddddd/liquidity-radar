@@ -1,14 +1,14 @@
 # Money in Motion validation report
 
-Generated: 2026-10-11T06:00:13.155Z
+Generated: 2026-10-11T15:00:53.938Z
 
 ## Outcome
 
-- 18,583 deduplicated transaction signals
-- 6,717 named people in the person-first view
-- 14,930 private-company events
+- 18,606 deduplicated transaction signals
+- 6,719 named people in the person-first view
+- 14,953 private-company events
 - 186 pre-close signals
-- 11,861 known or reported transaction values
+- 11,884 known or reported transaction values
 - 745 evidence-linked personal liquidity estimates
 - 745 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
@@ -30,13 +30,13 @@ Generated: 2026-10-11T06:00:13.155Z
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | DOJ and FTC transaction notices | LIVE | 9 | 9 | 0 | 0 | 0 | 0 | 9 | — |
-| Chicago Property transactions | LIVE | 10,916 | 10,362 | 923 | 0 | 10,362 | 0 | 0 | 0 |
+| Chicago Property transactions | LIVE | 10,939 | 10,385 | 925 | 0 | 10,385 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,226 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 12,969 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County and Chicago transfer forms | LIVE | 3,832 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel situs addresses | LIVE | 10,170 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 13,008 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County and Chicago transfer forms | LIVE | 3,912 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel situs addresses | LIVE | 10,258 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Cook County commercial valuation | LIVE | 10,618 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Cook County parcel geography | LIVE | 10,181 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Cook County parcel geography | LIVE | 10,269 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business licenses | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Chicago business owners | LIVE | 23 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Maryland business registry | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
