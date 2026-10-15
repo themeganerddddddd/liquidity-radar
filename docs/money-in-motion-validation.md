@@ -1,6 +1,6 @@
 # Money in Motion validation report
 
-Generated: 2026-10-15T04:52:19.295Z
+Generated: 2026-10-15T13:34:23.800Z
 
 ## Outcome
 
@@ -28,7 +28,7 @@ Generated: 2026-10-15T04:52:19.295Z
 | USPTO patent assignments | DEGRADED | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| Bankruptcy asset-sale dockets | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | DOJ and FTC transaction notices | LIVE | 9 | 9 | 0 | 0 | 0 | 0 | 9 | — |
 | Chicago Property transactions | LIVE | 10,939 | 10,385 | 925 | 0 | 10,385 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,226 | 0 | 0 | 0 | 0 | 0 | 0 | — |
