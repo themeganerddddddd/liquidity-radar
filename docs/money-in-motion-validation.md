@@ -1,13 +1,13 @@
 # Money in Motion validation report
 
-Generated: 2026-10-27T05:17:23.748Z
+Generated: 2026-10-27T14:38:42.583Z
 
 ## Outcome
 
-- 18,558 deduplicated transaction signals
+- 18,560 deduplicated transaction signals
 - 6,631 named people in the person-first view
-- 14,902 private-company events
-- 193 pre-close signals
+- 14,904 private-company events
+- 195 pre-close signals
 - 11,974 known or reported transaction values
 - 745 evidence-linked personal liquidity estimates
 - 745 high-confidence estimates
@@ -22,14 +22,14 @@ Generated: 2026-10-27T05:17:23.748Z
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | SEC EDGAR transactions | LIVE | 1,506 | 1,502 | 1,499 | 745 | 1,501 | 745 | 40 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
-| GDELT transaction news | DEGRADED | 52 | 38 | 0 | 0 | 1 | 0 | 32 | 0 |
+| GDELT transaction news | DEGRADED | 54 | 39 | 0 | 0 | 1 | 0 | 33 | 0 |
 | CMS change of ownership | LIVE | 7,294 | 4,271 | 2,149 | 691 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | LIVE | 13 | 9 | 0 | 0 | 0 | 0 | 9 | — |
 | USPTO patent assignments | DEGRADED | 2,500 | 2,154 | 2,057 | 2,154 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| Bankruptcy asset-sale dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| DOJ and FTC transaction notices | LIVE | 12 | 12 | 0 | 0 | 0 | 0 | 12 | — |
+| Bankruptcy asset-sale dockets | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| DOJ and FTC transaction notices | LIVE | 13 | 13 | 0 | 0 | 0 | 0 | 13 | — |
 | Chicago Property transactions | LIVE | 11,026 | 10,472 | 928 | 0 | 10,472 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,226 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Illinois PTAX-203 transfer declarations | LIVE | 13,127 | 0 | 0 | 0 | 0 | 0 | 0 | — |
