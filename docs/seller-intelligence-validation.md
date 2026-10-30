@@ -1,6 +1,6 @@
 # Seller Intelligence completion report
 
-Generated: 2026-10-30T06:02:35.022Z
+Generated: 2026-10-30T15:11:06.962Z
 
 Seller Intelligence aggregates real Cook County, DuPage County, and Illinois property-transfer records by seller. Cross-county dispositions use the same seller identity key. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
 
@@ -38,22 +38,22 @@ The four-hour workflow incrementally refreshes the sources below, using persiste
 | --- | --- | --- | --- | --- |
 | SEC EDGAR transactions | LIVE | — | 2026-10-29T16:06:52.621Z | — |
 | HSR early-termination notices | LIVE | — | 2026-10-29T16:06:52.621Z | — |
-| GDELT transaction news | DEGRADED | 2026-08-21T20:55:03.057Z | 2026-10-29T21:17:24.010Z | GDELT CONNECT_TIMEOUT: fetch failed: ConnectTimeoutError: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms) |
-| CMS change of ownership | LIVE | — | 2026-10-30T06:01:10.513Z | — |
-| FCC Universal Licensing System | LIVE | 2026-10-23 | 2026-10-30T06:01:10.513Z | — |
+| GDELT transaction news | DEGRADED | 2026-08-21T20:55:03.057Z | 2026-10-29T21:17:24.010Z | GDELT RATE_LIMITED: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries. All high-traffic users should switch to our ngrams dataset: https://blog.gdeltproject.org/using-the-new-web-ngrams-dataset-to-find-relevant-coverage/. For trend analysis, please see our daily newsletter briefings: https |
+| CMS change of ownership | LIVE | — | 2026-10-30T15:09:40.446Z | — |
+| FCC Universal Licensing System | LIVE | 2026-10-23 | 2026-10-30T15:09:40.446Z | — |
 | USPTO patent assignments | DEGRADED | 2026-08-12T05:12:17.000Z | 2026-08-12T21:09:23.491Z | USPTO_MAX_DOWNLOAD_BYTES_EXCEEDED:180357611 |
-| STB rail transaction dockets | LIVE | 2026-10-30T06:01:10.513Z | 2026-10-30T06:01:10.513Z | — |
+| STB rail transaction dockets | LIVE | 2026-10-30T15:09:40.446Z | 2026-10-30T15:09:40.446Z | — |
 | Bankruptcy asset-sale dockets | DEGRADED | — | — | CourtListener search returned 405 |
-| DOJ and FTC transaction notices | LIVE | 2026-10-30 | 2026-10-30T06:01:10.513Z | — |
-| Chicago Property transactions | LIVE | 2026-10-23 | 2026-10-30T05:57:46.456Z | — |
-| Cook County parcel sales | LIVE | 2026-10-15T11:56:49.000Z | 2026-10-30T05:57:46.456Z | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 2026-10-26T11:01:28.000Z | 2026-10-30T05:57:46.456Z | — |
-| Cook County and Chicago transfer forms | LIVE | 2026-10-26T11:00:19.000Z | 2026-10-30T05:57:46.456Z | — |
-| Cook County parcel situs addresses | LIVE | 2026-10-15T11:55:56.000Z | 2026-10-30T05:57:46.456Z | — |
-| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-10-30T05:57:46.456Z | — |
-| Cook County parcel geography | LIVE | 2026-10-15T15:02:43.000Z | 2026-10-30T05:57:46.456Z | — |
-| Chicago business licenses | LIVE | 2026-10-29T09:56:52.000Z | 2026-10-30T05:57:46.456Z | — |
-| Chicago business owners | LIVE | 2026-10-29T09:47:24.000Z | 2026-10-30T05:57:46.456Z | — |
+| DOJ and FTC transaction notices | LIVE | 2026-10-30 | 2026-10-30T15:09:40.446Z | — |
+| Chicago Property transactions | LIVE | 2026-10-23 | 2026-10-30T15:05:54.234Z | — |
+| Cook County parcel sales | LIVE | 2026-10-15T11:56:49.000Z | 2026-10-30T15:05:54.234Z | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 2026-10-26T11:01:28.000Z | 2026-10-30T15:05:54.234Z | — |
+| Cook County and Chicago transfer forms | LIVE | 2026-10-26T11:00:19.000Z | 2026-10-30T15:05:54.234Z | — |
+| Cook County parcel situs addresses | LIVE | 2026-10-15T11:55:56.000Z | 2026-10-30T15:05:54.234Z | — |
+| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-10-30T15:05:54.234Z | — |
+| Cook County parcel geography | LIVE | 2026-10-15T15:02:43.000Z | 2026-10-30T15:05:54.234Z | — |
+| Chicago business licenses | LIVE | 2026-10-30T10:10:39.000Z | 2026-10-30T15:05:54.234Z | — |
+| Chicago business owners | LIVE | 2026-10-30T09:52:34.000Z | 2026-10-30T15:05:54.234Z | — |
 
 ## Manual/import sources pending
 
