@@ -1,13 +1,13 @@
 # Money in Motion validation report
 
-Generated: 2026-11-10T12:48:52.396Z
+Generated: 2026-11-10T21:53:06.454Z
 
 ## Outcome
 
-- 18,653 deduplicated transaction signals
+- 18,652 deduplicated transaction signals
 - 6,628 named people in the person-first view
-- 15,005 private-company events
-- 221 pre-close signals
+- 15,004 private-company events
+- 220 pre-close signals
 - 12,051 known or reported transaction values
 - 739 evidence-linked personal liquidity estimates
 - 739 high-confidence estimates
@@ -29,7 +29,7 @@ Generated: 2026-11-10T12:48:52.396Z
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
-| DOJ and FTC transaction notices | LIVE | 11 | 11 | 0 | 0 | 0 | 0 | 11 | — |
+| DOJ and FTC transaction notices | LIVE | 10 | 10 | 0 | 0 | 0 | 0 | 10 | — |
 | Chicago Property transactions | LIVE | 11,110 | 10,556 | 933 | 0 | 10,556 | 0 | 0 | 0 |
 | Cook County parcel sales | LIVE | 9,226 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Illinois PTAX-203 transfer declarations | LIVE | 13,245 | 0 | 0 | 0 | 0 | 0 | 0 | — |
