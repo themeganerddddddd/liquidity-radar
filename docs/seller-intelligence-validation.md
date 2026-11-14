@@ -1,6 +1,6 @@
 # Seller Intelligence completion report
 
-Generated: 2026-11-14T15:15:34.157Z
+Generated: 2026-11-14T20:51:53.858Z
 
 Seller Intelligence aggregates real Cook County, DuPage County, and Illinois property-transfer records by seller. Cross-county dispositions use the same seller identity key. Recorded consideration is not net cash received. A manager, president, executive, attorney, or registered agent does not establish ownership or personal proceeds.
 
@@ -36,24 +36,24 @@ The four-hour workflow incrementally refreshes the sources below, using persiste
 
 | Source | Status | Watermark | Last successful sync | Error |
 | --- | --- | --- | --- | --- |
-| SEC EDGAR transactions | LIVE | — | 2026-11-13T17:12:41.586Z | — |
-| HSR early-termination notices | LIVE | — | 2026-11-13T17:12:41.586Z | — |
+| SEC EDGAR transactions | LIVE | — | 2026-11-14T15:49:41.422Z | — |
+| HSR early-termination notices | LIVE | — | 2026-11-14T15:49:41.422Z | — |
 | GDELT transaction news | DEGRADED | 2026-08-22T08:55:03.057Z | 2026-11-08T20:36:55.284Z | GDELT CONNECT_TIMEOUT: fetch failed: ConnectTimeoutError: Connect Timeout Error (attempted address: api.gdeltproject.org:443, timeout: 10000ms) |
-| CMS change of ownership | LIVE | — | 2026-11-14T15:14:21.527Z | — |
-| FCC Universal Licensing System | LIVE | 2026-11-07 | 2026-11-14T15:14:21.527Z | — |
-| USPTO patent assignments | LIVE | 2026-08-22T05:06:01.000Z | 2026-11-14T15:14:21.527Z | — |
-| STB rail transaction dockets | LIVE | 2026-11-14T15:14:21.527Z | 2026-11-14T15:14:21.527Z | — |
-| Bankruptcy asset-sale dockets | DEGRADED | — | — | CourtListener search returned 401 |
-| DOJ and FTC transaction notices | LIVE | 2026-11-14 | 2026-11-14T15:14:21.527Z | — |
-| Chicago Property transactions | LIVE | 2026-11-06 | 2026-11-14T15:10:49.193Z | — |
-| Cook County parcel sales | LIVE | 2026-11-01T12:35:19.000Z | 2026-11-14T15:10:49.193Z | — |
-| Illinois PTAX-203 transfer declarations | LIVE | 2026-11-08T12:01:45.000Z | 2026-11-14T15:10:49.193Z | — |
-| Cook County and Chicago transfer forms | LIVE | 2026-11-08T12:00:28.000Z | 2026-11-14T15:10:49.193Z | — |
-| Cook County parcel situs addresses | LIVE | 2026-11-01T12:33:40.000Z | 2026-11-14T15:10:49.193Z | — |
-| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-11-14T15:10:49.193Z | — |
-| Cook County parcel geography | LIVE | 2026-11-01T16:33:33.000Z | 2026-11-14T15:10:49.193Z | — |
-| Chicago business licenses | LIVE | 2026-11-14T11:08:16.000Z | 2026-11-14T15:10:49.193Z | — |
-| Chicago business owners | LIVE | 2026-11-14T10:49:20.000Z | 2026-11-14T15:10:49.193Z | — |
+| CMS change of ownership | LIVE | — | 2026-11-14T20:50:38.200Z | — |
+| FCC Universal Licensing System | LIVE | 2026-11-07 | 2026-11-14T20:50:38.200Z | — |
+| USPTO patent assignments | LIVE | 2026-08-24T05:06:41.000Z | 2026-11-14T20:50:38.200Z | — |
+| STB rail transaction dockets | LIVE | 2026-11-14T20:50:38.200Z | 2026-11-14T20:50:38.200Z | — |
+| Bankruptcy asset-sale dockets | DEGRADED | — | — | CourtListener search returned 405 |
+| DOJ and FTC transaction notices | LIVE | 2026-11-14 | 2026-11-14T20:50:38.200Z | — |
+| Chicago Property transactions | LIVE | 2026-11-06 | 2026-11-14T20:47:20.733Z | — |
+| Cook County parcel sales | LIVE | 2026-11-01T12:35:19.000Z | 2026-11-14T20:47:20.733Z | — |
+| Illinois PTAX-203 transfer declarations | LIVE | 2026-11-08T12:01:45.000Z | 2026-11-14T20:47:20.733Z | — |
+| Cook County and Chicago transfer forms | LIVE | 2026-11-08T12:00:28.000Z | 2026-11-14T20:47:20.733Z | — |
+| Cook County parcel situs addresses | LIVE | 2026-11-01T12:33:40.000Z | 2026-11-14T20:47:20.733Z | — |
+| Cook County commercial valuation | LIVE | 2025-12-30T00:08:33.000Z | 2026-11-14T20:47:20.733Z | — |
+| Cook County parcel geography | LIVE | 2026-11-01T16:33:33.000Z | 2026-11-14T20:47:20.733Z | — |
+| Chicago business licenses | LIVE | 2026-11-14T11:08:16.000Z | 2026-11-14T20:47:20.733Z | — |
+| Chicago business owners | LIVE | 2026-11-14T10:49:20.000Z | 2026-11-14T20:47:20.733Z | — |
 
 ## Manual/import sources pending
 
