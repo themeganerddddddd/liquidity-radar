@@ -1,31 +1,31 @@
 # Money in Motion validation report
 
-Generated: 2026-11-16T18:42:56.722Z
+Generated: 2026-11-17T03:02:14.378Z
 
 ## Outcome
 
-- 18,710 deduplicated transaction signals
-- 6,658 named people in the person-first view
-- 15,022 private-company events
-- 199 pre-close signals
-- 12,069 known or reported transaction values
-- 732 evidence-linked personal liquidity estimates
-- 732 high-confidence estimates
+- 18,778 deduplicated transaction signals
+- 6,713 named people in the person-first view
+- 15,015 private-company events
+- 200 pre-close signals
+- 12,089 known or reported transaction values
+- 747 evidence-linked personal liquidity estimates
+- 747 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 732 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 747 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,486 | 1,482 | 1,479 | 732 | 1,481 | 732 | 41 | 0 |
+| SEC EDGAR transactions | LIVE | 1,506 | 1,502 | 1,499 | 747 | 1,501 | 747 | 49 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 61 | 43 | 0 | 0 | 2 | 0 | 36 | 0 |
 | CMS change of ownership | LIVE | 7,294 | 4,271 | 2,149 | 691 | 0 | 0 | 0 | — |
-| FCC Universal Licensing System | LIVE | 14 | 11 | 0 | 0 | 0 | 0 | 11 | — |
-| USPTO patent assignments | LIVE | 2,500 | 2,206 | 2,090 | 2,206 | 0 | 0 | 0 | — |
+| FCC Universal Licensing System | LIVE | 4 | 4 | 0 | 0 | 0 | 0 | 4 | — |
+| USPTO patent assignments | LIVE | 2,500 | 2,261 | 2,127 | 2,261 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
