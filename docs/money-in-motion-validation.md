@@ -1,30 +1,30 @@
 # Money in Motion validation report
 
-Generated: 2026-11-20T17:05:24.858Z
+Generated: 2026-11-21T01:37:52.708Z
 
 ## Outcome
 
-- 18,809 deduplicated transaction signals
-- 6,780 named people in the person-first view
-- 15,030 private-company events
-- 216 pre-close signals
-- 12,087 known or reported transaction values
-- 747 evidence-linked personal liquidity estimates
-- 747 high-confidence estimates
+- 18,796 deduplicated transaction signals
+- 6,781 named people in the person-first view
+- 15,016 private-company events
+- 200 pre-close signals
+- 12,088 known or reported transaction values
+- 746 evidence-linked personal liquidity estimates
+- 746 high-confidence estimates
 - 100.0% of supported estimates include SEC evidence
 
 - SEC remains 100.0% of supported estimates; the <50% target is not met because non-SEC sources do not yet provide enough transaction-value plus ownership evidence.
-- 747 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
+- 746 supported estimates are available; the 2,000 target is not met and no lower-confidence or synthetic estimates were added.
 
 ## Source business-value scorecard
 
 | Source | State | Accepted | Clusters | People | Ownership | Values | Estimates | Pre-close | Median lead days |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SEC EDGAR transactions | LIVE | 1,504 | 1,500 | 1,497 | 747 | 1,499 | 747 | 50 | 0 |
+| SEC EDGAR transactions | LIVE | 1,505 | 1,501 | 1,498 | 746 | 1,500 | 746 | 48 | 0 |
 | HSR early-termination notices | LIVE | 100 | 100 | 0 | 0 | 0 | 0 | 100 | — |
 | GDELT transaction news | DEGRADED | 61 | 43 | 0 | 0 | 2 | 0 | 36 | 0 |
 | CMS change of ownership | LIVE | 7,294 | 4,271 | 2,149 | 691 | 0 | 0 | 0 | — |
-| FCC Universal Licensing System | LIVE | 21 | 19 | 0 | 0 | 0 | 0 | 19 | — |
+| FCC Universal Licensing System | LIVE | 5 | 5 | 0 | 0 | 0 | 0 | 5 | — |
 | USPTO patent assignments | LIVE | 2,500 | 2,279 | 2,196 | 2,279 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
