@@ -1,6 +1,6 @@
 # Money in Motion validation report
 
-Generated: 2026-11-24T03:00:50.255Z
+Generated: 2026-11-24T15:02:03.160Z
 
 ## Outcome
 
@@ -25,7 +25,7 @@ Generated: 2026-11-24T03:00:50.255Z
 | GDELT transaction news | DEGRADED | 59 | 42 | 0 | 0 | 2 | 0 | 35 | 0 |
 | CMS change of ownership | LIVE | 7,294 | 4,271 | 2,149 | 691 | 0 | 0 | 0 | — |
 | FCC Universal Licensing System | LIVE | 26 | 23 | 0 | 0 | 0 | 0 | 23 | — |
-| USPTO patent assignments | LIVE | 2,500 | 2,186 | 2,067 | 2,186 | 0 | 0 | 0 | — |
+| USPTO patent assignments | DEGRADED | 2,500 | 2,186 | 2,067 | 2,186 | 0 | 0 | 0 | — |
 | FERC transaction dockets | IMPORT_ONLY | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | STB rail transaction dockets | LIVE | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
 | Bankruptcy asset-sale dockets | DEGRADED | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
